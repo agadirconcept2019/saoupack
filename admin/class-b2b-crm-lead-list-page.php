@@ -26,6 +26,7 @@ class B2B_CRM_Lead_List_Page
             'collect' => __('Collecte', 'b2b-crm-maroc'),
             'base' => __('Base SQL', 'b2b-crm-maroc'),
             'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
+            'settings' => __('Paramétrage', 'b2b-crm-maroc'),
         );
 
         ?>
@@ -41,7 +42,9 @@ class B2B_CRM_Lead_List_Page
                 </div>
                 <div class="b2b-crm__topbar-actions">
                     <span class="b2b-crm__device"><?php echo esc_html__('Device', 'b2b-crm-maroc'); ?></span>
-                    <span class="dashicons dashicons-admin-generic"></span>
+                    <a class="b2b-crm__settings-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'))); ?>" aria-label="<?php echo esc_attr__('Paramétrage', 'b2b-crm-maroc'); ?>">
+                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                    </a>
                 </div>
             </div>
 
@@ -59,6 +62,8 @@ class B2B_CRM_Lead_List_Page
                 <?php B2B_CRM_Views::render_collect(); ?>
             <?php elseif ($tab === 'pipeline') : ?>
                 <?php self::render_pipeline($data['items']); ?>
+            <?php elseif ($tab === 'settings') : ?>
+                <?php B2B_CRM_Views::render_settings(); ?>
             <?php else : ?>
                 <?php self::render_base($filters, $data, $total_pages, $paged); ?>
             <?php endif; ?>
