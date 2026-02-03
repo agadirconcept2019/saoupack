@@ -8,6 +8,9 @@ class B2B_CRM_Sanitizer
 {
     public static function lead_fields(array $input)
     {
+        $allowed_statuses = array('new', 'qualified', 'contacted', 'inactive');
+        $allowed_interests = array('low', 'medium', 'high');
+
         $fields = array(
             'company_name' => 'text',
             'sector' => 'text',
@@ -41,7 +44,14 @@ class B2B_CRM_Sanitizer
                     $clean[$field] = sanitize_email($value);
                     break;
                 case 'key':
-                    $clean[$field] = sanitize_key($value);
+                    $sanitized = sanitize_key($value);
+                    if ($field === 'status' && !in_array($sanitized, $allowed_statuses, true)) {
+                        break;
+                    }
+                    if ($field === 'interest_level' && !in_array($sanitized, $allowed_interests, true)) {
+                        break;
+                    }
+                    $clean[$field] = $sanitized;
                     break;
                 case 'json':
                     $decoded = json_decode(wp_unslash($value), true);

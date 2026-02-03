@@ -209,7 +209,6 @@ class B2B_CRM_Lead_Detail_Page
             add_settings_error('b2b-crm-maroc', 'interaction_added', __('Interaction ajoutée.', 'b2b-crm-maroc'), 'updated');
         }
 
-        settings_errors('b2b-crm-maroc');
     }
 
     private static function statuses()

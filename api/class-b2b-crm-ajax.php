@@ -21,9 +21,13 @@ class B2B_CRM_Ajax
 
         $lead_id = isset($_POST['lead_id']) ? absint($_POST['lead_id']) : 0;
         $field = isset($_POST['field']) ? sanitize_key($_POST['field']) : '';
-        $value = isset($_POST['value']) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
+        $value = isset($_POST['value']) ? sanitize_key(wp_unslash($_POST['value'])) : '';
+        $allowed = array(
+            'status' => array('new', 'qualified', 'contacted', 'inactive'),
+            'interest_level' => array('low', 'medium', 'high'),
+        );
 
-        if (!$lead_id || !in_array($field, array('status', 'interest_level'), true)) {
+        if (!$lead_id || !isset($allowed[$field]) || !in_array($value, $allowed[$field], true)) {
             wp_send_json_error(array('message' => __('Données invalides.', 'b2b-crm-maroc')));
         }
 
