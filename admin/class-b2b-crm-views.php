@@ -43,6 +43,31 @@ class B2B_CRM_Views
 
     public static function render_collect()
     {
+        $config = get_option('b2b_crm_collect_config', array());
+        $selected_city = isset($config['city']) ? $config['city'] : '';
+        $selected_sector = isset($config['sector']) ? $config['sector'] : '';
+        $selected_precision = isset($config['precision']) ? $config['precision'] : 'standard';
+        $selected_sources = isset($config['sources']) && is_array($config['sources']) ? $config['sources'] : array();
+        $cities = self::morocco_cities();
+        $sectors = array(
+            'Expert Comptable',
+            'Agence Immobilière',
+            'Garage Automobile',
+            'Clinique Privée',
+            'Architecte',
+            'Gardiennage & Sécurité',
+            'Hôtel & Tourisme',
+            'Restaurant',
+            'Notaire',
+            'Agence Digitale',
+        );
+        $sources = array(
+            'google_maps' => 'Google Maps & GMB',
+            'directories' => 'Annuaires Marocains',
+            'social' => 'Réseaux Sociaux Pro',
+            'domains' => 'Scan Domaines (.ma, .com...)',
+            'institutions' => 'Portails Institutionnels',
+        );
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Moteur de Recherche Intelligent', 'b2b-crm-maroc'); ?></h2>
@@ -56,25 +81,31 @@ class B2B_CRM_Views
                         <div class="b2b-crm__collect-grid">
                             <div>
                                 <label><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></label>
-                                <select class="b2b-crm__input">
-                                    <option>Agadir</option>
-                                    <option>Casablanca</option>
-                                    <option>Rabat</option>
+                                <select class="b2b-crm__input" name="city">
+                                    <option value=""><?php echo esc_html__('Choisir une ville', 'b2b-crm-maroc'); ?></option>
+                                    <?php foreach ($cities as $city) : ?>
+                                        <option value="<?php echo esc_attr($city); ?>" <?php selected($selected_city, $city); ?>><?php echo esc_html($city); ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div>
                                 <label><?php echo esc_html__('Secteur', 'b2b-crm-maroc'); ?></label>
-                                <input type="text" class="b2b-crm__input" value="Architecte" />
+                                <input type="text" class="b2b-crm__input" name="sector" id="b2b-crm-sector" value="<?php echo esc_attr($selected_sector); ?>" placeholder="<?php echo esc_attr__('Ex: Architecte', 'b2b-crm-maroc'); ?>" />
                             </div>
                         </div>
                         <div class="b2b-crm__chips">
-                            <?php foreach (array('Expert Comptable', 'Agence Immobilière', 'Garage Automobile', 'Clinique Privée', 'Architecte', 'Gardiennage & Sécurité', 'Hôtel & Tourisme', 'Restaurant', 'Notaire', 'Agence Digitale') as $chip) : ?>
-                                <span class="b2b-crm__chip <?php echo $chip === 'Architecte' ? 'is-active' : ''; ?>"><?php echo esc_html($chip); ?></span>
+                            <?php foreach ($sectors as $chip) : ?>
+                                <button type="button" class="b2b-crm__chip <?php echo $selected_sector === $chip ? 'is-active' : ''; ?>" data-sector="<?php echo esc_attr($chip); ?>">
+                                    <?php echo esc_html($chip); ?>
+                                </button>
                             <?php endforeach; ?>
                         </div>
                         <div class="b2b-crm__collect-sources">
-                            <?php foreach (array('Google Maps & GMB', 'Annuaires Marocains', 'Réseaux Sociaux Pro', 'Scan Domaines (.ma, .com...)', 'Portails Institutionnels') as $source) : ?>
-                                <div class="b2b-crm__source"><?php echo esc_html($source); ?></div>
+                            <?php foreach ($sources as $key => $label) : ?>
+                                <label class="b2b-crm__source <?php echo in_array($key, $selected_sources, true) ? 'is-active' : ''; ?>">
+                                    <input type="checkbox" name="sources[]" value="<?php echo esc_attr($key); ?>" <?php checked(in_array($key, $selected_sources, true)); ?> />
+                                    <span><?php echo esc_html($label); ?></span>
+                                </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -82,9 +113,10 @@ class B2B_CRM_Views
                         <div class="b2b-crm__precision">
                             <div class="b2b-crm__precision-header"><?php echo esc_html__('Précision', 'b2b-crm-maroc'); ?></div>
                             <div class="b2b-crm__precision-switch">
-                                <button class="is-active">Standard</button>
-                                <button>Deep</button>
+                                <button type="button" class="<?php echo $selected_precision === 'standard' ? 'is-active' : ''; ?>" data-precision="standard">Standard</button>
+                                <button type="button" class="<?php echo $selected_precision === 'deep' ? 'is-active' : ''; ?>" data-precision="deep">Deep</button>
                             </div>
+                            <input type="hidden" name="precision" id="b2b-crm-precision" value="<?php echo esc_attr($selected_precision); ?>" />
                             <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Lancer', 'b2b-crm-maroc'); ?></button>
                         </div>
                         <div class="b2b-crm__collect-preview"></div>
@@ -93,6 +125,53 @@ class B2B_CRM_Views
             </form>
         </div>
         <?php
+    }
+
+    private static function morocco_cities()
+    {
+        return array(
+            'Agadir',
+            'Al Hoceïma',
+            'Béni Mellal',
+            'Berkane',
+            'Berrechid',
+            'Boujdour',
+            'Boulemane',
+            'Casablanca',
+            'Chefchaouen',
+            'Dakhla',
+            'El Jadida',
+            'Errachidia',
+            'Essaouira',
+            'Fès',
+            'Figuig',
+            'Guelmim',
+            'Ifrane',
+            'Kénitra',
+            'Khemisset',
+            'Khouribga',
+            'Laâyoune',
+            'Larache',
+            'Marrakech',
+            'Meknès',
+            'Mohammédia',
+            'Nador',
+            'Ouarzazate',
+            'Oujda',
+            'Rabat',
+            'Safi',
+            'Salé',
+            'Sefrou',
+            'Settat',
+            'Sidi Ifni',
+            'Sidi Kacem',
+            'Sidi Slimane',
+            'Tanger',
+            'Taounate',
+            'Taroudant',
+            'Taza',
+            'Tétouan',
+        );
     }
 
     public static function render_pipeline(array $columns)

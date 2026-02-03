@@ -98,7 +98,19 @@ class B2B_CRM_Actions
 
         check_admin_referer('b2b_crm_run_collect');
 
-        add_settings_error('b2b-crm-maroc', 'collect_started', __('Collecte lancée. Un rapport sera disponible après exécution.', 'b2b-crm-maroc'), 'updated');
+        $city = isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '';
+        $sector = isset($_POST['sector']) ? sanitize_text_field(wp_unslash($_POST['sector'])) : '';
+        $precision = isset($_POST['precision']) ? sanitize_key($_POST['precision']) : 'standard';
+        $sources = isset($_POST['sources']) && is_array($_POST['sources']) ? array_map('sanitize_key', wp_unslash($_POST['sources'])) : array();
+
+        update_option('b2b_crm_collect_config', array(
+            'city' => $city,
+            'sector' => $sector,
+            'precision' => in_array($precision, array('standard', 'deep'), true) ? $precision : 'standard',
+            'sources' => $sources,
+        ));
+
+        add_settings_error('b2b-crm-maroc', 'collect_started', __('Collecte lancée. Configuration enregistrée.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=collect'));
         exit;
     }

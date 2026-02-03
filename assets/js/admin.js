@@ -17,4 +17,28 @@ jQuery(function ($) {
             }
         });
     });
+
+    $('.b2b-crm__chip').on('click', function () {
+        const value = $(this).data('sector');
+        if (!value) {
+            return;
+        }
+        $('#b2b-crm-sector').val(value);
+        $('.b2b-crm__chip').removeClass('is-active');
+        $(this).addClass('is-active');
+    });
+
+    $('.b2b-crm__precision-switch button').on('click', function () {
+        const value = $(this).data('precision');
+        if (!value) {
+            return;
+        }
+        $('.b2b-crm__precision-switch button').removeClass('is-active');
+        $(this).addClass('is-active');
+        $('#b2b-crm-precision').val(value);
+    });
+
+    $('.b2b-crm__source input[type="checkbox"]').on('change', function () {
+        $(this).closest('.b2b-crm__source').toggleClass('is-active', $(this).is(':checked'));
+    });
 });
