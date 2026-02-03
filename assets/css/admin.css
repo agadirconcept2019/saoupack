@@ -1,0 +1,100 @@
+.b2b-crm {
+    --b2b-bg: #f6f7fb;
+    --b2b-card: #ffffff;
+    --b2b-border: #e2e4ea;
+    --b2b-text: #1f2328;
+    --b2b-muted: #5f6b7a;
+    --b2b-accent: #1b6ef3;
+    background: var(--b2b-bg);
+    padding: 24px;
+    border-radius: 16px;
+}
+
+.b2b-crm h1 {
+    margin-bottom: 16px;
+}
+
+.b2b-crm__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.b2b-crm__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.b2b-crm__filters input,
+.b2b-crm__filters select {
+    min-height: 34px;
+}
+
+.b2b-crm__table td,
+.b2b-crm__table th {
+    vertical-align: middle;
+}
+
+.b2b-crm__quick {
+    min-width: 120px;
+}
+
+.b2b-crm__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.b2b-crm__card {
+    background: var(--b2b-card);
+    border: 1px solid var(--b2b-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.b2b-crm__card h2 {
+    margin-top: 0;
+}
+
+.b2b-crm__timeline {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+}
+
+.b2b-crm__timeline li {
+    border-left: 2px solid var(--b2b-border);
+    padding: 8px 16px;
+    margin-bottom: 12px;
+}
+
+.b2b-crm__timeline strong {
+    display: block;
+    color: var(--b2b-text);
+}
+
+.b2b-crm__interaction-form {
+    display: grid;
+    gap: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .b2b-crm {
+        --b2b-bg: #121620;
+        --b2b-card: #1a1f2b;
+        --b2b-border: #2b3245;
+        --b2b-text: #f5f7ff;
+        --b2b-muted: #b7c0d6;
+        --b2b-accent: #4b84ff;
+    }
+
+    .b2b-crm a {
+        color: var(--b2b-accent);
+    }
+}
