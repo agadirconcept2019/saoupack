@@ -137,7 +137,7 @@ class B2B_CRM_Views
                 <div class="b2b-crm__settings-card">
                     <h3><?php echo esc_html__('Collecte intelligente', 'b2b-crm-maroc'); ?></h3>
                     <p><?php echo esc_html__('Définissez la ville, le secteur, les sources et la profondeur de recherche.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'collect'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Configurer la collecte', 'b2b-crm-maroc'); ?></a>
+                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Configurer la collecte', 'b2b-crm-maroc'); ?></a>
                 </div>
                 <div class="b2b-crm__settings-card">
                     <h3><?php echo esc_html__('Base de leads', 'b2b-crm-maroc'); ?></h3>
@@ -158,6 +158,47 @@ class B2B_CRM_Views
         </div>
         <?php
         self::render_collect();
+    }
+
+    public static function render_sources()
+    {
+        $sources = array(
+            array(
+                'title' => __('Google Maps & GMB', 'b2b-crm-maroc'),
+                'description' => __('Connexion aux APIs Google, enrichissement IA, et extraction des fiches locales.', 'b2b-crm-maroc'),
+            ),
+            array(
+                'title' => __('Annuaires Marocains', 'b2b-crm-maroc'),
+                'description' => __('Indexation d’annuaires professionnels via APIs, URLs ciblées et analyse IA.', 'b2b-crm-maroc'),
+            ),
+            array(
+                'title' => __('Réseaux Sociaux Pro', 'b2b-crm-maroc'),
+                'description' => __('Agrégation des profils LinkedIn/Facebook/Instagram via URLs et signaux IA.', 'b2b-crm-maroc'),
+            ),
+            array(
+                'title' => __('Scan Domaines (.ma, .com...)', 'b2b-crm-maroc'),
+                'description' => __('Scraping légal et enrichissement IA sur des bases WHOIS/registrars et URLs publiques.', 'b2b-crm-maroc'),
+            ),
+            array(
+                'title' => __('Portails Institutionnels', 'b2b-crm-maroc'),
+                'description' => __('Connexion aux portails officiels (CCIM, marchés publics, etc.) via APIs et extraction IA.', 'b2b-crm-maroc'),
+            ),
+        );
+        ?>
+        <div class="b2b-crm__section">
+            <h2><?php echo esc_html__('Sources de données', 'b2b-crm-maroc'); ?></h2>
+            <p class="b2b-crm__muted"><?php echo esc_html__('Choisissez les sources et préparez leurs intégrations IA, APIs et URLs.', 'b2b-crm-maroc'); ?></p>
+            <div class="b2b-crm__settings-grid">
+                <?php foreach ($sources as $source) : ?>
+                    <div class="b2b-crm__settings-card">
+                        <h3><?php echo esc_html($source['title']); ?></h3>
+                        <p><?php echo esc_html($source['description']); ?></p>
+                        <span class="b2b-crm__pill"><?php echo esc_html__('Configuration IA/API/URL', 'b2b-crm-maroc'); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
     }
 
     private static function morocco_cities()

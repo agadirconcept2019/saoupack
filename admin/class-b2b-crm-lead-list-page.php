@@ -24,6 +24,7 @@ class B2B_CRM_Lead_List_Page
         $tabs = array(
             'dashboard' => __('Dashboard', 'b2b-crm-maroc'),
             'collect' => __('Collecte', 'b2b-crm-maroc'),
+            'sources' => __('Sources', 'b2b-crm-maroc'),
             'base' => __('Base SQL', 'b2b-crm-maroc'),
             'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
@@ -62,6 +63,8 @@ class B2B_CRM_Lead_List_Page
                 <?php B2B_CRM_Views::render_collect(); ?>
             <?php elseif ($tab === 'pipeline') : ?>
                 <?php self::render_pipeline($data['items']); ?>
+            <?php elseif ($tab === 'sources') : ?>
+                <?php B2B_CRM_Views::render_sources(); ?>
             <?php elseif ($tab === 'settings') : ?>
                 <?php B2B_CRM_Views::render_settings(); ?>
             <?php else : ?>
