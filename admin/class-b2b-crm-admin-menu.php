@@ -30,6 +30,7 @@ class B2B_CRM_Admin_Menu
     public static function render()
     {
         $page = isset($_GET['page']) ? sanitize_key($_GET['page']) : 'b2b-crm-maroc';
+        $tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'dashboard';
         $lead_id = isset($_GET['lead_id']) ? absint($_GET['lead_id']) : 0;
 
         if ($lead_id) {
@@ -38,7 +39,7 @@ class B2B_CRM_Admin_Menu
         }
 
         if ($page === 'b2b-crm-maroc') {
-            B2B_CRM_Lead_List_Page::render();
+            B2B_CRM_Lead_List_Page::render($tab);
         }
     }
 }

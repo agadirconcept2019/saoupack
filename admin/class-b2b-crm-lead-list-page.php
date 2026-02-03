@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 class B2B_CRM_Lead_List_Page
 {
-    public static function render()
+    public static function render($tab = 'dashboard')
     {
         $filters = array(
             'search' => isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '',
@@ -21,13 +21,126 @@ class B2B_CRM_Lead_List_Page
         $data = B2B_CRM_Lead_Repository::list($filters, $paged, $per_page);
         $total_pages = (int) ceil($data['total'] / $per_page);
 
-        ?>
-        <div class="wrap b2b-crm">
-            <h1><?php echo esc_html__('CRM B2B Maroc', 'b2b-crm-maroc'); ?></h1>
+        $tabs = array(
+            'dashboard' => __('Dashboard', 'b2b-crm-maroc'),
+            'collect' => __('Collecte', 'b2b-crm-maroc'),
+            'base' => __('Base SQL', 'b2b-crm-maroc'),
+            'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
+        );
 
+        ?>
+        <div class="wrap b2b-crm b2b-crm--app">
+            <div class="b2b-crm__topbar">
+                <div class="b2b-crm__brand">
+                    <span class="b2b-crm__logo">🛡️</span>
+                    <div>
+                        <strong>Morocco Collector <span>B2B</span></strong>
+                        <div class="b2b-crm__subtitle"><?php echo esc_html__('B2B Morocco Data Collector', 'b2b-crm-maroc'); ?></div>
+                    </div>
+                </div>
+                <div class="b2b-crm__topbar-actions">
+                    <span class="b2b-crm__device"><?php echo esc_html__('Device', 'b2b-crm-maroc'); ?></span>
+                    <span class="dashicons dashicons-admin-generic"></span>
+                </div>
+            </div>
+
+            <nav class="b2b-crm__tabs">
+                <?php foreach ($tabs as $key => $label) : ?>
+                    <a class="<?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
+                        <?php echo esc_html($label); ?>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+
+            <?php if ($tab === 'dashboard') : ?>
+                <?php self::render_dashboard($data['items']); ?>
+            <?php elseif ($tab === 'collect') : ?>
+                <?php B2B_CRM_Views::render_collect(); ?>
+            <?php elseif ($tab === 'pipeline') : ?>
+                <?php self::render_pipeline($data['items']); ?>
+            <?php else : ?>
+                <?php self::render_base($filters, $data, $total_pages, $paged); ?>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    private static function render_dashboard(array $items)
+    {
+        $stats = array(
+            array('icon' => '🗂️', 'value' => count($items), 'label' => __('Base de leads', 'b2b-crm-maroc')),
+            array('icon' => '⭐', 'value' => self::count_interest($items, 'high'), 'label' => __('Priorité haute', 'b2b-crm-maroc')),
+            array('icon' => '⚙️', 'value' => 0, 'label' => __('Doublons SQL', 'b2b-crm-maroc')),
+            array('icon' => '✅', 'value' => self::count_status($items, 'contacted'), 'label' => __('Leads gagnés', 'b2b-crm-maroc')),
+        );
+
+        $recent = array();
+        foreach (array_slice($items, 0, 6) as $item) {
+            $recent[] = array(
+                'initial' => strtoupper(substr($item['company_name'], 0, 1)),
+                'company_name' => $item['company_name'],
+                'meta' => trim($item['city'] . ' · ' . $item['sector'], ' ·'),
+                'status' => self::statuses()[$item['status']] ?? $item['status'],
+            );
+        }
+
+        B2B_CRM_Views::render_dashboard($stats, $recent);
+    }
+
+    private static function render_pipeline(array $items)
+    {
+        $columns = array(
+            'new' => __('Nouveau', 'b2b-crm-maroc'),
+            'qualified' => __('Qualifié', 'b2b-crm-maroc'),
+            'contacted' => __('Contact initié', 'b2b-crm-maroc'),
+            'proposal' => __('Proposition envoyée', 'b2b-crm-maroc'),
+            'negotiation' => __('Négociation', 'b2b-crm-maroc'),
+            'won' => __('Gagné', 'b2b-crm-maroc'),
+        );
+
+        $mapped = array();
+        foreach ($columns as $key => $label) {
+            $mapped[] = array(
+                'label' => $label,
+                'count' => $key === 'proposal' || $key === 'negotiation' || $key === 'won' ? 0 : self::count_status($items, $key),
+                'items' => array(),
+            );
+        }
+
+        foreach ($items as $item) {
+            $status = $item['status'];
+            if (!isset($columns[$status])) {
+                continue;
+            }
+            $index = array_search($columns[$status], array_column($mapped, 'label'), true);
+            if ($index === false) {
+                continue;
+            }
+            $mapped[$index]['items'][] = array(
+                'company_name' => $item['company_name'],
+                'interest' => $item['interest_level'],
+                'interest_label' => self::interests()[$item['interest_level']] ?? $item['interest_level'],
+            );
+        }
+
+        B2B_CRM_Views::render_pipeline($mapped);
+    }
+
+    private static function render_base($filters, $data, $total_pages, $paged)
+    {
+        ?>
+        <div class="b2b-crm__section b2b-crm__section--row">
+            <div>
+                <h2><?php echo esc_html__('Gestion de la Base de Leads', 'b2b-crm-maroc'); ?></h2>
+            </div>
+            <button class="b2b-crm__export"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
+        </div>
+
+        <div class="b2b-crm__table-card">
             <div class="b2b-crm__toolbar">
                 <form method="get" class="b2b-crm__filters">
                     <input type="hidden" name="page" value="b2b-crm-maroc" />
+                    <input type="hidden" name="tab" value="base" />
                     <input type="search" name="s" placeholder="<?php echo esc_attr__('Recherche rapide', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
                     <select name="status">
                         <option value=""><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></option>
@@ -36,37 +149,30 @@ class B2B_CRM_Lead_List_Page
                         <?php endforeach; ?>
                     </select>
                     <select name="interest_level">
-                        <option value=""><?php echo esc_html__('Intérêt', 'b2b-crm-maroc'); ?></option>
+                        <option value=""><?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?></option>
                         <?php foreach (self::interests() as $key => $label) : ?>
                             <option value="<?php echo esc_attr($key); ?>" <?php selected($filters['interest_level'], $key); ?>><?php echo esc_html($label); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <input type="text" name="city" placeholder="<?php echo esc_attr__('Ville', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['city']); ?>" />
-                    <input type="text" name="sector" placeholder="<?php echo esc_attr__('Secteur', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['sector']); ?>" />
-                    <button class="button"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
+                    <button class="b2b-crm__ghost"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
                 </form>
-                <div class="b2b-crm__meta">
-                    <span class="b2b-crm__count"><?php echo esc_html(sprintf(__('%d leads', 'b2b-crm-maroc'), $data['total'])); ?></span>
-                </div>
             </div>
 
-            <table class="widefat fixed striped b2b-crm__table">
+            <table class="b2b-crm__table">
                 <thead>
                     <tr>
                         <th><?php echo esc_html__('Société', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Secteur', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Intérêt', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Source', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Collecté', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Web & Sociaux', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Statut CRM', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($data['items'])) : ?>
                         <tr>
-                            <td colspan="8"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
+                            <td colspan="6"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
                         </tr>
                     <?php else : ?>
                         <?php foreach ($data['items'] as $lead) : ?>
@@ -75,29 +181,28 @@ class B2B_CRM_Lead_List_Page
                                     <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), admin_url('admin.php'))); ?>">
                                         <?php echo esc_html($lead['company_name']); ?>
                                     </a>
+                                    <div class="b2b-crm__sub"><?php echo esc_html(trim($lead['city'] . ' · ' . $lead['sector'], ' ·')); ?></div>
                                 </td>
                                 <td>
-                                    <div><?php echo esc_html($lead['contact_name']); ?></div>
-                                    <small><?php echo esc_html($lead['email']); ?></small>
+                                    <div class="b2b-crm__contact-main"><?php echo esc_html($lead['phone']); ?></div>
+                                    <div class="b2b-crm__sub"><?php echo esc_html($lead['email']); ?></div>
                                 </td>
-                                <td><?php echo esc_html($lead['city']); ?></td>
-                                <td><?php echo esc_html($lead['sector']); ?></td>
-                                <td>
-                                    <select class="b2b-crm__quick" data-lead-id="<?php echo esc_attr($lead['id']); ?>" data-field="status">
-                                        <?php foreach (self::statuses() as $key => $label) : ?>
-                                            <option value="<?php echo esc_attr($key); ?>" <?php selected($lead['status'], $key); ?>><?php echo esc_html($label); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <td class="b2b-crm__icons">
+                                    <span class="dashicons dashicons-admin-site"></span>
+                                    <span class="dashicons dashicons-linkedin"></span>
+                                    <span class="dashicons dashicons-facebook"></span>
+                                    <span class="dashicons dashicons-instagram"></span>
                                 </td>
                                 <td>
-                                    <select class="b2b-crm__quick" data-lead-id="<?php echo esc_attr($lead['id']); ?>" data-field="interest_level">
-                                        <?php foreach (self::interests() as $key => $label) : ?>
-                                            <option value="<?php echo esc_attr($key); ?>" <?php selected($lead['interest_level'], $key); ?>><?php echo esc_html($label); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                    <span class="b2b-crm__pill b2b-crm__pill--<?php echo esc_attr($lead['interest_level']); ?>"><?php echo esc_html(self::interests()[$lead['interest_level']] ?? $lead['interest_level']); ?></span>
                                 </td>
-                                <td><?php echo esc_html($lead['source']); ?></td>
-                                <td><?php echo esc_html(mysql2date('d/m/Y', $lead['collected_at'])); ?></td>
+                                <td>
+                                    <span class="b2b-crm__pill b2b-crm__pill--status"><?php echo esc_html(self::statuses()[$lead['status']] ?? $lead['status']); ?></span>
+                                </td>
+                                <td class="b2b-crm__actions">
+                                    <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), admin_url('admin.php'))); ?>"><span class="dashicons dashicons-edit"></span></a>
+                                    <span class="dashicons dashicons-trash"></span>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -122,6 +227,20 @@ class B2B_CRM_Lead_List_Page
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    private static function count_interest(array $items, $level)
+    {
+        return count(array_filter($items, function ($item) use ($level) {
+            return $item['interest_level'] === $level;
+        }));
+    }
+
+    private static function count_status(array $items, $status)
+    {
+        return count(array_filter($items, function ($item) use ($status) {
+            return $item['status'] === $status;
+        }));
     }
 
     private static function statuses()
