@@ -30,6 +30,7 @@ class B2B_CRM_Lead_List_Page
 
         ?>
         <div class="wrap b2b-crm b2b-crm--app">
+            <?php settings_errors('b2b-crm-maroc'); ?>
             <div class="b2b-crm__topbar">
                 <div class="b2b-crm__brand">
                     <span class="b2b-crm__logo">🛡️</span>
@@ -133,7 +134,16 @@ class B2B_CRM_Lead_List_Page
             <div>
                 <h2><?php echo esc_html__('Gestion de la Base de Leads', 'b2b-crm-maroc'); ?></h2>
             </div>
-            <button class="b2b-crm__export"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
+            <form method="get" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="b2b_crm_export_csv" />
+                <input type="hidden" name="s" value="<?php echo esc_attr($filters['search']); ?>" />
+                <input type="hidden" name="status" value="<?php echo esc_attr($filters['status']); ?>" />
+                <input type="hidden" name="city" value="<?php echo esc_attr($filters['city']); ?>" />
+                <input type="hidden" name="sector" value="<?php echo esc_attr($filters['sector']); ?>" />
+                <input type="hidden" name="interest_level" value="<?php echo esc_attr($filters['interest_level']); ?>" />
+                <?php wp_nonce_field('b2b_crm_export_csv'); ?>
+                <button class="b2b-crm__export" type="submit"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
+            </form>
         </div>
 
         <div class="b2b-crm__table-card">
@@ -201,7 +211,7 @@ class B2B_CRM_Lead_List_Page
                                 </td>
                                 <td class="b2b-crm__actions">
                                     <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), admin_url('admin.php'))); ?>"><span class="dashicons dashicons-edit"></span></a>
-                                    <span class="dashicons dashicons-trash"></span>
+                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'b2b_crm_delete_lead', 'lead_id' => $lead['id']), admin_url('admin-post.php')), 'b2b_crm_delete_lead')); ?>"><span class="dashicons dashicons-trash"></span></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

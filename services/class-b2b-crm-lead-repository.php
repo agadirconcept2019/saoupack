@@ -75,6 +75,53 @@ class B2B_CRM_Lead_Repository
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", $lead_id), ARRAY_A);
     }
 
+    public static function list_all(array $filters = array())
+    {
+        global $wpdb;
+
+        $table = B2B_CRM_Lead_Table::table_name();
+        $where = array();
+        $params = array();
+
+        if (!empty($filters['search'])) {
+            $like = '%' . $wpdb->esc_like($filters['search']) . '%';
+            $where[] = '(company_name LIKE %s OR email LIKE %s OR phone LIKE %s OR city LIKE %s)';
+            array_push($params, $like, $like, $like, $like);
+        }
+
+        if (!empty($filters['status'])) {
+            $where[] = 'status = %s';
+            $params[] = $filters['status'];
+        }
+
+        if (!empty($filters['city'])) {
+            $where[] = 'city = %s';
+            $params[] = $filters['city'];
+        }
+
+        if (!empty($filters['sector'])) {
+            $where[] = 'sector = %s';
+            $params[] = $filters['sector'];
+        }
+
+        if (!empty($filters['interest_level'])) {
+            $where[] = 'interest_level = %s';
+            $params[] = $filters['interest_level'];
+        }
+
+        $where_sql = '';
+        if (!empty($where)) {
+            $where_sql = 'WHERE ' . implode(' AND ', $where);
+        }
+
+        $query = "SELECT * FROM {$table} {$where_sql} ORDER BY updated_at DESC";
+        if (!empty($params)) {
+            $query = $wpdb->prepare($query, $params);
+        }
+
+        return $wpdb->get_results($query, ARRAY_A);
+    }
+
     public static function upsert(array $data)
     {
         global $wpdb;
@@ -126,6 +173,13 @@ class B2B_CRM_Lead_Repository
         $data['updated_at'] = current_time('mysql');
 
         return $wpdb->update($table, $data, array('id' => $lead_id));
+    }
+
+    public static function delete($lead_id)
+    {
+        global $wpdb;
+        $table = B2B_CRM_Lead_Table::table_name();
+        return $wpdb->delete($table, array('id' => $lead_id));
     }
 
     public static function add_interaction($lead_id, $type, $content)

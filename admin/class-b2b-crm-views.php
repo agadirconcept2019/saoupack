@@ -46,7 +46,10 @@ class B2B_CRM_Views
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Moteur de Recherche Intelligent', 'b2b-crm-maroc'); ?></h2>
-            <div class="b2b-crm__collect">
+            <?php settings_errors('b2b-crm-maroc'); ?>
+            <form class="b2b-crm__collect" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <?php wp_nonce_field('b2b_crm_run_collect'); ?>
+                <input type="hidden" name="action" value="b2b_crm_run_collect" />
                 <div class="b2b-crm__collect-card">
                     <div class="b2b-crm__collect-main">
                         <h3><?php echo esc_html__('Configuration Live', 'b2b-crm-maroc'); ?></h3>
@@ -82,12 +85,12 @@ class B2B_CRM_Views
                                 <button class="is-active">Standard</button>
                                 <button>Deep</button>
                             </div>
-                            <button class="b2b-crm__cta">Lancer</button>
+                            <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Lancer', 'b2b-crm-maroc'); ?></button>
                         </div>
                         <div class="b2b-crm__collect-preview"></div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
         <?php
     }
