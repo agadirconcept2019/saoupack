@@ -11,13 +11,16 @@
 | contact_name | varchar(190) | Contact professionnel. |
 | contact_role | varchar(190) | Fonction du contact. |
 | phone | varchar(40) | Téléphone professionnel. |
+| phone_mobile | varchar(40) | Téléphone portable professionnel. |
 | email | varchar(190) | Email professionnel. |
+| website | varchar(190) | Site web de l'entreprise. |
 | social_json | longtext | Réseaux sociaux (JSON). |
 | status | enum | Statut CRM (new, qualified, contacted, inactive). |
 | last_contact | datetime | Date du dernier contact. |
 | next_action | text | Prochaine action commerciale. |
 | follow_up_date | date | Date de relance prévue. |
 | interest_level | enum | Niveau d'intérêt (low, medium, high). |
+| tags | text | Tags internes (liste libre). |
 | notes | longtext | Commentaires internes. |
 | source | varchar(190) | Source de collecte. |
 | collected_at | datetime | Date de collecte. |
