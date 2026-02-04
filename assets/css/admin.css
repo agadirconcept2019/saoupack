@@ -82,7 +82,21 @@
 .b2b-crm__sidebar-nav {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+}
+
+.b2b-crm__nav-section {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
+}
+
+.b2b-crm__nav-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(203, 213, 225, 0.6);
+    padding: 0 12px;
 }
 
 .b2b-crm__nav-link {

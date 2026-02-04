@@ -22,12 +22,69 @@ class B2B_CRM_Lead_List_Page
         $total_pages = (int) ceil($data['total'] / $per_page);
 
         $tabs = array(
-            'dashboard' => __('Dashboard', 'b2b-crm-maroc'),
+            'dashboard' => __('Accueil', 'b2b-crm-maroc'),
+            'accounts' => __('Comptes', 'b2b-crm-maroc'),
+            'contacts' => __('Contacts', 'b2b-crm-maroc'),
+            'base' => __('Prospects', 'b2b-crm-maroc'),
+            'opportunities' => __('Opportunités', 'b2b-crm-maroc'),
+            'emails' => __('Emails', 'b2b-crm-maroc'),
+            'calendar' => __('Calendrier', 'b2b-crm-maroc'),
+            'meetings' => __('Rendez-vous', 'b2b-crm-maroc'),
+            'calls' => __('Appels', 'b2b-crm-maroc'),
+            'tasks' => __('Tâches', 'b2b-crm-maroc'),
+            'tickets' => __('Tickets', 'b2b-crm-maroc'),
+            'knowledge' => __('Base de connaissance', 'b2b-crm-maroc'),
+            'documents' => __('Documents', 'b2b-crm-maroc'),
+            'sales' => __('Sales & Purchases', 'b2b-crm-maroc'),
             'collect' => __('Collecte', 'b2b-crm-maroc'),
             'sources' => __('Sources', 'b2b-crm-maroc'),
-            'base' => __('Leads', 'b2b-crm-maroc'),
             'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
+        );
+
+        $nav_sections = array(
+            array(
+                'label' => __('CRM', 'b2b-crm-maroc'),
+                'items' => array(
+                    array('key' => 'accounts', 'icon' => 'dashicons-building'),
+                    array('key' => 'contacts', 'icon' => 'dashicons-id'),
+                    array('key' => 'base', 'icon' => 'dashicons-groups'),
+                    array('key' => 'opportunities', 'icon' => 'dashicons-chart-line'),
+                ),
+            ),
+            array(
+                'label' => __('Activités', 'b2b-crm-maroc'),
+                'items' => array(
+                    array('key' => 'emails', 'icon' => 'dashicons-email'),
+                    array('key' => 'calendar', 'icon' => 'dashicons-calendar'),
+                    array('key' => 'meetings', 'icon' => 'dashicons-calendar-alt'),
+                    array('key' => 'calls', 'icon' => 'dashicons-phone'),
+                    array('key' => 'tasks', 'icon' => 'dashicons-yes-alt'),
+                ),
+            ),
+            array(
+                'label' => __('Support', 'b2b-crm-maroc'),
+                'items' => array(
+                    array('key' => 'tickets', 'icon' => 'dashicons-sos'),
+                    array('key' => 'knowledge', 'icon' => 'dashicons-welcome-learn-more'),
+                ),
+            ),
+            array(
+                'label' => __('Business', 'b2b-crm-maroc'),
+                'items' => array(
+                    array('key' => 'documents', 'icon' => 'dashicons-media-document'),
+                    array('key' => 'sales', 'icon' => 'dashicons-cart'),
+                ),
+            ),
+            array(
+                'label' => __('Outils', 'b2b-crm-maroc'),
+                'items' => array(
+                    array('key' => 'collect', 'icon' => 'dashicons-filter'),
+                    array('key' => 'sources', 'icon' => 'dashicons-admin-links'),
+                    array('key' => 'pipeline', 'icon' => 'dashicons-networking'),
+                    array('key' => 'settings', 'icon' => 'dashicons-admin-generic'),
+                ),
+            ),
         );
 
         $current_label = $tabs[$tab] ?? $tabs['dashboard'];
@@ -44,10 +101,24 @@ class B2B_CRM_Lead_List_Page
                         </div>
                     </div>
                     <nav class="b2b-crm__sidebar-nav">
-                        <?php foreach ($tabs as $key => $label) : ?>
-                            <a class="b2b-crm__nav-link <?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
-                                <?php echo esc_html($label); ?>
-                            </a>
+                        <a class="b2b-crm__nav-link <?php echo $tab === 'dashboard' ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'dashboard'), admin_url('admin.php'))); ?>">
+                            <span class="dashicons dashicons-admin-home" aria-hidden="true"></span>
+                            <?php echo esc_html($tabs['dashboard']); ?>
+                        </a>
+                        <?php foreach ($nav_sections as $section) : ?>
+                            <div class="b2b-crm__nav-section">
+                                <span class="b2b-crm__nav-title"><?php echo esc_html($section['label']); ?></span>
+                                <?php foreach ($section['items'] as $item) : ?>
+                                    <?php
+                                    $key = $item['key'];
+                                    $label = $tabs[$key] ?? $key;
+                                    ?>
+                                    <a class="b2b-crm__nav-link <?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
+                                        <span class="dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
+                                        <?php echo esc_html($label); ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endforeach; ?>
                     </nav>
                 </aside>
@@ -78,8 +149,10 @@ class B2B_CRM_Lead_List_Page
                         <?php B2B_CRM_Views::render_sources(); ?>
                     <?php elseif ($tab === 'settings') : ?>
                         <?php B2B_CRM_Views::render_settings(); ?>
-                    <?php else : ?>
+                    <?php elseif ($tab === 'base') : ?>
                         <?php self::render_base($filters, $data, $total_pages, $paged); ?>
+                    <?php else : ?>
+                        <?php self::render_placeholder($current_label); ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -146,6 +219,20 @@ class B2B_CRM_Lead_List_Page
         }
 
         B2B_CRM_Views::render_pipeline($mapped);
+    }
+
+    private static function render_placeholder($label)
+    {
+        ?>
+        <div class="b2b-crm__section">
+            <div class="b2b-crm__card">
+                <h2><?php echo esc_html($label); ?></h2>
+                <p class="b2b-crm__muted">
+                    <?php echo esc_html__('Ce module est en cours de configuration pour refléter les fonctionnalités EspoCRM.', 'b2b-crm-maroc'); ?>
+                </p>
+            </div>
+        </div>
+        <?php
     }
 
     private static function render_base($filters, $data, $total_pages, $paged)
