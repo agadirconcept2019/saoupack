@@ -21,7 +21,6 @@ class B2B_CRM_Lead_Detail_Page
         }
 
         $interactions = B2B_CRM_Interaction_Repository::list($lead_id);
-        <?php
         $social = array();
         if (!empty($lead['social_json'])) {
             $decoded = json_decode($lead['social_json'], true);
