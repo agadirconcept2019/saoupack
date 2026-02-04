@@ -740,6 +740,9 @@ class B2B_CRM_Lead_List_Page
                         } elseif ($field['name'] === 'meta[phone]') {
                             $list_id = 'b2b-crm-module-phone';
                             $list_values = $lead_suggestions['phone'] ?? array();
+                        } elseif ($field['name'] === 'meta[priority]') {
+                            $list_id = 'b2b-crm-module-priority';
+                            $list_values = array_values(self::interests());
                         }
                         if ($list_id) {
                             $datalists[$list_id] = $list_values;
