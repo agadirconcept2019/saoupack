@@ -13,6 +13,7 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_run_collect', array(__CLASS__, 'run_collect'));
         add_action('admin_post_b2b_crm_save_sources', array(__CLASS__, 'save_sources'));
         add_action('admin_post_b2b_crm_save_settings', array(__CLASS__, 'save_settings'));
+        add_action('admin_post_b2b_crm_add_account', array(__CLASS__, 'add_account'));
         add_action('admin_post_b2b_crm_add_demo_leads', array(__CLASS__, 'add_demo_leads'));
     }
 
@@ -370,6 +371,35 @@ class B2B_CRM_Actions
 
         add_settings_error('b2b-crm-maroc', 'demo_added', __('Données de démonstration ajoutées.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=base'));
+        exit;
+    }
+
+    public static function add_account()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_add_account');
+
+        $data = array(
+            'name' => isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '',
+            'industry' => isset($_POST['industry']) ? sanitize_text_field(wp_unslash($_POST['industry'])) : '',
+            'city' => isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '',
+            'website' => isset($_POST['website']) ? esc_url_raw(wp_unslash($_POST['website'])) : '',
+            'email' => isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '',
+            'phone' => isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '',
+            'owner' => isset($_POST['owner']) ? sanitize_text_field(wp_unslash($_POST['owner'])) : '',
+            'status' => isset($_POST['status']) ? sanitize_key($_POST['status']) : 'active',
+            'notes' => isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '',
+        );
+
+        if ($data['name']) {
+            B2B_CRM_Account_Repository::insert($data);
+            add_settings_error('b2b-crm-maroc', 'account_added', __('Compte ajouté.', 'b2b-crm-maroc'), 'updated');
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=accounts'));
         exit;
     }
 }
