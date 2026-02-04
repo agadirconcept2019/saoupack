@@ -252,6 +252,7 @@
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    align-items: start;
 }
 
 .b2b-crm__source-fields label {
@@ -263,6 +264,16 @@
     border: 1px solid var(--b2b-border);
     border-radius: 12px;
     padding: 10px;
+    min-height: 110px;
+}
+
+.b2b-crm__source-fields input[type="text"],
+.b2b-crm__source-fields textarea {
+    width: 100%;
+}
+
+.b2b-crm__source-fields textarea {
+    min-height: 80px;
 }
 
 .b2b-crm__source-fields input[type="file"] {
