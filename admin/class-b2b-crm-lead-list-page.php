@@ -698,6 +698,8 @@ class B2B_CRM_Lead_List_Page
         $per_page = 20;
         $data = B2B_CRM_Module_Item_Repository::list($config['key'], $filters, $paged, $per_page);
         $total_pages = (int) ceil($data['total'] / $per_page);
+        $stats = self::module_item_stats($data['items'], $config['statuses']);
+        $recent = array_slice($data['items'], 0, 5);
 
         ?>
         <div class="b2b-crm__section b2b-crm__section--row">
@@ -706,6 +708,55 @@ class B2B_CRM_Lead_List_Page
                 <p class="b2b-crm__muted"><?php echo esc_html($config['description']); ?></p>
             </div>
         </div>
+
+        <div class="b2b-crm__section">
+            <div class="b2b-crm__stats">
+                <div class="b2b-crm__stat-card">
+                    <div class="b2b-crm__stat-icon"><span>📦</span></div>
+                    <div class="b2b-crm__stat-value"><?php echo esc_html($stats['total']); ?></div>
+                    <div class="b2b-crm__stat-label"><?php echo esc_html__('Total', 'b2b-crm-maroc'); ?></div>
+                </div>
+                <?php foreach ($stats['status_counts'] as $status => $count) : ?>
+                    <div class="b2b-crm__stat-card">
+                        <div class="b2b-crm__stat-icon"><span>⚡</span></div>
+                        <div class="b2b-crm__stat-value"><?php echo esc_html($count); ?></div>
+                        <div class="b2b-crm__stat-label"><?php echo esc_html($config['statuses'][$status] ?? $status); ?></div>
+                    </div>
+                <?php endforeach; ?>
+                <div class="b2b-crm__stat-card">
+                    <div class="b2b-crm__stat-icon"><span>👤</span></div>
+                    <div class="b2b-crm__stat-value"><?php echo esc_html($stats['owners']); ?></div>
+                    <div class="b2b-crm__stat-label"><?php echo esc_html__('Responsables', 'b2b-crm-maroc'); ?></div>
+                </div>
+                <?php if ($stats['amount_total'] > 0) : ?>
+                    <div class="b2b-crm__stat-card">
+                        <div class="b2b-crm__stat-icon"><span>💰</span></div>
+                        <div class="b2b-crm__stat-value"><?php echo esc_html(number_format_i18n($stats['amount_total'], 2)); ?></div>
+                        <div class="b2b-crm__stat-label"><?php echo esc_html__('Montant', 'b2b-crm-maroc'); ?></div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if (!empty($recent)) : ?>
+            <div class="b2b-crm__section">
+                <div class="b2b-crm__card b2b-crm__card--large">
+                    <h3><?php echo esc_html__('Activité récente', 'b2b-crm-maroc'); ?></h3>
+                    <div class="b2b-crm__recent-grid">
+                        <?php foreach ($recent as $item) : ?>
+                            <div class="b2b-crm__recent-item">
+                                <div class="b2b-crm__avatar"><?php echo esc_html(strtoupper(substr($item['title'], 0, 1))); ?></div>
+                                <div>
+                                    <div class="b2b-crm__recent-name"><?php echo esc_html($item['title']); ?></div>
+                                    <div class="b2b-crm__recent-meta"><?php echo esc_html($item['owner']); ?></div>
+                                </div>
+                                <span class="b2b-crm__pill b2b-crm__pill--status"><?php echo esc_html($config['statuses'][$item['status']] ?? $item['status']); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <div class="b2b-crm__card">
             <form method="post" class="b2b-crm__form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -717,13 +768,15 @@ class B2B_CRM_Lead_List_Page
                         <label>
                             <span><?php echo esc_html($field['label']); ?></span>
                             <?php if ($field['type'] === 'select') : ?>
-                                <select name="<?php echo esc_attr($field['name']); ?>">
+                                <select class="b2b-crm__input" name="<?php echo esc_attr($field['name']); ?>">
                                     <?php foreach ($field['options'] as $option_value => $option_label) : ?>
                                         <option value="<?php echo esc_attr($option_value); ?>"><?php echo esc_html($option_label); ?></option>
                                     <?php endforeach; ?>
                                 </select>
+                            <?php elseif ($field['type'] === 'textarea') : ?>
+                                <textarea class="b2b-crm__input b2b-crm__input--area" name="<?php echo esc_attr($field['name']); ?>" rows="2"></textarea>
                             <?php else : ?>
-                                <input type="<?php echo esc_attr($field['type']); ?>" name="<?php echo esc_attr($field['name']); ?>" <?php echo !empty($field['required']) ? 'required' : ''; ?> />
+                                <input class="b2b-crm__input" type="<?php echo esc_attr($field['type']); ?>" name="<?php echo esc_attr($field['name']); ?>" <?php echo !empty($field['required']) ? 'required' : ''; ?> />
                             <?php endif; ?>
                         </label>
                     <?php endforeach; ?>
@@ -766,7 +819,14 @@ class B2B_CRM_Lead_List_Page
                             <?php $meta = !empty($item['meta_json']) ? json_decode($item['meta_json'], true) : array(); ?>
                             <tr>
                                 <?php foreach ($config['columns'] as $column) : ?>
-                                    <td><?php echo esc_html(self::module_item_value($item, $meta, $column['key'])); ?></td>
+                                    <?php $value = self::module_item_value($item, $meta, $column['key']); ?>
+                                    <td>
+                                        <?php if ($column['key'] === 'status') : ?>
+                                            <span class="b2b-crm__pill b2b-crm__pill--status"><?php echo esc_html($config['statuses'][$value] ?? $value); ?></span>
+                                        <?php else : ?>
+                                            <?php echo esc_html($value); ?>
+                                        <?php endif; ?>
+                                    </td>
                                 <?php endforeach; ?>
                             </tr>
                         <?php endforeach; ?>
@@ -817,9 +877,42 @@ class B2B_CRM_Lead_List_Page
     private static function module_item_value(array $item, array $meta, $key)
     {
         if (isset($item[$key])) {
+            if ($key === 'amount') {
+                return number_format_i18n((float) $item[$key], 2);
+            }
             return $item[$key];
         }
         return $meta[$key] ?? '';
+    }
+
+    private static function module_item_stats(array $items, array $statuses)
+    {
+        $status_counts = array();
+        foreach ($statuses as $key => $label) {
+            $status_counts[$key] = 0;
+        }
+
+        $owners = array();
+        $amount_total = 0;
+
+        foreach ($items as $item) {
+            if (!empty($item['status']) && array_key_exists($item['status'], $status_counts)) {
+                $status_counts[$item['status']]++;
+            }
+            if (!empty($item['owner'])) {
+                $owners[$item['owner']] = true;
+            }
+            if (!empty($item['amount'])) {
+                $amount_total += (float) $item['amount'];
+            }
+        }
+
+        return array(
+            'total' => count($items),
+            'status_counts' => $status_counts,
+            'owners' => count($owners),
+            'amount_total' => $amount_total,
+        );
     }
 
     private static function module_config_opportunities()
@@ -839,6 +932,8 @@ class B2B_CRM_Lead_List_Page
                 array('name' => 'meta[account]', 'label' => __('Compte', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'amount', 'label' => __('Montant', 'b2b-crm-maroc'), 'type' => 'number'),
                 array('name' => 'meta[stage]', 'label' => __('Étape', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[probability]', 'label' => __('Probabilité (%)', 'b2b-crm-maroc'), 'type' => 'number'),
+                array('name' => 'meta[next_step]', 'label' => __('Prochaine action', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'due_date', 'label' => __('Date de clôture', 'b2b-crm-maroc'), 'type' => 'date'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
@@ -852,6 +947,8 @@ class B2B_CRM_Lead_List_Page
                 array('key' => 'account', 'label' => __('Compte', 'b2b-crm-maroc')),
                 array('key' => 'amount', 'label' => __('Montant', 'b2b-crm-maroc')),
                 array('key' => 'stage', 'label' => __('Étape', 'b2b-crm-maroc')),
+                array('key' => 'probability', 'label' => __('Probabilité', 'b2b-crm-maroc')),
+                array('key' => 'next_step', 'label' => __('Prochaine action', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
         );
@@ -872,8 +969,11 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Titre', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[account]', 'label' => __('Compte', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'due_date', 'label' => __('Échéance', 'b2b-crm-maroc'), 'type' => 'date'),
                 array('name' => 'meta[priority]', 'label' => __('Priorité', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[channel]', 'label' => __('Canal', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[description]', 'label' => __('Description', 'b2b-crm-maroc'), 'type' => 'textarea'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'todo' => __('À faire', 'b2b-crm-maroc'),
                     'doing' => __('En cours', 'b2b-crm-maroc'),
@@ -883,6 +983,7 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Titre', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
+                array('key' => 'account', 'label' => __('Compte', 'b2b-crm-maroc')),
                 array('key' => 'priority', 'label' => __('Priorité', 'b2b-crm-maroc')),
                 array('key' => 'due_date', 'label' => __('Échéance', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
@@ -905,8 +1006,11 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'meta[customer]', 'label' => __('Client', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[channel]', 'label' => __('Canal', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[category]', 'label' => __('Catégorie', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'meta[priority]', 'label' => __('Priorité', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[description]', 'label' => __('Description', 'b2b-crm-maroc'), 'type' => 'textarea'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'open' => __('Ouvert', 'b2b-crm-maroc'),
                     'pending' => __('En attente', 'b2b-crm-maroc'),
@@ -916,6 +1020,8 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc')),
                 array('key' => 'customer', 'label' => __('Client', 'b2b-crm-maroc')),
+                array('key' => 'channel', 'label' => __('Canal', 'b2b-crm-maroc')),
+                array('key' => 'category', 'label' => __('Catégorie', 'b2b-crm-maroc')),
                 array('key' => 'priority', 'label' => __('Priorité', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
@@ -937,7 +1043,9 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Titre', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'meta[category]', 'label' => __('Catégorie', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[tags]', 'label' => __('Tags', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'meta[file_url]', 'label' => __('Lien du fichier', 'b2b-crm-maroc'), 'type' => 'url'),
+                array('name' => 'meta[visibility]', 'label' => __('Visibilité', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -947,7 +1055,9 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Titre', 'b2b-crm-maroc')),
                 array('key' => 'category', 'label' => __('Catégorie', 'b2b-crm-maroc')),
+                array('key' => 'tags', 'label' => __('Tags', 'b2b-crm-maroc')),
                 array('key' => 'file_url', 'label' => __('Fichier', 'b2b-crm-maroc')),
+                array('key' => 'visibility', 'label' => __('Visibilité', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
@@ -968,6 +1078,8 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Titre', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'meta[category]', 'label' => __('Catégorie', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[tags]', 'label' => __('Tags', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[summary]', 'label' => __('Résumé', 'b2b-crm-maroc'), 'type' => 'textarea'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -977,6 +1089,7 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Titre', 'b2b-crm-maroc')),
                 array('key' => 'category', 'label' => __('Catégorie', 'b2b-crm-maroc')),
+                array('key' => 'tags', 'label' => __('Tags', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
@@ -998,6 +1111,9 @@ class B2B_CRM_Lead_List_Page
                 array('name' => 'title', 'label' => __('Libellé', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'amount', 'label' => __('Montant', 'b2b-crm-maroc'), 'type' => 'number'),
                 array('name' => 'meta[type]', 'label' => __('Type', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[account]', 'label' => __('Compte', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[channel]', 'label' => __('Canal', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[reference]', 'label' => __('Référence', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'open' => __('Ouverte', 'b2b-crm-maroc'),
@@ -1008,6 +1124,8 @@ class B2B_CRM_Lead_List_Page
                 array('key' => 'title', 'label' => __('Libellé', 'b2b-crm-maroc')),
                 array('key' => 'type', 'label' => __('Type', 'b2b-crm-maroc')),
                 array('key' => 'amount', 'label' => __('Montant', 'b2b-crm-maroc')),
+                array('key' => 'account', 'label' => __('Compte', 'b2b-crm-maroc')),
+                array('key' => 'reference', 'label' => __('Référence', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
@@ -1028,6 +1146,9 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'meta[recipient]', 'label' => __('Destinataire', 'b2b-crm-maroc'), 'type' => 'email'),
+                array('name' => 'meta[account]', 'label' => __('Compte', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[channel]', 'label' => __('Canal', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[direction]', 'label' => __('Direction', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -1037,6 +1158,8 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc')),
                 array('key' => 'recipient', 'label' => __('Destinataire', 'b2b-crm-maroc')),
+                array('key' => 'account', 'label' => __('Compte', 'b2b-crm-maroc')),
+                array('key' => 'direction', 'label' => __('Direction', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
@@ -1057,6 +1180,8 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Titre', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc'), 'type' => 'date'),
+                array('name' => 'meta[duration]', 'label' => __('Durée (min)', 'b2b-crm-maroc'), 'type' => 'number'),
+                array('name' => 'meta[location]', 'label' => __('Lieu', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'planned' => __('Planifié', 'b2b-crm-maroc'),
@@ -1066,6 +1191,8 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Titre', 'b2b-crm-maroc')),
                 array('key' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc')),
+                array('key' => 'duration', 'label' => __('Durée', 'b2b-crm-maroc')),
+                array('key' => 'location', 'label' => __('Lieu', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
                 array('key' => 'status', 'label' => __('Statut', 'b2b-crm-maroc')),
             ),
@@ -1087,6 +1214,8 @@ class B2B_CRM_Lead_List_Page
                 array('name' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc'), 'type' => 'date'),
                 array('name' => 'meta[location]', 'label' => __('Lieu', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[participants]', 'label' => __('Participants', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[duration]', 'label' => __('Durée (min)', 'b2b-crm-maroc'), 'type' => 'number'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
                     'planned' => __('Planifié', 'b2b-crm-maroc'),
@@ -1096,6 +1225,8 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc')),
                 array('key' => 'location', 'label' => __('Lieu', 'b2b-crm-maroc')),
+                array('key' => 'participants', 'label' => __('Participants', 'b2b-crm-maroc')),
+                array('key' => 'duration', 'label' => __('Durée', 'b2b-crm-maroc')),
                 array('key' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
             ),
@@ -1116,6 +1247,8 @@ class B2B_CRM_Lead_List_Page
             'fields' => array(
                 array('name' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc'), 'type' => 'text', 'required' => true),
                 array('name' => 'meta[phone]', 'label' => __('Téléphone', 'b2b-crm-maroc'), 'type' => 'text'),
+                array('name' => 'meta[duration]', 'label' => __('Durée (min)', 'b2b-crm-maroc'), 'type' => 'number'),
+                array('name' => 'meta[contact]', 'label' => __('Contact', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc'), 'type' => 'date'),
                 array('name' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc'), 'type' => 'text'),
                 array('name' => 'status', 'label' => __('Statut', 'b2b-crm-maroc'), 'type' => 'select', 'options' => array(
@@ -1126,6 +1259,8 @@ class B2B_CRM_Lead_List_Page
             'columns' => array(
                 array('key' => 'title', 'label' => __('Sujet', 'b2b-crm-maroc')),
                 array('key' => 'phone', 'label' => __('Téléphone', 'b2b-crm-maroc')),
+                array('key' => 'contact', 'label' => __('Contact', 'b2b-crm-maroc')),
+                array('key' => 'duration', 'label' => __('Durée', 'b2b-crm-maroc')),
                 array('key' => 'due_date', 'label' => __('Date', 'b2b-crm-maroc')),
                 array('key' => 'owner', 'label' => __('Responsable', 'b2b-crm-maroc')),
             ),
