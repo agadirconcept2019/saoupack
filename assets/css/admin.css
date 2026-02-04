@@ -178,6 +178,10 @@
 .b2b-crm__settings-card--source.is-active {
     display: grid;
 }
+
+.b2b-crm__settings-card--source[hidden] {
+    display: none;
+}
 .b2b-crm__tabs a {
     color: var(--b2b-muted);
     text-decoration: none;

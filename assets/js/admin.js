@@ -46,12 +46,21 @@ jQuery(function ($) {
     const $sourcePanels = $('[data-source-panel]');
 
     if ($sourceTabs.length && $sourcePanels.length) {
+        const activateSourceTab = (key) => {
+            $sourceTabs.removeClass('is-active').attr('aria-selected', 'false');
+            $sourcePanels.removeClass('is-active').attr('hidden', true);
+            const $activeTab = $sourceTabs.filter(`[data-source-tab="${key}"]`);
+            const $activePanel = $sourcePanels.filter(`[data-source-panel="${key}"]`);
+            $activeTab.addClass('is-active').attr('aria-selected', 'true');
+            $activePanel.addClass('is-active').attr('hidden', false);
+        };
+
         $sourceTabs.on('click', function () {
             const key = $(this).data('source-tab');
-            $sourceTabs.removeClass('is-active');
-            $sourcePanels.removeClass('is-active');
-            $(this).addClass('is-active');
-            $sourcePanels.filter(`[data-source-panel="${key}"]`).addClass('is-active');
+            activateSourceTab(key);
         });
+
+        const initialKey = $sourceTabs.filter('.is-active').data('source-tab') || $sourceTabs.first().data('source-tab');
+        activateSourceTab(initialKey);
     }
 });
