@@ -153,6 +153,7 @@ class B2B_CRM_Actions
             'social',
             'domains',
             'institutions',
+            'excel',
         );
         $clean_sources = array();
 
@@ -165,7 +166,19 @@ class B2B_CRM_Actions
                 'ai_model' => isset($source['ai_model']) ? sanitize_text_field($source['ai_model']) : '',
                 'notes' => isset($source['notes']) ? sanitize_textarea_field($source['notes']) : '',
                 'options' => isset($source['options']) ? sanitize_textarea_field($source['options']) : '',
+                'file_url' => isset($source['file_url']) ? esc_url_raw($source['file_url']) : '',
             );
+        }
+
+        if (!empty($_FILES['sources_excel_file']) && isset($_FILES['sources_excel_file']['tmp_name']) && is_uploaded_file($_FILES['sources_excel_file']['tmp_name'])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            $uploaded = wp_handle_upload($_FILES['sources_excel_file'], array('test_form' => false));
+            if (isset($uploaded['url'])) {
+                $clean_sources['excel']['file_url'] = esc_url_raw($uploaded['url']);
+            } else {
+                $error_message = isset($uploaded['error']) ? $uploaded['error'] : __('Téléversement du fichier CSV échoué.', 'b2b-crm-maroc');
+                add_settings_error('b2b-crm-maroc', 'sources_excel_upload', $error_message, 'error');
+            }
         }
 
         update_option('b2b_crm_sources_config', $clean_sources);

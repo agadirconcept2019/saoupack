@@ -23,6 +23,8 @@ class B2B_CRM_Collector
 
             if ($source_key === 'google_maps') {
                 $counts = self::collect_google_maps($city, $sector, $config, $precision, $results['errors']);
+            } elseif ($source_key === 'excel') {
+                $counts = self::collect_from_excel($city, $sector, $config, $precision, $results['errors']);
             } else {
                 $counts = self::collect_from_json_endpoint($source_key, $city, $sector, $config, $precision, $results['errors']);
             }
@@ -166,6 +168,97 @@ class B2B_CRM_Collector
                 break;
             }
         }
+
+        return $count;
+    }
+
+    private static function collect_from_excel($city, $sector, array $config, $precision, array &$errors)
+    {
+        $file_url = isset($config['file_url']) ? $config['file_url'] : '';
+        $endpoint = isset($config['endpoint']) ? $config['endpoint'] : '';
+
+        $source = $file_url ?: $endpoint;
+        if (empty($source)) {
+            $errors[] = __('Aucun fichier CSV/Excel fourni pour l’import.', 'b2b-crm-maroc');
+            return 0;
+        }
+
+        $response = wp_remote_get($source, array('timeout' => 20));
+        if (is_wp_error($response)) {
+            $errors[] = $response->get_error_message();
+            return 0;
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        if ($body === '') {
+            $errors[] = __('Fichier CSV vide ou inaccessible.', 'b2b-crm-maroc');
+            return 0;
+        }
+
+        $delimiter = ';';
+        if (!empty($config['options']) && strpos($config['options'], 'delimiter=') !== false) {
+            $parts = explode('delimiter=', $config['options']);
+            $delimiter = trim(end($parts)) ?: ';';
+        }
+
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, $body);
+        rewind($handle);
+
+        $headers = fgetcsv($handle, 0, $delimiter);
+        if (!$headers) {
+            fclose($handle);
+            $errors[] = __('Impossible de lire le fichier CSV.', 'b2b-crm-maroc');
+            return 0;
+        }
+
+        $headers = array_map('strtolower', array_map('trim', $headers));
+        $fallback_headers = array('name', 'email', 'phone', 'city', 'sector', 'website');
+
+        if (!array_intersect($headers, $fallback_headers)) {
+            $headers = $fallback_headers;
+            rewind($handle);
+        }
+
+        $count = 0;
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            if (empty($row)) {
+                continue;
+            }
+
+            $item = array();
+            foreach ($headers as $index => $header) {
+                if (!isset($row[$index])) {
+                    continue;
+                }
+                $item[$header] = $row[$index];
+            }
+
+            $payload = array(
+                'company_name' => self::pick_field($item, array('company_name', 'name', 'company')),
+                'sector' => self::pick_field($item, array('sector')) ?: $sector,
+                'city' => self::pick_field($item, array('city')) ?: $city,
+                'email' => self::pick_field($item, array('email')),
+                'phone' => self::pick_field($item, array('phone')),
+                'phone_mobile' => self::pick_field($item, array('phone_mobile', 'mobile')),
+                'website' => self::pick_field($item, array('website', 'site')),
+                'source' => 'excel',
+                'collected_method' => 'Import CSV/Excel',
+            );
+
+            if (empty($payload['company_name'])) {
+                continue;
+            }
+
+            B2B_CRM_Lead_Repository::upsert($payload);
+            $count++;
+
+            if ($precision === 'standard' && $count >= 200) {
+                break;
+            }
+        }
+
+        fclose($handle);
 
         return $count;
     }

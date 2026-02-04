@@ -67,6 +67,7 @@ class B2B_CRM_Views
             'social' => 'Réseaux Sociaux Pro',
             'domains' => 'Scan Domaines (.ma, .com...)',
             'institutions' => 'Portails Institutionnels',
+            'excel' => 'Fichier Excel / CSV',
         );
         ?>
         <div class="b2b-crm__section">
@@ -204,6 +205,15 @@ class B2B_CRM_Views
                 'ai_model' => 'gpt-4o-mini',
                 'options' => '',
             ),
+            'excel' => array(
+                'enabled' => false,
+                'endpoint' => '',
+                'options' => 'delimiter=;',
+                'notes' => 'Importer un CSV exporté depuis Excel (colonnes name,email,phone,city,sector,website).',
+                'ai_model' => 'gpt-4o-mini',
+                'api_key' => '',
+                'file_url' => '',
+            ),
         );
         $sources = array(
             'google_maps' => array(
@@ -251,6 +261,15 @@ class B2B_CRM_Views
                     'notes' => __('Notes (fréquence, accès, format)', 'b2b-crm-maroc'),
                 ),
             ),
+            'excel' => array(
+                'title' => __('Fichier Excel / CSV', 'b2b-crm-maroc'),
+                'description' => __('Importer un fichier CSV exporté depuis Excel ou un lien direct vers un CSV.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'endpoint' => __('URL du fichier CSV', 'b2b-crm-maroc'),
+                    'options' => __('Séparateur CSV (ex: delimiter=;)', 'b2b-crm-maroc'),
+                    'notes' => __('Colonnes attendues (name, email, phone, city, sector, website).', 'b2b-crm-maroc'),
+                ),
+            ),
         );
         ?>
         <div class="b2b-crm__section">
@@ -291,6 +310,20 @@ class B2B_CRM_Views
                                         <?php endif; ?>
                                     </label>
                                 <?php endforeach; ?>
+                                <?php if ($key === 'excel') : ?>
+                                    <label>
+                                        <span><?php echo esc_html__('Téléverser un fichier CSV', 'b2b-crm-maroc'); ?></span>
+                                        <input type="file" name="sources_excel_file" accept=".csv,.xls,.xlsx" />
+                                    </label>
+                                    <?php if (!empty($values['file_url'])) : ?>
+                                        <div class="b2b-crm__source-hint">
+                                            <?php echo esc_html__('Fichier actuel :', 'b2b-crm-maroc'); ?>
+                                            <a href="<?php echo esc_url($values['file_url']); ?>" target="_blank" rel="noopener noreferrer">
+                                                <?php echo esc_html($values['file_url']); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                                 <label>
                                     <span><?php echo esc_html__('Modèle IA (optionnel)', 'b2b-crm-maroc'); ?></span>
                                     <input class="b2b-crm__input" type="text" name="sources[<?php echo esc_attr($key); ?>][ai_model]" value="<?php echo esc_attr(isset($values['ai_model']) ? $values['ai_model'] : ''); ?>" />

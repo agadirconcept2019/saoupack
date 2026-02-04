@@ -212,6 +212,7 @@
 .b2b-crm__source-fields {
     display: grid;
     gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .b2b-crm__source-fields label {
@@ -219,6 +220,30 @@
     gap: 6px;
     font-size: 12px;
     color: var(--b2b-muted);
+    background: #f9faff;
+    border: 1px solid var(--b2b-border);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.b2b-crm__source-fields input[type="file"] {
+    background: transparent;
+    border: none;
+    padding: 6px 0 0;
+}
+
+.b2b-crm__source-hint {
+    font-size: 12px;
+    color: var(--b2b-muted);
+}
+
+.b2b-crm__source-hint a {
+    color: var(--b2b-accent);
+    text-decoration: none;
+}
+
+.b2b-crm__source-hint a:hover {
+    text-decoration: underline;
 }
 
 .b2b-crm__input--area {
