@@ -343,6 +343,60 @@
     box-shadow: 0 8px 20px rgba(31, 36, 48, 0.06);
 }
 
+.b2b-crm__email-header {
+    padding: 8px 12px 14px;
+    border-bottom: 1px solid #e3e7f3;
+    background: #f4f6fb;
+    border-radius: 12px 12px 0 0;
+}
+
+.b2b-crm__email-header h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.b2b-crm__email-fields {
+    display: grid;
+    gap: 10px;
+    padding: 12px 12px 0;
+}
+
+.b2b-crm__email-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef1f8;
+    font-size: 13px;
+    color: var(--b2b-muted);
+}
+
+.b2b-crm__email-row span {
+    color: var(--b2b-muted);
+}
+
+.b2b-crm__email-row input {
+    border: none;
+    padding: 6px 4px;
+    background: transparent;
+    color: var(--b2b-text);
+}
+
+.b2b-crm__email-row input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.b2b-crm__email-row input[readonly] {
+    color: var(--b2b-text);
+}
+
+.b2b-crm__email-editor {
+    padding: 0 12px 12px;
+}
+
 .b2b-crm__card--email .form-table {
     margin-top: 12px;
 }
@@ -372,6 +426,22 @@
 
 .b2b-crm__card--email .button-primary {
     padding: 8px 18px;
+}
+
+.b2b-crm__email-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 12px;
+    border-top: 1px solid #e3e7f3;
+    background: #f9faff;
+    border-radius: 0 0 12px 12px;
+}
+
+.b2b-crm__email-tools {
+    display: flex;
+    gap: 10px;
+    color: var(--b2b-muted);
 }
 
 .b2b-crm__card--interactions {

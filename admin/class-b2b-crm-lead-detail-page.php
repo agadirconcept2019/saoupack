@@ -122,35 +122,43 @@ class B2B_CRM_Lead_Detail_Page
                 </div>
 
                 <div class="b2b-crm__card b2b-crm__card--email">
-                    <h2><?php echo esc_html__('Envoyer un email', 'b2b-crm-maroc'); ?></h2>
+                    <div class="b2b-crm__email-header">
+                        <h2><?php echo esc_html__('Nouveau message', 'b2b-crm-maroc'); ?></h2>
+                    </div>
                     <form method="post">
                         <?php wp_nonce_field('b2b_crm_send_email', 'b2b_crm_email_nonce'); ?>
                         <input type="hidden" name="b2b_crm_action" value="send_email" />
-                        <table class="form-table">
-                            <tr>
-                                <th><?php echo esc_html__('Sujet', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="email_subject" class="regular-text" required /></td>
-                            </tr>
-                            <tr>
-                                <th><?php echo esc_html__('Message', 'b2b-crm-maroc'); ?></th>
-                                <td>
-                                    <?php
-                                    wp_editor(
-                                        '',
-                                        'b2b_crm_email_message',
-                                        array(
-                                            'textarea_name' => 'email_message',
-                                            'media_buttons' => false,
-                                            'teeny' => true,
-                                        )
-                                    );
-                                    ?>
-                                </td>
-                            </tr>
-                        </table>
-                        <p>
+                        <div class="b2b-crm__email-fields">
+                            <label class="b2b-crm__email-row">
+                                <span><?php echo esc_html__('Destinataires', 'b2b-crm-maroc'); ?></span>
+                                <input type="text" readonly value="<?php echo esc_attr($lead['email']); ?>" />
+                            </label>
+                            <label class="b2b-crm__email-row">
+                                <span><?php echo esc_html__('Objet', 'b2b-crm-maroc'); ?></span>
+                                <input type="text" name="email_subject" required />
+                            </label>
+                        </div>
+                        <div class="b2b-crm__email-editor">
+                            <?php
+                            wp_editor(
+                                '',
+                                'b2b_crm_email_message',
+                                array(
+                                    'textarea_name' => 'email_message',
+                                    'media_buttons' => false,
+                                    'teeny' => true,
+                                )
+                            );
+                            ?>
+                        </div>
+                        <div class="b2b-crm__email-footer">
                             <button class="button button-primary"><?php echo esc_html__('Envoyer', 'b2b-crm-maroc'); ?></button>
-                        </p>
+                            <div class="b2b-crm__email-tools">
+                                <span class="dashicons dashicons-paperclip"></span>
+                                <span class="dashicons dashicons-format-image"></span>
+                                <span class="dashicons dashicons-smiley"></span>
+                            </div>
+                        </div>
                     </form>
                 </div>
 
