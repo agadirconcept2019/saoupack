@@ -238,8 +238,22 @@ class B2B_CRM_Actions
             $modules_config[$key] = in_array($key, $modules, true);
         }
 
+        $module_settings_raw = isset($_POST['module_settings']) && is_array($_POST['module_settings'])
+            ? wp_unslash($_POST['module_settings'])
+            : array();
+        $module_settings = array(
+            'accounts_owner' => isset($module_settings_raw['accounts_owner']) ? sanitize_text_field($module_settings_raw['accounts_owner']) : '',
+            'contacts_source' => isset($module_settings_raw['contacts_source']) ? sanitize_text_field($module_settings_raw['contacts_source']) : '',
+            'opportunities_stages' => isset($module_settings_raw['opportunities_stages']) ? sanitize_text_field($module_settings_raw['opportunities_stages']) : '',
+            'emails_signature' => isset($module_settings_raw['emails_signature']) ? sanitize_textarea_field($module_settings_raw['emails_signature']) : '',
+            'calendar_timezone' => isset($module_settings_raw['calendar_timezone']) ? sanitize_text_field($module_settings_raw['calendar_timezone']) : '',
+            'tasks_sla' => isset($module_settings_raw['tasks_sla']) ? sanitize_text_field($module_settings_raw['tasks_sla']) : '',
+            'tickets_sla' => isset($module_settings_raw['tickets_sla']) ? sanitize_text_field($module_settings_raw['tickets_sla']) : '',
+        );
+
         update_option('b2b_crm_settings', $settings);
         update_option('b2b_crm_modules_config', $modules_config);
+        update_option('b2b_crm_module_settings', $module_settings);
 
         add_settings_error('b2b-crm-maroc', 'settings_saved', __('Paramétrage enregistré.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=settings'));
