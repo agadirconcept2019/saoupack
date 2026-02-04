@@ -168,7 +168,7 @@ class B2B_CRM_Views
                         <h3><?php echo esc_html__('Système', 'b2b-crm-maroc'); ?></h3>
                         <div class="b2b-crm__settings-list">
                             <div class="b2b-crm__settings-row">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Paramètres', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Identité du workspace, devise et fuseau horaire.', 'b2b-crm-maroc'); ?></span>
                                 </div>
@@ -192,7 +192,7 @@ class B2B_CRM_Views
                                 </div>
                             </div>
                             <div class="b2b-crm__settings-row">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Modules CRM', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Activez les modules souhaités.', 'b2b-crm-maroc'); ?></span>
                                 </div>
@@ -206,7 +206,7 @@ class B2B_CRM_Views
                                 </div>
                             </div>
                             <div class="b2b-crm__settings-row">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Shortcode Frontend', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Affiche l’interface CRM publique.', 'b2b-crm-maroc'); ?></span>
                                 </div>
@@ -221,14 +221,14 @@ class B2B_CRM_Views
                         <h3><?php echo esc_html__('Données', 'b2b-crm-maroc'); ?></h3>
                         <div class="b2b-crm__settings-list">
                             <a class="b2b-crm__settings-link-row" href="<?php echo esc_url($settings_url . '#b2b-crm-collect'); ?>">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Collecte', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Configuration de la recherche et des segments.', 'b2b-crm-maroc'); ?></span>
                                 </div>
                                 <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                             </a>
                             <a class="b2b-crm__settings-link-row" href="<?php echo esc_url($settings_url . '#b2b-crm-sources'); ?>">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('APIs, annuaires, fichiers et enrichissements.', 'b2b-crm-maroc'); ?></span>
                                 </div>
@@ -241,14 +241,14 @@ class B2B_CRM_Views
                         <h3><?php echo esc_html__('Utilisateurs', 'b2b-crm-maroc'); ?></h3>
                         <div class="b2b-crm__settings-list">
                             <div class="b2b-crm__settings-row">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Rôles & Accès', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Gérez les permissions des agents CRM.', 'b2b-crm-maroc'); ?></span>
                                 </div>
                                 <span class="b2b-crm__tag"><?php echo esc_html__('Admin', 'b2b-crm-maroc'); ?></span>
                             </div>
                             <div class="b2b-crm__settings-row">
-                                <div>
+                                <div class="b2b-crm__settings-row-info">
                                     <strong><?php echo esc_html__('Journal d’activité', 'b2b-crm-maroc'); ?></strong>
                                     <span class="b2b-crm__muted"><?php echo esc_html__('Historique des actions CRM.', 'b2b-crm-maroc'); ?></span>
                                 </div>
