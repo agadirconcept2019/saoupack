@@ -41,4 +41,17 @@ jQuery(function ($) {
     $('.b2b-crm__source input[type="checkbox"]').on('change', function () {
         $(this).closest('.b2b-crm__source').toggleClass('is-active', $(this).is(':checked'));
     });
+
+    const $sourceTabs = $('[data-source-tab]');
+    const $sourcePanels = $('[data-source-panel]');
+
+    if ($sourceTabs.length && $sourcePanels.length) {
+        $sourceTabs.on('click', function () {
+            const key = $(this).data('source-tab');
+            $sourceTabs.removeClass('is-active');
+            $sourcePanels.removeClass('is-active');
+            $(this).addClass('is-active');
+            $sourcePanels.filter(`[data-source-panel="${key}"]`).addClass('is-active');
+        });
+    }
 });

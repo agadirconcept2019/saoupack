@@ -143,6 +143,41 @@
     padding: 0 8px;
 }
 
+.b2b-crm__tabs--sources {
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.b2b-crm__tab-button {
+    border: 1px solid var(--b2b-border);
+    background: #fff;
+    color: var(--b2b-muted);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.b2b-crm__tab-button.is-active {
+    background: var(--b2b-accent-soft);
+    color: var(--b2b-accent);
+    border-color: var(--b2b-accent);
+}
+
+.b2b-crm__settings-grid--tabs {
+    grid-template-columns: 1fr;
+}
+
+.b2b-crm__settings-card--source {
+    display: none;
+}
+
+.b2b-crm__settings-card--source.is-active {
+    display: grid;
+}
 .b2b-crm__tabs a {
     color: var(--b2b-muted);
     text-decoration: none;

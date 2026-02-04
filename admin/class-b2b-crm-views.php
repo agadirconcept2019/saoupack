@@ -276,17 +276,24 @@ class B2B_CRM_Views
             <h2><?php echo esc_html__('Sources de données', 'b2b-crm-maroc'); ?></h2>
             <p class="b2b-crm__muted"><?php echo esc_html__('Choisissez les sources et préparez leurs intégrations IA, APIs et URLs.', 'b2b-crm-maroc'); ?></p>
             <?php settings_errors('b2b-crm-maroc'); ?>
-            <form class="b2b-crm__source-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+            <form class="b2b-crm__source-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
                 <?php wp_nonce_field('b2b_crm_save_sources'); ?>
                 <input type="hidden" name="action" value="b2b_crm_save_sources" />
-                <div class="b2b-crm__settings-grid">
+                <div class="b2b-crm__tabs b2b-crm__tabs--sources" role="tablist">
+                    <?php foreach ($sources as $key => $source) : ?>
+                        <button type="button" class="b2b-crm__tab-button <?php echo $key === 'google_maps' ? 'is-active' : ''; ?>" data-source-tab="<?php echo esc_attr($key); ?>" role="tab">
+                            <?php echo esc_html($source['title']); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+                <div class="b2b-crm__settings-grid b2b-crm__settings-grid--tabs">
                     <?php foreach ($sources as $key => $source) : ?>
                         <?php
                         $values = isset($saved[$key]) && is_array($saved[$key]) ? $saved[$key] : array();
                         $values = self::merge_source_defaults($defaults[$key] ?? array(), $values);
                         $enabled = !empty($values['enabled']);
                         ?>
-                        <div class="b2b-crm__settings-card b2b-crm__settings-card--source">
+                        <div class="b2b-crm__settings-card b2b-crm__settings-card--source <?php echo $key === 'google_maps' ? 'is-active' : ''; ?>" data-source-panel="<?php echo esc_attr($key); ?>" role="tabpanel">
                             <div class="b2b-crm__settings-header">
                                 <h3><?php echo esc_html($source['title']); ?></h3>
                                 <label class="b2b-crm__toggle">
