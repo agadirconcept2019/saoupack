@@ -6,6 +6,7 @@
     --b2b-muted: #8b92a6;
     --b2b-accent: #4b47e8;
     --b2b-accent-soft: #e8e9ff;
+    --b2b-accent-dark: #3b38c9;
     font-family: 'Inter', 'Segoe UI', sans-serif;
     background: var(--b2b-bg);
     padding: 24px 28px 32px;
@@ -58,6 +59,62 @@
     align-items: center;
     gap: 12px;
     color: var(--b2b-muted);
+}
+
+.b2b-crm button,
+.b2b-crm .button,
+.b2b-crm__cta,
+.b2b-crm__export,
+.b2b-crm__ghost {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.b2b-crm button:hover,
+.b2b-crm .button:hover,
+.b2b-crm__cta:hover,
+.b2b-crm__export:hover,
+.b2b-crm__ghost:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(31, 36, 48, 0.08);
+}
+
+.b2b-crm button:active,
+.b2b-crm .button:active,
+.b2b-crm__cta:active,
+.b2b-crm__export:active,
+.b2b-crm__ghost:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(31, 36, 48, 0.12);
+}
+
+.b2b-crm .button-primary,
+.b2b-crm__cta,
+.b2b-crm__export {
+    background: var(--b2b-accent);
+    border: 1px solid var(--b2b-accent);
+    color: #fff;
+}
+
+.b2b-crm .button-primary:hover,
+.b2b-crm__cta:hover,
+.b2b-crm__export:hover {
+    background: var(--b2b-accent-dark);
+    border-color: var(--b2b-accent-dark);
+}
+
+.b2b-crm__ghost,
+.b2b-crm .button {
+    background: #fff;
+    border: 1px solid var(--b2b-border);
+    color: var(--b2b-text);
+}
+
+.b2b-crm__ghost:hover,
+.b2b-crm .button:hover {
+    border-color: var(--b2b-accent);
+    color: var(--b2b-accent);
 }
 
 .b2b-crm__settings-link {
@@ -184,6 +241,42 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.b2b-crm .form-table th {
+    width: 180px;
+    color: var(--b2b-muted);
+    font-weight: 600;
+}
+
+.b2b-crm .form-table td {
+    padding: 12px 10px;
+}
+
+.b2b-crm input[type="text"],
+.b2b-crm input[type="email"],
+.b2b-crm input[type="search"],
+.b2b-crm input[type="date"],
+.b2b-crm input[type="datetime-local"],
+.b2b-crm select,
+.b2b-crm textarea {
+    border-radius: 10px;
+    border: 1px solid var(--b2b-border);
+    padding: 8px 10px;
+    box-shadow: none;
+}
+
+.b2b-crm input:focus,
+.b2b-crm select:focus,
+.b2b-crm textarea:focus {
+    border-color: var(--b2b-accent);
+    box-shadow: 0 0 0 3px rgba(75, 71, 232, 0.12);
+}
+
+.b2b-crm .wp-editor-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--b2b-border);
 }
 
 .b2b-crm__section-actions {
