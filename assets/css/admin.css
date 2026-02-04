@@ -186,6 +186,13 @@
     align-items: center;
 }
 
+.b2b-crm__section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
 .b2b-crm__stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -365,7 +372,8 @@
     font-size: 12px;
 }
 
-.b2b-crm__icons span {
+.b2b-crm__icons span,
+.b2b-crm__icons a {
     margin-right: 6px;
     color: #9aa1b2;
 }

@@ -12,6 +12,7 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_delete_lead', array(__CLASS__, 'delete_lead'));
         add_action('admin_post_b2b_crm_run_collect', array(__CLASS__, 'run_collect'));
         add_action('admin_post_b2b_crm_save_sources', array(__CLASS__, 'save_sources'));
+        add_action('admin_post_b2b_crm_add_demo_leads', array(__CLASS__, 'add_demo_leads'));
     }
 
     public static function export_csv()
@@ -45,7 +46,9 @@ class B2B_CRM_Actions
             'Contact',
             'Fonction',
             'Téléphone',
+            'GSM',
             'Email',
+            'Site web',
             'Statut',
             'Intérêt',
             'Source',
@@ -61,7 +64,9 @@ class B2B_CRM_Actions
                 $row['contact_name'],
                 $row['contact_role'],
                 $row['phone'],
+                $row['phone_mobile'],
                 $row['email'],
+                $row['website'],
                 $row['status'],
                 $row['interest_level'],
                 $row['source'],
@@ -150,6 +155,119 @@ class B2B_CRM_Actions
 
         add_settings_error('b2b-crm-maroc', 'sources_saved', __('Sources enregistrées.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=sources'));
+        exit;
+    }
+
+    public static function add_demo_leads()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_add_demo_leads');
+
+        $demo_leads = array(
+            array(
+                'company_name' => 'Atlas Architectes',
+                'sector' => 'Architecte',
+                'city' => 'Casablanca',
+                'contact_name' => 'Salma El Amrani',
+                'contact_role' => 'Directrice',
+                'phone' => '+212 522-123456',
+                'phone_mobile' => '+212 661-000111',
+                'email' => 'contact@atlas-architectes.ma',
+                'website' => 'https://atlas-architectes.ma',
+                'social_json' => wp_json_encode(array(
+                    'facebook' => 'https://facebook.com/atlasarchitectes',
+                    'instagram' => 'https://instagram.com/atlasarchitectes',
+                    'linkedin' => 'https://linkedin.com/company/atlasarchitectes',
+                )),
+                'status' => 'qualified',
+                'interest_level' => 'high',
+                'source' => 'google_maps',
+                'collected_method' => 'Google Places API',
+            ),
+            array(
+                'company_name' => 'Sahara Hôtel',
+                'sector' => 'Hôtel & Tourisme',
+                'city' => 'Marrakech',
+                'contact_name' => 'Youssef Benali',
+                'contact_role' => 'Responsable Marketing',
+                'phone' => '+212 524-555000',
+                'phone_mobile' => '+212 662-456789',
+                'email' => 'marketing@sahara-hotel.ma',
+                'website' => 'https://sahara-hotel.ma',
+                'social_json' => wp_json_encode(array(
+                    'facebook' => 'https://facebook.com/saharahotel',
+                    'instagram' => 'https://instagram.com/saharahotel',
+                )),
+                'status' => 'new',
+                'interest_level' => 'medium',
+                'source' => 'directories',
+                'collected_method' => 'Annuaire Maroc',
+            ),
+            array(
+                'company_name' => 'Médina Santé',
+                'sector' => 'Clinique Privée',
+                'city' => 'Rabat',
+                'contact_name' => 'Dr. Hanae Idrissi',
+                'contact_role' => 'Direction médicale',
+                'phone' => '+212 537-220220',
+                'phone_mobile' => '+212 660-889900',
+                'email' => 'contact@medinasante.ma',
+                'website' => 'https://medinasante.ma',
+                'social_json' => wp_json_encode(array(
+                    'linkedin' => 'https://linkedin.com/company/medinasante',
+                )),
+                'status' => 'contacted',
+                'interest_level' => 'high',
+                'source' => 'social',
+                'collected_method' => 'Social scraping',
+            ),
+            array(
+                'company_name' => 'Garage Al Atlas',
+                'sector' => 'Garage Automobile',
+                'city' => 'Agadir',
+                'contact_name' => 'Noureddine Ait',
+                'contact_role' => 'Gérant',
+                'phone' => '+212 528-339900',
+                'phone_mobile' => '+212 663-990011',
+                'email' => 'contact@garageatlas.ma',
+                'website' => 'https://garageatlas.ma',
+                'social_json' => wp_json_encode(array(
+                    'facebook' => 'https://facebook.com/garageatlas',
+                )),
+                'status' => 'qualified',
+                'interest_level' => 'medium',
+                'source' => 'domains',
+                'collected_method' => 'WHOIS scan',
+            ),
+            array(
+                'company_name' => 'Notaires du Nord',
+                'sector' => 'Notaire',
+                'city' => 'Tanger',
+                'contact_name' => 'Khadija Benjelloun',
+                'contact_role' => 'Associée',
+                'phone' => '+212 539-901122',
+                'phone_mobile' => '+212 664-112233',
+                'email' => 'contact@notairesnord.ma',
+                'website' => 'https://notairesnord.ma',
+                'social_json' => wp_json_encode(array(
+                    'linkedin' => 'https://linkedin.com/company/notairesnord',
+                )),
+                'status' => 'new',
+                'interest_level' => 'low',
+                'source' => 'institutions',
+                'collected_method' => 'Portail institutionnel',
+            ),
+        );
+
+        foreach ($demo_leads as $lead) {
+            B2B_CRM_Lead_Repository::upsert($lead);
+        }
+
+        add_settings_error('b2b-crm-maroc', 'demo_added', __('Données de démonstration ajoutées.', 'b2b-crm-maroc'), 'updated');
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=base'));
         exit;
     }
 }

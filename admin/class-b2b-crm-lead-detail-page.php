@@ -59,8 +59,16 @@ class B2B_CRM_Lead_Detail_Page
                                 <td><input type="text" name="phone" value="<?php echo esc_attr($lead['phone']); ?>" class="regular-text" /></td>
                             </tr>
                             <tr>
+                                <th><?php echo esc_html__('GSM', 'b2b-crm-maroc'); ?></th>
+                                <td><input type="text" name="phone_mobile" value="<?php echo esc_attr($lead['phone_mobile']); ?>" class="regular-text" /></td>
+                            </tr>
+                            <tr>
                                 <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
                                 <td><input type="email" name="email" value="<?php echo esc_attr($lead['email']); ?>" class="regular-text" /></td>
+                            </tr>
+                            <tr>
+                                <th><?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?></th>
+                                <td><input type="text" name="website" value="<?php echo esc_attr($lead['website']); ?>" class="regular-text" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></th>

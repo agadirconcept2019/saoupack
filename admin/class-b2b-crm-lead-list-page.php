@@ -25,7 +25,7 @@ class B2B_CRM_Lead_List_Page
             'dashboard' => __('Dashboard', 'b2b-crm-maroc'),
             'collect' => __('Collecte', 'b2b-crm-maroc'),
             'sources' => __('Sources', 'b2b-crm-maroc'),
-            'base' => __('Base SQL', 'b2b-crm-maroc'),
+            'base' => __('Leads', 'b2b-crm-maroc'),
             'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
         );
@@ -140,18 +140,25 @@ class B2B_CRM_Lead_List_Page
         ?>
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
-                <h2><?php echo esc_html__('Gestion de la Base de Leads', 'b2b-crm-maroc'); ?></h2>
+                <h2><?php echo esc_html__('Gestion des Leads', 'b2b-crm-maroc'); ?></h2>
             </div>
-            <form method="get" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                <input type="hidden" name="action" value="b2b_crm_export_csv" />
-                <input type="hidden" name="s" value="<?php echo esc_attr($filters['search']); ?>" />
-                <input type="hidden" name="status" value="<?php echo esc_attr($filters['status']); ?>" />
-                <input type="hidden" name="city" value="<?php echo esc_attr($filters['city']); ?>" />
-                <input type="hidden" name="sector" value="<?php echo esc_attr($filters['sector']); ?>" />
-                <input type="hidden" name="interest_level" value="<?php echo esc_attr($filters['interest_level']); ?>" />
-                <?php wp_nonce_field('b2b_crm_export_csv'); ?>
-                <button class="b2b-crm__export" type="submit"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
-            </form>
+            <div class="b2b-crm__section-actions">
+                <form method="get" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="b2b_crm_export_csv" />
+                    <input type="hidden" name="s" value="<?php echo esc_attr($filters['search']); ?>" />
+                    <input type="hidden" name="status" value="<?php echo esc_attr($filters['status']); ?>" />
+                    <input type="hidden" name="city" value="<?php echo esc_attr($filters['city']); ?>" />
+                    <input type="hidden" name="sector" value="<?php echo esc_attr($filters['sector']); ?>" />
+                    <input type="hidden" name="interest_level" value="<?php echo esc_attr($filters['interest_level']); ?>" />
+                    <?php wp_nonce_field('b2b_crm_export_csv'); ?>
+                    <button class="b2b-crm__export" type="submit"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
+                </form>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="b2b_crm_add_demo_leads" />
+                    <?php wp_nonce_field('b2b_crm_add_demo_leads'); ?>
+                    <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Ajouter des données de démonstration', 'b2b-crm-maroc'); ?></button>
+                </form>
+            </div>
         </div>
 
         <div class="b2b-crm__table-card">
@@ -180,8 +187,11 @@ class B2B_CRM_Lead_List_Page
                 <thead>
                     <tr>
                         <th><?php echo esc_html__('Société', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Web & Sociaux', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('E-mail', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('GSM', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Réseaux Sociaux', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Statut CRM', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
@@ -190,10 +200,11 @@ class B2B_CRM_Lead_List_Page
                 <tbody>
                     <?php if (empty($data['items'])) : ?>
                         <tr>
-                            <td colspan="6"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
+                            <td colspan="9"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
                         </tr>
                     <?php else : ?>
                         <?php foreach ($data['items'] as $lead) : ?>
+                            <?php $social_links = self::social_links($lead); ?>
                             <tr>
                                 <td>
                                     <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), admin_url('admin.php'))); ?>">
@@ -202,14 +213,25 @@ class B2B_CRM_Lead_List_Page
                                     <div class="b2b-crm__sub"><?php echo esc_html(trim($lead['city'] . ' · ' . $lead['sector'], ' ·')); ?></div>
                                 </td>
                                 <td>
-                                    <div class="b2b-crm__contact-main"><?php echo esc_html($lead['phone']); ?></div>
-                                    <div class="b2b-crm__sub"><?php echo esc_html($lead['email']); ?></div>
+                                    <div class="b2b-crm__contact-main"><?php echo esc_html($lead['email']); ?></div>
+                                </td>
+                                <td><?php echo esc_html($lead['phone']); ?></td>
+                                <td><?php echo esc_html($lead['phone_mobile']); ?></td>
+                                <td class="b2b-crm__icons">
+                                    <?php if (!empty($lead['website'])) : ?>
+                                        <?php self::render_icon_link($lead['website'], 'dashicons-admin-site', __('Site web', 'b2b-crm-maroc')); ?>
+                                    <?php else : ?>
+                                        <span class="dashicons dashicons-minus"></span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="b2b-crm__icons">
-                                    <span class="dashicons dashicons-admin-site"></span>
-                                    <span class="dashicons dashicons-linkedin"></span>
-                                    <span class="dashicons dashicons-facebook"></span>
-                                    <span class="dashicons dashicons-instagram"></span>
+                                    <?php if (empty($social_links)) : ?>
+                                        <span class="dashicons dashicons-minus"></span>
+                                    <?php else : ?>
+                                        <?php foreach ($social_links as $link) : ?>
+                                            <?php self::render_icon_link($link['url'], $link['icon'], $link['label']); ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="b2b-crm__pill b2b-crm__pill--<?php echo esc_attr($lead['interest_level']); ?>"><?php echo esc_html(self::interests()[$lead['interest_level']] ?? $lead['interest_level']); ?></span>
@@ -278,5 +300,47 @@ class B2B_CRM_Lead_List_Page
             'medium' => __('Moyen', 'b2b-crm-maroc'),
             'high' => __('Fort', 'b2b-crm-maroc'),
         );
+    }
+
+    private static function social_links(array $lead)
+    {
+        if (empty($lead['social_json'])) {
+            return array();
+        }
+
+        $decoded = json_decode($lead['social_json'], true);
+        if (!is_array($decoded)) {
+            return array();
+        }
+
+        $map = array(
+            'website' => array('icon' => 'dashicons-admin-site', 'label' => __('Site web', 'b2b-crm-maroc')),
+            'facebook' => array('icon' => 'dashicons-facebook', 'label' => __('Facebook', 'b2b-crm-maroc')),
+            'instagram' => array('icon' => 'dashicons-instagram', 'label' => __('Instagram', 'b2b-crm-maroc')),
+            'linkedin' => array('icon' => 'dashicons-linkedin', 'label' => __('LinkedIn', 'b2b-crm-maroc')),
+        );
+
+        $links = array();
+        foreach ($map as $key => $meta) {
+            if (empty($decoded[$key])) {
+                continue;
+            }
+            $links[] = array(
+                'url' => $decoded[$key],
+                'icon' => $meta['icon'],
+                'label' => $meta['label'],
+            );
+        }
+
+        return $links;
+    }
+
+    private static function render_icon_link($url, $icon, $label)
+    {
+        ?>
+        <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr($label); ?>">
+            <span class="dashicons <?php echo esc_attr($icon); ?>" aria-hidden="true"></span>
+        </a>
+        <?php
     }
 }
