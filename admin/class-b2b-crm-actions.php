@@ -11,6 +11,7 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_export_csv', array(__CLASS__, 'export_csv'));
         add_action('admin_post_b2b_crm_delete_lead', array(__CLASS__, 'delete_lead'));
         add_action('admin_post_b2b_crm_run_collect', array(__CLASS__, 'run_collect'));
+        add_action('admin_post_b2b_crm_save_sources', array(__CLASS__, 'save_sources'));
     }
 
     public static function export_csv()
@@ -112,6 +113,43 @@ class B2B_CRM_Actions
 
         add_settings_error('b2b-crm-maroc', 'collect_started', __('Collecte lancée. Configuration enregistrée.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=collect'));
+        exit;
+    }
+
+    public static function save_sources()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_save_sources');
+
+        $raw_sources = isset($_POST['sources']) && is_array($_POST['sources']) ? wp_unslash($_POST['sources']) : array();
+        $source_keys = array(
+            'google_maps',
+            'directories',
+            'social',
+            'domains',
+            'institutions',
+        );
+        $clean_sources = array();
+
+        foreach ($source_keys as $key) {
+            $source = isset($raw_sources[$key]) && is_array($raw_sources[$key]) ? $raw_sources[$key] : array();
+            $clean_sources[$key] = array(
+                'enabled' => !empty($source['enabled']),
+                'api_key' => isset($source['api_key']) ? sanitize_text_field($source['api_key']) : '',
+                'endpoint' => isset($source['endpoint']) ? esc_url_raw($source['endpoint']) : '',
+                'ai_model' => isset($source['ai_model']) ? sanitize_text_field($source['ai_model']) : '',
+                'notes' => isset($source['notes']) ? sanitize_textarea_field($source['notes']) : '',
+                'options' => isset($source['options']) ? sanitize_textarea_field($source['options']) : '',
+            );
+        }
+
+        update_option('b2b_crm_sources_config', $clean_sources);
+
+        add_settings_error('b2b-crm-maroc', 'sources_saved', __('Sources enregistrées.', 'b2b-crm-maroc'), 'updated');
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=sources'));
         exit;
     }
 }

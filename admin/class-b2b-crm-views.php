@@ -162,41 +162,104 @@ class B2B_CRM_Views
 
     public static function render_sources()
     {
+        $saved = get_option('b2b_crm_sources_config', array());
         $sources = array(
-            array(
+            'google_maps' => array(
                 'title' => __('Google Maps & GMB', 'b2b-crm-maroc'),
-                'description' => __('Connexion aux APIs Google, enrichissement IA, et extraction des fiches locales.', 'b2b-crm-maroc'),
+                'description' => __('API Google Places, catégories GMB, rayon de recherche et enrichissement IA.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'api_key' => __('Clé API Google', 'b2b-crm-maroc'),
+                    'endpoint' => __('Endpoint Places API', 'b2b-crm-maroc'),
+                    'options' => __('Catégories/Types (ex: restaurant, architecte)', 'b2b-crm-maroc'),
+                ),
             ),
-            array(
+            'directories' => array(
                 'title' => __('Annuaires Marocains', 'b2b-crm-maroc'),
-                'description' => __('Indexation d’annuaires professionnels via APIs, URLs ciblées et analyse IA.', 'b2b-crm-maroc'),
+                'description' => __('Ciblage par URLs d’annuaires, profondeur de crawl et extraction IA.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'endpoint' => __('URL de base / liste d’URLs', 'b2b-crm-maroc'),
+                    'options' => __('Profondeur de crawl / délais (texte)', 'b2b-crm-maroc'),
+                    'notes' => __('Notes (règles d’extraction, anti-doublons)', 'b2b-crm-maroc'),
+                ),
             ),
-            array(
+            'social' => array(
                 'title' => __('Réseaux Sociaux Pro', 'b2b-crm-maroc'),
-                'description' => __('Agrégation des profils LinkedIn/Facebook/Instagram via URLs et signaux IA.', 'b2b-crm-maroc'),
+                'description' => __('URLs ciblées, tokens APIs et scoring IA sur profils pros.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'api_key' => __('Token/API key (LinkedIn/Facebook)', 'b2b-crm-maroc'),
+                    'endpoint' => __('URLs de recherche / pages', 'b2b-crm-maroc'),
+                    'ai_model' => __('Modèle IA (scoring & qualification)', 'b2b-crm-maroc'),
+                ),
             ),
-            array(
+            'domains' => array(
                 'title' => __('Scan Domaines (.ma, .com...)', 'b2b-crm-maroc'),
-                'description' => __('Scraping légal et enrichissement IA sur des bases WHOIS/registrars et URLs publiques.', 'b2b-crm-maroc'),
+                'description' => __('Listes TLD, fournisseurs WHOIS et enrichissement IA.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'api_key' => __('Clé API WHOIS/Registrar', 'b2b-crm-maroc'),
+                    'options' => __('TLDs ciblés (ex: .ma, .com)', 'b2b-crm-maroc'),
+                    'notes' => __('Règles d’enrichissement et exclusions', 'b2b-crm-maroc'),
+                ),
             ),
-            array(
+            'institutions' => array(
                 'title' => __('Portails Institutionnels', 'b2b-crm-maroc'),
-                'description' => __('Connexion aux portails officiels (CCIM, marchés publics, etc.) via APIs et extraction IA.', 'b2b-crm-maroc'),
+                'description' => __('Portails officiels, APIs ouvertes et extraction IA.', 'b2b-crm-maroc'),
+                'fields' => array(
+                    'endpoint' => __('URLs / APIs officielles', 'b2b-crm-maroc'),
+                    'api_key' => __('Clé API (si disponible)', 'b2b-crm-maroc'),
+                    'notes' => __('Notes (fréquence, accès, format)', 'b2b-crm-maroc'),
+                ),
             ),
         );
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Sources de données', 'b2b-crm-maroc'); ?></h2>
             <p class="b2b-crm__muted"><?php echo esc_html__('Choisissez les sources et préparez leurs intégrations IA, APIs et URLs.', 'b2b-crm-maroc'); ?></p>
-            <div class="b2b-crm__settings-grid">
-                <?php foreach ($sources as $source) : ?>
-                    <div class="b2b-crm__settings-card">
-                        <h3><?php echo esc_html($source['title']); ?></h3>
-                        <p><?php echo esc_html($source['description']); ?></p>
-                        <span class="b2b-crm__pill"><?php echo esc_html__('Configuration IA/API/URL', 'b2b-crm-maroc'); ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <?php settings_errors('b2b-crm-maroc'); ?>
+            <form class="b2b-crm__source-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <?php wp_nonce_field('b2b_crm_save_sources'); ?>
+                <input type="hidden" name="action" value="b2b_crm_save_sources" />
+                <div class="b2b-crm__settings-grid">
+                    <?php foreach ($sources as $key => $source) : ?>
+                        <?php
+                        $values = isset($saved[$key]) && is_array($saved[$key]) ? $saved[$key] : array();
+                        $enabled = !empty($values['enabled']);
+                        ?>
+                        <div class="b2b-crm__settings-card b2b-crm__settings-card--source">
+                            <div class="b2b-crm__settings-header">
+                                <h3><?php echo esc_html($source['title']); ?></h3>
+                                <label class="b2b-crm__toggle">
+                                    <input type="checkbox" name="sources[<?php echo esc_attr($key); ?>][enabled]" value="1" <?php checked($enabled); ?> />
+                                    <span><?php echo esc_html__('Activé', 'b2b-crm-maroc'); ?></span>
+                                </label>
+                            </div>
+                            <p><?php echo esc_html($source['description']); ?></p>
+                            <div class="b2b-crm__source-fields">
+                                <?php foreach ($source['fields'] as $field_key => $label) : ?>
+                                    <label>
+                                        <span><?php echo esc_html($label); ?></span>
+                                        <?php
+                                        $field_value = isset($values[$field_key]) ? $values[$field_key] : '';
+                                        $is_textarea = in_array($field_key, array('notes', 'options'), true);
+                                        ?>
+                                        <?php if ($is_textarea) : ?>
+                                            <textarea class="b2b-crm__input b2b-crm__input--area" name="sources[<?php echo esc_attr($key); ?>][<?php echo esc_attr($field_key); ?>]" rows="3"><?php echo esc_textarea($field_value); ?></textarea>
+                                        <?php else : ?>
+                                            <input class="b2b-crm__input" type="text" name="sources[<?php echo esc_attr($key); ?>][<?php echo esc_attr($field_key); ?>]" value="<?php echo esc_attr($field_value); ?>" />
+                                        <?php endif; ?>
+                                    </label>
+                                <?php endforeach; ?>
+                                <label>
+                                    <span><?php echo esc_html__('Modèle IA (optionnel)', 'b2b-crm-maroc'); ?></span>
+                                    <input class="b2b-crm__input" type="text" name="sources[<?php echo esc_attr($key); ?>][ai_model]" value="<?php echo esc_attr(isset($values['ai_model']) ? $values['ai_model'] : ''); ?>" />
+                                </label>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="b2b-crm__section">
+                    <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Enregistrer les sources', 'b2b-crm-maroc'); ?></button>
+                </div>
+            </form>
         </div>
         <?php
     }
