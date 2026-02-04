@@ -38,6 +38,7 @@ class B2B_CRM_Lead_Table
             next_action text NULL,
             follow_up_date date NULL,
             interest_level enum('low','medium','high') NOT NULL DEFAULT 'low',
+            tags text NULL,
             notes longtext NULL,
             source varchar(190) DEFAULT '' NOT NULL,
             collected_at datetime NOT NULL,

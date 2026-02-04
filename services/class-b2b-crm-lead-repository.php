@@ -145,6 +145,7 @@ class B2B_CRM_Lead_Repository
             'next_action' => null,
             'follow_up_date' => null,
             'interest_level' => 'low',
+            'tags' => null,
             'notes' => null,
             'source' => '',
             'collected_at' => $now,

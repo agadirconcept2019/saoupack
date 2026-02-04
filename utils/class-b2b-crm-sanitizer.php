@@ -27,6 +27,7 @@ class B2B_CRM_Sanitizer
             'next_action' => 'text',
             'follow_up_date' => 'date',
             'interest_level' => 'key',
+            'tags' => 'text',
             'notes' => 'text',
             'source' => 'text',
             'collected_at' => 'datetime',

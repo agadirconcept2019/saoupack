@@ -91,6 +91,10 @@ class B2B_CRM_Lead_Detail_Page
                                 </td>
                             </tr>
                             <tr>
+                                <th><?php echo esc_html__('Tags', 'b2b-crm-maroc'); ?></th>
+                                <td><input type="text" name="tags" value="<?php echo esc_attr($lead['tags']); ?>" class="regular-text" placeholder="<?php echo esc_attr__('ex: priorité, retail', 'b2b-crm-maroc'); ?>" /></td>
+                            </tr>
+                            <tr>
                                 <th><?php echo esc_html__('Dernier contact', 'b2b-crm-maroc'); ?></th>
                                 <td><input type="datetime-local" name="last_contact" value="<?php echo esc_attr(self::format_datetime_local($lead['last_contact'])); ?>" /></td>
                             </tr>

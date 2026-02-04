@@ -17,6 +17,7 @@ define('B2B_CRM_MAROC_PATH', plugin_dir_path(__FILE__));
 define('B2B_CRM_MAROC_URL', plugin_dir_url(__FILE__));
 
 define('B2B_CRM_MAROC_CAP', 'manage_options');
+define('B2B_CRM_MAROC_LEADS_CAP', 'b2b_crm_manage_leads');
 
 require_once B2B_CRM_MAROC_PATH . 'bootstrap/class-b2b-crm-bootstrap.php';
 
