@@ -312,6 +312,16 @@
     text-decoration: underline;
 }
 
+.b2b-crm__shortcode {
+    display: inline-block;
+    background: #f1f2f6;
+    border: 1px solid var(--b2b-border);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--b2b-text);
+}
+
 .b2b-crm__section--row {
     display: flex;
     justify-content: space-between;

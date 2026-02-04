@@ -132,33 +132,27 @@ class B2B_CRM_Views
     {
         ?>
         <div class="b2b-crm__section">
-            <h2><?php echo esc_html__('Paramétrage & Fonctionnalités', 'b2b-crm-maroc'); ?></h2>
-            <p class="b2b-crm__muted"><?php echo esc_html__('Centralisez ici tous les réglages du plugin et accédez rapidement aux modules clés.', 'b2b-crm-maroc'); ?></p>
+            <h2><?php echo esc_html__('Paramétrages', 'b2b-crm-maroc'); ?></h2>
+            <p class="b2b-crm__muted"><?php echo esc_html__('Regroupez ici tous les réglages nécessaires au fonctionnement du CRM.', 'b2b-crm-maroc'); ?></p>
             <div class="b2b-crm__settings-grid">
                 <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Collecte intelligente', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Définissez la ville, le secteur, les sources et la profondeur de recherche.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Configurer la collecte', 'b2b-crm-maroc'); ?></a>
+                    <h3><?php echo esc_html__('Sources de données', 'b2b-crm-maroc'); ?></h3>
+                    <p><?php echo esc_html__('Configurez les sources, clés API, endpoints et import Excel/CSV.', 'b2b-crm-maroc'); ?></p>
+                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Ouvrir les sources', 'b2b-crm-maroc'); ?></a>
                 </div>
                 <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Base de leads', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Suivez, filtrez et exportez les leads enregistrés.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'base'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Ouvrir la base', 'b2b-crm-maroc'); ?></a>
+                    <h3><?php echo esc_html__('Collecte', 'b2b-crm-maroc'); ?></h3>
+                    <p><?php echo esc_html__('Choisissez la ville, le secteur, la précision et les sources actives.', 'b2b-crm-maroc'); ?></p>
+                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'collect'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Ouvrir la collecte', 'b2b-crm-maroc'); ?></a>
                 </div>
                 <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Pipeline CRM', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Visualisez l’avancement commercial et les statuts.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'pipeline'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Voir le pipeline', 'b2b-crm-maroc'); ?></a>
-                </div>
-                <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Dashboard', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Consultez les statistiques, les performances et l’activité récente.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'dashboard'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Revenir au dashboard', 'b2b-crm-maroc'); ?></a>
+                    <h3><?php echo esc_html__('Shortcode Frontend', 'b2b-crm-maroc'); ?></h3>
+                    <p><?php echo esc_html__('Ajoutez l’interface publique CRM sur une page WordPress.', 'b2b-crm-maroc'); ?></p>
+                    <code class="b2b-crm__shortcode">[mon_plugin_crm]</code>
                 </div>
             </div>
         </div>
         <?php
-        self::render_collect();
     }
 
     public static function render_sources()
