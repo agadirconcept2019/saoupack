@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-lead-table.php';
 require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-interaction-table.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-lead-repository.php';
+require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-collector.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-email-service.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-interaction-repository.php';
 require_once B2B_CRM_MAROC_PATH . 'admin/class-b2b-crm-admin-menu.php';
