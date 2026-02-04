@@ -468,6 +468,20 @@
     color: var(--b2b-muted);
 }
 
+.b2b-crm__module-details {
+    margin-top: 10px;
+}
+
+.b2b-crm__module-details summary {
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--b2b-text);
+}
+
+.b2b-crm__module-details summary:hover {
+    color: var(--b2b-accent);
+}
+
 .b2b-crm__modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

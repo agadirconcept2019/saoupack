@@ -723,6 +723,12 @@ class B2B_CRM_Lead_List_Page
             <div>
                 <h2><?php echo esc_html($config['title']); ?></h2>
                 <p class="b2b-crm__muted"><?php echo esc_html($config['description']); ?></p>
+                <?php if (!empty($config['details'])) : ?>
+                    <details class="b2b-crm__module-details">
+                        <summary><?php echo esc_html__('Afficher la description', 'b2b-crm-maroc'); ?></summary>
+                        <p class="b2b-crm__muted"><?php echo esc_html($config['details']); ?></p>
+                    </details>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -941,6 +947,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'opportunities',
             'title' => __('Opportunités', 'b2b-crm-maroc'),
             'description' => __('Suivez les opportunités commerciales en cours.', 'b2b-crm-maroc'),
+            'details' => __('Centralisez les informations commerciales clés (montant, étape, prochaines actions) pour piloter chaque opportunité jusqu’à sa conclusion.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter une opportunité', 'b2b-crm-maroc'),
             'statuses' => array(
                 'open' => __('Ouverte', 'b2b-crm-maroc'),
@@ -980,6 +987,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'tasks',
             'title' => __('Tâches', 'b2b-crm-maroc'),
             'description' => __('Planifiez et assignez les tâches internes.', 'b2b-crm-maroc'),
+            'details' => __('Planifiez les actions à réaliser, suivez leur échéance et clarifiez les responsabilités pour garder le rythme des opérations.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter une tâche', 'b2b-crm-maroc'),
             'statuses' => array(
                 'todo' => __('À faire', 'b2b-crm-maroc'),
@@ -1017,6 +1025,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'tickets',
             'title' => __('Tickets', 'b2b-crm-maroc'),
             'description' => __('Suivez les demandes et incidents clients.', 'b2b-crm-maroc'),
+            'details' => __('Centralisez les demandes clients, leur priorité et le canal d’entrée afin de garantir un suivi réactif.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un ticket', 'b2b-crm-maroc'),
             'statuses' => array(
                 'open' => __('Ouvert', 'b2b-crm-maroc'),
@@ -1055,6 +1064,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'documents',
             'title' => __('Documents', 'b2b-crm-maroc'),
             'description' => __('Centralisez les documents et fichiers clients.', 'b2b-crm-maroc'),
+            'details' => __('Référencez les fichiers importants, leurs tags et leur visibilité pour les retrouver rapidement et les partager au bon niveau.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un document', 'b2b-crm-maroc'),
             'statuses' => array(
                 'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -1090,6 +1100,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'knowledge',
             'title' => __('Base de connaissance', 'b2b-crm-maroc'),
             'description' => __('Organisez les articles internes et procédures.', 'b2b-crm-maroc'),
+            'details' => __('Structurez les contenus internes, résumés et catégories pour faciliter l’onboarding et la résolution rapide des questions.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un article', 'b2b-crm-maroc'),
             'statuses' => array(
                 'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -1122,6 +1133,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'sales',
             'title' => __('Sales & Purchases', 'b2b-crm-maroc'),
             'description' => __('Suivez les ventes et achats en cours.', 'b2b-crm-maroc'),
+            'details' => __('Regroupez les transactions, leurs montants et références pour suivre les flux commerciaux et financiers.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter une transaction', 'b2b-crm-maroc'),
             'statuses' => array(
                 'open' => __('Ouverte', 'b2b-crm-maroc'),
@@ -1158,6 +1170,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'emails',
             'title' => __('Emails', 'b2b-crm-maroc'),
             'description' => __('Journalisez les emails envoyés.', 'b2b-crm-maroc'),
+            'details' => __('Historisez les échanges clés avec les destinataires, la direction et le statut d’envoi pour garder un fil de communication clair.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un email', 'b2b-crm-maroc'),
             'statuses' => array(
                 'draft' => __('Brouillon', 'b2b-crm-maroc'),
@@ -1192,6 +1205,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'calendar',
             'title' => __('Calendrier', 'b2b-crm-maroc'),
             'description' => __('Planifiez les événements du CRM.', 'b2b-crm-maroc'),
+            'details' => __('Planifiez les événements importants, leur durée et leur lieu pour coordonner les équipes efficacement.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un événement', 'b2b-crm-maroc'),
             'statuses' => array(
                 'planned' => __('Planifié', 'b2b-crm-maroc'),
@@ -1225,6 +1239,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'meetings',
             'title' => __('Rendez-vous', 'b2b-crm-maroc'),
             'description' => __('Programmez les réunions et rendez-vous.', 'b2b-crm-maroc'),
+            'details' => __('Organisez les rendez-vous, participants et lieux pour un suivi précis des échanges clients.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un rendez-vous', 'b2b-crm-maroc'),
             'statuses' => array(
                 'planned' => __('Planifié', 'b2b-crm-maroc'),
@@ -1259,6 +1274,7 @@ class B2B_CRM_Lead_List_Page
             'key' => 'calls',
             'title' => __('Appels', 'b2b-crm-maroc'),
             'description' => __('Suivez les appels effectués.', 'b2b-crm-maroc'),
+            'details' => __('Tracez les appels, leurs contacts et durées pour garder un historique des échanges téléphoniques.', 'b2b-crm-maroc'),
             'button_label' => __('Ajouter un appel', 'b2b-crm-maroc'),
             'statuses' => array(
                 'planned' => __('Planifié', 'b2b-crm-maroc'),
