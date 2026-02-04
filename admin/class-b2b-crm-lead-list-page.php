@@ -434,14 +434,8 @@ class B2B_CRM_Lead_List_Page
 
     private static function render_accounts()
     {
-        $filters = array(
-            'search' => isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '',
-            'status' => isset($_GET['status']) ? sanitize_key($_GET['status']) : '',
-        );
-        $paged = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
-        $per_page = 20;
-        $data = B2B_CRM_Account_Repository::list($filters, $paged, $per_page);
-        $total_pages = (int) ceil($data['total'] / $per_page);
+        $data = B2B_CRM_Account_Repository::list(array(), 1, 1);
+        $account = !empty($data['items'][0]) ? $data['items'][0] : array();
 
         ?>
         <div class="b2b-crm__section b2b-crm__section--row">
@@ -455,119 +449,60 @@ class B2B_CRM_Lead_List_Page
             <form method="post" class="b2b-crm__form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('b2b_crm_add_account'); ?>
                 <input type="hidden" name="action" value="b2b_crm_add_account" />
+                <input type="hidden" name="account_id" value="<?php echo esc_attr($account['id'] ?? 0); ?>" />
                 <div class="b2b-crm__grid">
                     <label>
                         <span><?php echo esc_html__('Nom de l’entreprise', 'b2b-crm-maroc'); ?></span>
-                        <input type="text" name="name" required />
+                        <input type="text" name="name" value="<?php echo esc_attr($account['name'] ?? ''); ?>" required />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Nom officiel de votre entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Secteur', 'b2b-crm-maroc'); ?></span>
-                        <input type="text" name="industry" />
+                        <input type="text" name="industry" value="<?php echo esc_attr($account['industry'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__("Secteur d'activité principal.", 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></span>
-                        <input type="text" name="city" />
+                        <input type="text" name="city" value="<?php echo esc_attr($account['city'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Ville principale de votre entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></span>
-                        <input type="email" name="email" />
+                        <input type="email" name="email" value="<?php echo esc_attr($account['email'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Email professionnel principal de l’entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></span>
-                        <input type="text" name="phone" />
+                        <input type="text" name="phone" value="<?php echo esc_attr($account['phone'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Téléphone professionnel principal de l’entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Site web', 'b2b-crm-maroc'); ?></span>
-                        <input type="url" name="website" />
+                        <input type="url" name="website" value="<?php echo esc_attr($account['website'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Site web officiel de l’entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Responsable', 'b2b-crm-maroc'); ?></span>
-                        <input type="text" name="owner" />
+                        <input type="text" name="owner" value="<?php echo esc_attr($account['owner'] ?? ''); ?>" />
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Responsable interne de l’entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                     <label>
                         <span><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></span>
                         <select name="status">
-                            <option value="active"><?php echo esc_html__('Actif', 'b2b-crm-maroc'); ?></option>
-                            <option value="inactive"><?php echo esc_html__('Inactif', 'b2b-crm-maroc'); ?></option>
+                            <option value="active" <?php selected($account['status'] ?? 'active', 'active'); ?>><?php echo esc_html__('Actif', 'b2b-crm-maroc'); ?></option>
+                            <option value="inactive" <?php selected($account['status'] ?? 'active', 'inactive'); ?>><?php echo esc_html__('Inactif', 'b2b-crm-maroc'); ?></option>
                         </select>
                         <span class="b2b-crm__field-hint"><?php echo esc_html__('Statut opérationnel de l’entreprise.', 'b2b-crm-maroc'); ?></span>
                     </label>
                 </div>
                 <label>
                     <span><?php echo esc_html__('Notes', 'b2b-crm-maroc'); ?></span>
-                    <textarea name="notes" rows="3"></textarea>
+                    <textarea name="notes" rows="3"><?php echo esc_textarea($account['notes'] ?? ''); ?></textarea>
                     <span class="b2b-crm__field-hint"><?php echo esc_html__('Notes internes sur l’entreprise.', 'b2b-crm-maroc'); ?></span>
                 </label>
                 <button class="b2b-crm__button" type="submit"><?php echo esc_html__('Enregistrer l’entreprise', 'b2b-crm-maroc'); ?></button>
             </form>
         </div>
-
-        <div class="b2b-crm__table-card">
-            <div class="b2b-crm__toolbar">
-                <form method="get" class="b2b-crm__filters">
-                    <input type="hidden" name="page" value="b2b-crm-maroc" />
-                    <input type="hidden" name="tab" value="accounts" />
-                    <input type="search" name="s" placeholder="<?php echo esc_attr__('Recherche', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
-                    <select name="status">
-                        <option value=""><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></option>
-                        <option value="active" <?php selected($filters['status'], 'active'); ?>><?php echo esc_html__('Actif', 'b2b-crm-maroc'); ?></option>
-                        <option value="inactive" <?php selected($filters['status'], 'inactive'); ?>><?php echo esc_html__('Inactif', 'b2b-crm-maroc'); ?></option>
-                    </select>
-                    <button class="b2b-crm__ghost"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
-                </form>
-            </div>
-
-            <table class="b2b-crm__table">
-                <thead>
-                    <tr>
-                        <th><?php echo esc_html__('Nom', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Secteur', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($data['items'])) : ?>
-                        <tr>
-                            <td colspan="6"><?php echo esc_html__('Aucune entreprise pour le moment.', 'b2b-crm-maroc'); ?></td>
-                        </tr>
-                    <?php else : ?>
-                        <?php foreach ($data['items'] as $account) : ?>
-                            <tr>
-                                <td><?php echo esc_html($account['name']); ?></td>
-                                <td><?php echo esc_html($account['industry']); ?></td>
-                                <td><?php echo esc_html($account['city']); ?></td>
-                                <td><?php echo esc_html($account['email']); ?></td>
-                                <td><?php echo esc_html($account['phone']); ?></td>
-                                <td><?php echo esc_html($account['status']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <?php if ($total_pages > 1) : ?>
-            <div class="b2b-crm__pagination">
-                <?php
-                echo paginate_links(array(
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'total' => $total_pages,
-                    'current' => $paged,
-                ));
-                ?>
-            </div>
-        <?php endif; ?>
         <?php
     }
 
@@ -586,7 +521,7 @@ class B2B_CRM_Lead_List_Page
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></h2>
-                <p class="b2b-crm__muted"><?php echo esc_html__('Gérez les contacts clés des comptes.', 'b2b-crm-maroc'); ?></p>
+                <p class="b2b-crm__muted"><?php echo esc_html__('Gérez les contacts clés de l’entreprise.', 'b2b-crm-maroc'); ?></p>
             </div>
         </div>
 

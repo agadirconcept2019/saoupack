@@ -69,4 +69,27 @@ class B2B_CRM_Account_Repository
 
         return (int) $wpdb->insert_id;
     }
+
+    public static function update($account_id, array $data)
+    {
+        global $wpdb;
+
+        $table = B2B_CRM_Account_Table::table_name();
+        $now = current_time('mysql');
+
+        $payload = array(
+            'name' => $data['name'],
+            'industry' => $data['industry'],
+            'city' => $data['city'],
+            'website' => $data['website'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'owner' => $data['owner'],
+            'status' => $data['status'],
+            'notes' => $data['notes'],
+            'updated_at' => $now,
+        );
+
+        return (bool) $wpdb->update($table, $payload, array('id' => (int) $account_id));
+    }
 }

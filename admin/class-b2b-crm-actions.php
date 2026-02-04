@@ -396,9 +396,16 @@ class B2B_CRM_Actions
             'notes' => isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '',
         );
 
+        $account_id = isset($_POST['account_id']) ? absint($_POST['account_id']) : 0;
+
         if ($data['name']) {
-            B2B_CRM_Account_Repository::insert($data);
-            add_settings_error('b2b-crm-maroc', 'account_added', __('Compte ajouté.', 'b2b-crm-maroc'), 'updated');
+            if ($account_id) {
+                B2B_CRM_Account_Repository::update($account_id, $data);
+                add_settings_error('b2b-crm-maroc', 'account_updated', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+            } else {
+                B2B_CRM_Account_Repository::insert($data);
+                add_settings_error('b2b-crm-maroc', 'account_added', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+            }
         }
 
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=accounts'));
