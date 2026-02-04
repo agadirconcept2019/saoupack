@@ -195,14 +195,25 @@ class B2B_CRM_Lead_Repository
         global $wpdb;
 
         $table = B2B_CRM_Lead_Table::table_name();
-        $allowed_fields = array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website');
+        $allowed_fields = array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website', 'status', 'interest_level');
         $sanitized_fields = array_values(array_intersect($fields, $allowed_fields));
         $values = array();
+        $reference = get_option('b2b_crm_key_values', array());
 
         foreach ($sanitized_fields as $field) {
             $query = "SELECT DISTINCT {$field} FROM {$table} WHERE {$field} <> '' ORDER BY updated_at DESC LIMIT %d";
             $results = $wpdb->get_col($wpdb->prepare($query, $limit));
             $values[$field] = array_values(array_filter($results));
+            if (!empty($reference[$field]) && is_array($reference[$field])) {
+                $values[$field] = array_values(array_unique(array_merge($reference[$field], $values[$field])));
+            }
+        }
+
+        foreach ($reference as $field => $items) {
+            if (!in_array($field, $fields, true) || isset($values[$field])) {
+                continue;
+            }
+            $values[$field] = is_array($items) ? array_values(array_unique($items)) : array();
         }
 
         return $values;

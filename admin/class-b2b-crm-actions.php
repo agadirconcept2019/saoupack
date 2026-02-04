@@ -254,9 +254,19 @@ class B2B_CRM_Actions
             'tickets_sla' => isset($module_settings_raw['tickets_sla']) ? sanitize_text_field($module_settings_raw['tickets_sla']) : '',
         );
 
+        $key_values_raw = isset($_POST['key_values']) && is_array($_POST['key_values'])
+            ? wp_unslash($_POST['key_values'])
+            : array();
+        $key_values = array();
+        foreach ($key_values_raw as $key => $value) {
+            $lines = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $value)));
+            $key_values[sanitize_key($key)] = array_values(array_unique(array_map('sanitize_text_field', $lines)));
+        }
+
         update_option('b2b_crm_settings', $settings);
         update_option('b2b_crm_modules_config', $modules_config);
         update_option('b2b_crm_module_settings', $module_settings);
+        update_option('b2b_crm_key_values', $key_values);
 
         add_settings_error('b2b-crm-maroc', 'settings_saved', __('Paramétrage enregistré.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=settings'));
@@ -400,12 +410,22 @@ class B2B_CRM_Actions
 
         if ($data['name']) {
             if ($account_id) {
-                B2B_CRM_Account_Repository::update($account_id, $data);
-                add_settings_error('b2b-crm-maroc', 'account_updated', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+                $updated = B2B_CRM_Account_Repository::update($account_id, $data);
+                if ($updated) {
+                    add_settings_error('b2b-crm-maroc', 'account_updated', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+                } else {
+                    add_settings_error('b2b-crm-maroc', 'account_update_failed', __('La mise à jour a échoué.', 'b2b-crm-maroc'), 'error');
+                }
             } else {
-                B2B_CRM_Account_Repository::insert($data);
-                add_settings_error('b2b-crm-maroc', 'account_added', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+                $inserted = B2B_CRM_Account_Repository::insert($data);
+                if ($inserted) {
+                    add_settings_error('b2b-crm-maroc', 'account_added', __('Entreprise enregistrée.', 'b2b-crm-maroc'), 'updated');
+                } else {
+                    add_settings_error('b2b-crm-maroc', 'account_insert_failed', __('L’enregistrement a échoué.', 'b2b-crm-maroc'), 'error');
+                }
             }
+        } else {
+            add_settings_error('b2b-crm-maroc', 'account_name_required', __('Le nom de l’entreprise est obligatoire.', 'b2b-crm-maroc'), 'error');
         }
 
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=accounts'));

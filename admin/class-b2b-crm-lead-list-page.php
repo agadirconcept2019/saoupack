@@ -277,7 +277,7 @@ class B2B_CRM_Lead_List_Page
 
     private static function modules_config()
     {
-        return array(
+        $config = array(
             'accounts' => true,
             'contacts' => true,
             'base' => true,
@@ -296,6 +296,7 @@ class B2B_CRM_Lead_List_Page
             'pipeline' => true,
             'settings' => true,
         );
+        return apply_filters('b2b_crm_modules_config', $config);
     }
 
     private static function render_base($filters, $data, $total_pages, $paged)
@@ -742,7 +743,7 @@ class B2B_CRM_Lead_List_Page
                             $list_values = $lead_suggestions['phone'] ?? array();
                         } elseif ($field['name'] === 'meta[priority]') {
                             $list_id = 'b2b-crm-module-priority';
-                            $list_values = array_values(self::interests());
+                            $list_values = $lead_suggestions['priority'] ?? array_values(self::interests());
                         }
                         if ($list_id) {
                             $datalists[$list_id] = $list_values;
@@ -1287,7 +1288,7 @@ class B2B_CRM_Lead_List_Page
 
         if ($cache === null) {
             $cache = B2B_CRM_Lead_Repository::key_values(
-                array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website')
+                array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website', 'priority', 'status')
             );
         }
 

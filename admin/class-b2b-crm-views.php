@@ -163,6 +163,17 @@ class B2B_CRM_Views
             'sources' => true,
             'pipeline' => true,
         ));
+        $key_values = get_option('b2b_crm_key_values', array());
+        $key_values = wp_parse_args($key_values, array(
+            'company_name' => array(),
+            'email' => array(),
+            'phone' => array(),
+            'phone_mobile' => array(),
+            'website' => array(),
+            'social' => array(),
+            'priority' => array('Faible', 'Moyen', 'Fort'),
+            'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
+        ));
         $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'));
         ?>
         <div class="b2b-crm__section">
@@ -321,6 +332,53 @@ class B2B_CRM_Views
                                     <label class="b2b-crm__label">
                                         <?php echo esc_html__('SLA tickets', 'b2b-crm-maroc'); ?>
                                         <input class="b2b-crm__input" type="text" name="module_settings[tickets_sla]" value="<?php echo esc_attr($module_settings['tickets_sla']); ?>" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="b2b-crm__settings-section">
+                        <h3><?php echo esc_html__('Référentiel des valeurs clés', 'b2b-crm-maroc'); ?></h3>
+                        <div class="b2b-crm__settings-list">
+                            <div class="b2b-crm__settings-row">
+                                <span class="dashicons dashicons-database" aria-hidden="true"></span>
+                                <div class="b2b-crm__settings-row-info">
+                                    <strong><?php echo esc_html__('Listes de référence', 'b2b-crm-maroc'); ?></strong>
+                                    <span class="b2b-crm__muted"><?php echo esc_html__('Une valeur par ligne. Utilisée pour les suggestions et menus déroulants.', 'b2b-crm-maroc'); ?></span>
+                                </div>
+                                <div class="b2b-crm__settings-fields">
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Société', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[company_name]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['company_name'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('E-mail', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[email]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['email'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[phone]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['phone'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('GSM', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[phone_mobile]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['phone_mobile'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[website]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['website'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Réseaux Sociaux', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[social]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['social'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['priority'])); ?></textarea>
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Statut CRM', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['status'])); ?></textarea>
                                     </label>
                                 </div>
                             </div>
