@@ -7,8 +7,12 @@ if (!defined('ABSPATH')) {
 require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-lead-table.php';
 require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-interaction-table.php';
 require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-account-table.php';
+require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-contact-table.php';
+require_once B2B_CRM_MAROC_PATH . 'database/class-b2b-crm-module-item-table.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-lead-repository.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-account-repository.php';
+require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-contact-repository.php';
+require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-module-item-repository.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-collector.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-email-service.php';
 require_once B2B_CRM_MAROC_PATH . 'services/class-b2b-crm-interaction-repository.php';
@@ -43,6 +47,8 @@ class B2B_CRM_Bootstrap
         B2B_CRM_Lead_Table::create_table();
         B2B_CRM_Interaction_Table::create_table();
         B2B_CRM_Account_Table::create_table();
+        B2B_CRM_Contact_Table::create_table();
+        B2B_CRM_Module_Item_Table::create_table();
         self::register_roles();
     }
 

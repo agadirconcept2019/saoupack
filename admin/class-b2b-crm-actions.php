@@ -14,6 +14,8 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_save_sources', array(__CLASS__, 'save_sources'));
         add_action('admin_post_b2b_crm_save_settings', array(__CLASS__, 'save_settings'));
         add_action('admin_post_b2b_crm_add_account', array(__CLASS__, 'add_account'));
+        add_action('admin_post_b2b_crm_add_contact', array(__CLASS__, 'add_contact'));
+        add_action('admin_post_b2b_crm_add_module_item', array(__CLASS__, 'add_module_item'));
         add_action('admin_post_b2b_crm_add_demo_leads', array(__CLASS__, 'add_demo_leads'));
     }
 
@@ -400,6 +402,64 @@ class B2B_CRM_Actions
         }
 
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=accounts'));
+        exit;
+    }
+
+    public static function add_contact()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_add_contact');
+
+        $data = array(
+            'full_name' => isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '',
+            'company' => isset($_POST['company']) ? sanitize_text_field(wp_unslash($_POST['company'])) : '',
+            'role' => isset($_POST['role']) ? sanitize_text_field(wp_unslash($_POST['role'])) : '',
+            'email' => isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '',
+            'phone' => isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '',
+            'city' => isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '',
+            'status' => isset($_POST['status']) ? sanitize_key(wp_unslash($_POST['status'])) : 'active',
+            'notes' => isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '',
+        );
+
+        if ($data['full_name']) {
+            B2B_CRM_Contact_Repository::insert($data);
+            add_settings_error('b2b-crm-maroc', 'contact_added', __('Contact ajouté.', 'b2b-crm-maroc'), 'updated');
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts'));
+        exit;
+    }
+
+    public static function add_module_item()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_add_module_item');
+
+        $module_key = isset($_POST['module_key']) ? sanitize_key(wp_unslash($_POST['module_key'])) : '';
+        $meta = isset($_POST['meta']) && is_array($_POST['meta']) ? array_map('sanitize_text_field', wp_unslash($_POST['meta'])) : array();
+
+        $data = array(
+            'module_key' => $module_key,
+            'title' => isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '',
+            'status' => isset($_POST['status']) ? sanitize_key(wp_unslash($_POST['status'])) : '',
+            'owner' => isset($_POST['owner']) ? sanitize_text_field(wp_unslash($_POST['owner'])) : '',
+            'amount' => isset($_POST['amount']) ? (float) wp_unslash($_POST['amount']) : 0,
+            'due_date' => isset($_POST['due_date']) ? sanitize_text_field(wp_unslash($_POST['due_date'])) : null,
+            'meta_json' => !empty($meta) ? wp_json_encode($meta) : null,
+        );
+
+        if ($module_key && $data['title']) {
+            B2B_CRM_Module_Item_Repository::insert($data);
+            add_settings_error('b2b-crm-maroc', 'module_item_added', __('Élément ajouté.', 'b2b-crm-maroc'), 'updated');
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=' . $module_key));
         exit;
     }
 }
