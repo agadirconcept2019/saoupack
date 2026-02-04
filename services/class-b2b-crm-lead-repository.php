@@ -190,6 +190,24 @@ class B2B_CRM_Lead_Repository
         return B2B_CRM_Interaction_Repository::add($lead_id, $type, $content);
     }
 
+    public static function key_values(array $fields, $limit = 50)
+    {
+        global $wpdb;
+
+        $table = B2B_CRM_Lead_Table::table_name();
+        $allowed_fields = array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website');
+        $sanitized_fields = array_values(array_intersect($fields, $allowed_fields));
+        $values = array();
+
+        foreach ($sanitized_fields as $field) {
+            $query = "SELECT DISTINCT {$field} FROM {$table} WHERE {$field} <> '' ORDER BY updated_at DESC LIMIT %d";
+            $results = $wpdb->get_col($wpdb->prepare($query, $limit));
+            $values[$field] = array_values(array_filter($results));
+        }
+
+        return $values;
+    }
+
     private static function find_duplicate(array $payload)
     {
         global $wpdb;

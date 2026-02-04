@@ -652,6 +652,7 @@ class B2B_CRM_Lead_List_Page
         $total_pages = (int) ceil($data['total'] / $per_page);
         $stats = self::module_item_stats($data['items'], $config['statuses']);
         $recent = array_slice($data['items'], 0, 5);
+        $lead_suggestions = self::lead_key_suggestions();
 
         ?>
         <div class="b2b-crm__section b2b-crm__section--row">
@@ -722,7 +723,28 @@ class B2B_CRM_Lead_List_Page
                 <input type="hidden" name="action" value="b2b_crm_add_module_item" />
                 <input type="hidden" name="module_key" value="<?php echo esc_attr($config['key']); ?>" />
                 <div class="b2b-crm__grid">
+                    <?php $datalists = array(); ?>
                     <?php foreach ($config['fields'] as $field) : ?>
+                        <?php
+                        $list_id = '';
+                        $list_values = array();
+                        if ($field['name'] === 'meta[account]' || $field['name'] === 'meta[customer]') {
+                            $list_id = 'b2b-crm-module-company';
+                            $list_values = $lead_suggestions['company_name'] ?? array();
+                        } elseif ($field['name'] === 'meta[recipient]') {
+                            $list_id = 'b2b-crm-module-email';
+                            $list_values = $lead_suggestions['email'] ?? array();
+                        } elseif ($field['name'] === 'meta[contact]') {
+                            $list_id = 'b2b-crm-module-contact';
+                            $list_values = $lead_suggestions['contact_name'] ?? array();
+                        } elseif ($field['name'] === 'meta[phone]') {
+                            $list_id = 'b2b-crm-module-phone';
+                            $list_values = $lead_suggestions['phone'] ?? array();
+                        }
+                        if ($list_id) {
+                            $datalists[$list_id] = $list_values;
+                        }
+                        ?>
                         <label>
                             <span><?php echo esc_html($field['label']); ?></span>
                             <?php if ($field['type'] === 'select') : ?>
@@ -734,7 +756,7 @@ class B2B_CRM_Lead_List_Page
                             <?php elseif ($field['type'] === 'textarea') : ?>
                                 <textarea class="b2b-crm__input b2b-crm__input--area" name="<?php echo esc_attr($field['name']); ?>" rows="2"></textarea>
                             <?php else : ?>
-                                <input class="b2b-crm__input" type="<?php echo esc_attr($field['type']); ?>" name="<?php echo esc_attr($field['name']); ?>" <?php echo !empty($field['required']) ? 'required' : ''; ?> />
+                                <input class="b2b-crm__input" type="<?php echo esc_attr($field['type']); ?>" name="<?php echo esc_attr($field['name']); ?>" <?php echo $list_id ? 'list="' . esc_attr($list_id) . '"' : ''; ?> <?php echo !empty($field['required']) ? 'required' : ''; ?> />
                             <?php endif; ?>
                             <?php if (!empty($field['hint'])) : ?>
                                 <span class="b2b-crm__field-hint"><?php echo esc_html($field['hint']); ?></span>
@@ -742,6 +764,15 @@ class B2B_CRM_Lead_List_Page
                         </label>
                     <?php endforeach; ?>
                 </div>
+                <?php foreach ($datalists as $list_id => $values) : ?>
+                    <?php if (!empty($values)) : ?>
+                        <datalist id="<?php echo esc_attr($list_id); ?>">
+                            <?php foreach ($values as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                    <?php endif; ?>
+                <?php endforeach; ?>
                 <button class="b2b-crm__button" type="submit"><?php echo esc_html($config['button_label']); ?></button>
             </form>
         </div>
@@ -1245,6 +1276,19 @@ class B2B_CRM_Lead_List_Page
             'medium' => __('Moyen', 'b2b-crm-maroc'),
             'high' => __('Fort', 'b2b-crm-maroc'),
         );
+    }
+
+    private static function lead_key_suggestions()
+    {
+        static $cache = null;
+
+        if ($cache === null) {
+            $cache = B2B_CRM_Lead_Repository::key_values(
+                array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website')
+            );
+        }
+
+        return $cache;
     }
 
     private static function social_links(array $lead)

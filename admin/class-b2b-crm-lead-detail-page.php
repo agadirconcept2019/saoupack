@@ -21,6 +21,15 @@ class B2B_CRM_Lead_Detail_Page
         }
 
         $interactions = B2B_CRM_Interaction_Repository::list($lead_id);
+        <?php
+        $social = array();
+        if (!empty($lead['social_json'])) {
+            $decoded = json_decode($lead['social_json'], true);
+            if (is_array($decoded)) {
+                $social = $decoded;
+            }
+        }
+        $suggestions = B2B_CRM_Lead_Repository::key_values(array('company_name', 'contact_name', 'email', 'phone', 'phone_mobile', 'website'));
         ?>
         <div class="wrap b2b-crm">
             <?php settings_errors('b2b-crm-maroc'); ?>
@@ -36,7 +45,7 @@ class B2B_CRM_Lead_Detail_Page
                         <table class="form-table">
                             <tr>
                                 <th><?php echo esc_html__('Société', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="company_name" value="<?php echo esc_attr($lead['company_name']); ?>" class="regular-text" /></td>
+                                <td><input type="text" name="company_name" value="<?php echo esc_attr($lead['company_name']); ?>" class="regular-text" list="b2b-crm-company-suggestions" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Secteur', 'b2b-crm-maroc'); ?></th>
@@ -48,7 +57,7 @@ class B2B_CRM_Lead_Detail_Page
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="contact_name" value="<?php echo esc_attr($lead['contact_name']); ?>" class="regular-text" /></td>
+                                <td><input type="text" name="contact_name" value="<?php echo esc_attr($lead['contact_name']); ?>" class="regular-text" list="b2b-crm-contact-suggestions" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></th>
@@ -56,19 +65,27 @@ class B2B_CRM_Lead_Detail_Page
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="phone" value="<?php echo esc_attr($lead['phone']); ?>" class="regular-text" /></td>
+                                <td><input type="text" name="phone" value="<?php echo esc_attr($lead['phone']); ?>" class="regular-text" list="b2b-crm-phone-suggestions" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('GSM', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="phone_mobile" value="<?php echo esc_attr($lead['phone_mobile']); ?>" class="regular-text" /></td>
+                                <td><input type="text" name="phone_mobile" value="<?php echo esc_attr($lead['phone_mobile']); ?>" class="regular-text" list="b2b-crm-mobile-suggestions" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="email" name="email" value="<?php echo esc_attr($lead['email']); ?>" class="regular-text" /></td>
+                                <td><input type="email" name="email" value="<?php echo esc_attr($lead['email']); ?>" class="regular-text" list="b2b-crm-email-suggestions" /></td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?></th>
-                                <td><input type="text" name="website" value="<?php echo esc_attr($lead['website']); ?>" class="regular-text" /></td>
+                                <td><input type="text" name="website" value="<?php echo esc_attr($lead['website']); ?>" class="regular-text" list="b2b-crm-website-suggestions" /></td>
+                            </tr>
+                            <tr>
+                                <th><?php echo esc_html__('Réseaux Sociaux', 'b2b-crm-maroc'); ?></th>
+                                <td>
+                                    <p><input type="url" name="social_linkedin" value="<?php echo esc_attr($social['linkedin'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien LinkedIn', 'b2b-crm-maroc'); ?>" /></p>
+                                    <p><input type="url" name="social_facebook" value="<?php echo esc_attr($social['facebook'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien Facebook', 'b2b-crm-maroc'); ?>" /></p>
+                                    <p><input type="url" name="social_instagram" value="<?php echo esc_attr($social['instagram'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien Instagram', 'b2b-crm-maroc'); ?>" /></p>
+                                </td>
                             </tr>
                             <tr>
                                 <th><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></th>
@@ -119,6 +136,36 @@ class B2B_CRM_Lead_Detail_Page
                                 <td><input type="text" name="collected_method" value="<?php echo esc_attr($lead['collected_method']); ?>" class="regular-text" /></td>
                             </tr>
                         </table>
+                        <datalist id="b2b-crm-company-suggestions">
+                            <?php foreach ($suggestions['company_name'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <datalist id="b2b-crm-contact-suggestions">
+                            <?php foreach ($suggestions['contact_name'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <datalist id="b2b-crm-email-suggestions">
+                            <?php foreach ($suggestions['email'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <datalist id="b2b-crm-phone-suggestions">
+                            <?php foreach ($suggestions['phone'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <datalist id="b2b-crm-mobile-suggestions">
+                            <?php foreach ($suggestions['phone_mobile'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <datalist id="b2b-crm-website-suggestions">
+                            <?php foreach ($suggestions['website'] ?? array() as $value) : ?>
+                                <option value="<?php echo esc_attr($value); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
                         <p>
                             <button class="button button-primary"><?php echo esc_html__('Enregistrer', 'b2b-crm-maroc'); ?></button>
                         </p>
@@ -203,6 +250,13 @@ class B2B_CRM_Lead_Detail_Page
         $action = sanitize_key($_POST['b2b_crm_action']);
 
         if ($action === 'save_lead' && isset($_POST['b2b_crm_nonce']) && wp_verify_nonce($_POST['b2b_crm_nonce'], 'b2b_crm_save_lead')) {
+            $social = array(
+                'linkedin' => isset($_POST['social_linkedin']) ? esc_url_raw(wp_unslash($_POST['social_linkedin'])) : '',
+                'facebook' => isset($_POST['social_facebook']) ? esc_url_raw(wp_unslash($_POST['social_facebook'])) : '',
+                'instagram' => isset($_POST['social_instagram']) ? esc_url_raw(wp_unslash($_POST['social_instagram'])) : '',
+            );
+            $social = array_filter($social);
+            $_POST['social_json'] = empty($social) ? '' : wp_json_encode($social);
             $data = B2B_CRM_Sanitizer::lead_fields(wp_unslash($_POST));
             B2B_CRM_Lead_Repository::update($lead_id, $data);
             add_settings_error('b2b-crm-maroc', 'lead_saved', __('Lead mis à jour.', 'b2b-crm-maroc'), 'updated');
