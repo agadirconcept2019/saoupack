@@ -461,6 +461,13 @@
     color: var(--b2b-muted);
 }
 
+.b2b-crm__field-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--b2b-muted);
+}
+
 .b2b-crm__modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
