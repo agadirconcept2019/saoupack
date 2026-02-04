@@ -30,46 +30,59 @@ class B2B_CRM_Lead_List_Page
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
         );
 
+        $current_label = $tabs[$tab] ?? $tabs['dashboard'];
         ?>
         <div class="wrap b2b-crm b2b-crm--app">
             <?php settings_errors('b2b-crm-maroc'); ?>
-            <div class="b2b-crm__topbar">
-                <div class="b2b-crm__brand">
-                    <span class="b2b-crm__logo">🛡️</span>
-                    <div>
-                        <strong>Morocco Collector <span>B2B</span></strong>
-                        <div class="b2b-crm__subtitle"><?php echo esc_html__('B2B Morocco Data Collector', 'b2b-crm-maroc'); ?></div>
+            <div class="b2b-crm__shell">
+                <aside class="b2b-crm__sidebar">
+                    <div class="b2b-crm__sidebar-brand">
+                        <span class="b2b-crm__logo">CRM</span>
+                        <div>
+                            <strong><?php echo esc_html__('B2B CRM Maroc', 'b2b-crm-maroc'); ?></strong>
+                            <div class="b2b-crm__subtitle"><?php echo esc_html__('Inspired by EspoCRM', 'b2b-crm-maroc'); ?></div>
+                        </div>
                     </div>
-                </div>
-                <div class="b2b-crm__topbar-actions">
-                    <span class="b2b-crm__device"><?php echo esc_html__('Device', 'b2b-crm-maroc'); ?></span>
-                    <a class="b2b-crm__settings-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'))); ?>" aria-label="<?php echo esc_attr__('Paramétrage', 'b2b-crm-maroc'); ?>">
-                        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                    </a>
+                    <nav class="b2b-crm__sidebar-nav">
+                        <?php foreach ($tabs as $key => $label) : ?>
+                            <a class="b2b-crm__nav-link <?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
+                                <?php echo esc_html($label); ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </nav>
+                </aside>
+                <div class="b2b-crm__content">
+                    <div class="b2b-crm__topbar">
+                        <div class="b2b-crm__page-title">
+                            <h1><?php echo esc_html($current_label); ?></h1>
+                            <p><?php echo esc_html__('Workspace CRM', 'b2b-crm-maroc'); ?></p>
+                        </div>
+                        <div class="b2b-crm__topbar-actions">
+                            <label class="b2b-crm__search">
+                                <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                                <input type="search" placeholder="<?php echo esc_attr__('Recherche globale', 'b2b-crm-maroc'); ?>" />
+                            </label>
+                            <a class="b2b-crm__settings-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'))); ?>" aria-label="<?php echo esc_attr__('Paramétrage', 'b2b-crm-maroc'); ?>">
+                                <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <?php if ($tab === 'dashboard') : ?>
+                        <?php self::render_dashboard($data['items']); ?>
+                    <?php elseif ($tab === 'collect') : ?>
+                        <?php B2B_CRM_Views::render_collect(); ?>
+                    <?php elseif ($tab === 'pipeline') : ?>
+                        <?php self::render_pipeline($data['items']); ?>
+                    <?php elseif ($tab === 'sources') : ?>
+                        <?php B2B_CRM_Views::render_sources(); ?>
+                    <?php elseif ($tab === 'settings') : ?>
+                        <?php B2B_CRM_Views::render_settings(); ?>
+                    <?php else : ?>
+                        <?php self::render_base($filters, $data, $total_pages, $paged); ?>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <nav class="b2b-crm__tabs">
-                <?php foreach ($tabs as $key => $label) : ?>
-                    <a class="<?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
-                        <?php echo esc_html($label); ?>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
-
-            <?php if ($tab === 'dashboard') : ?>
-                <?php self::render_dashboard($data['items']); ?>
-            <?php elseif ($tab === 'collect') : ?>
-                <?php B2B_CRM_Views::render_collect(); ?>
-            <?php elseif ($tab === 'pipeline') : ?>
-                <?php self::render_pipeline($data['items']); ?>
-            <?php elseif ($tab === 'sources') : ?>
-                <?php B2B_CRM_Views::render_sources(); ?>
-            <?php elseif ($tab === 'settings') : ?>
-                <?php B2B_CRM_Views::render_settings(); ?>
-            <?php else : ?>
-                <?php self::render_base($filters, $data, $total_pages, $paged); ?>
-            <?php endif; ?>
         </div>
         <?php
     }
