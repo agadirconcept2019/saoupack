@@ -337,6 +337,90 @@
     align-items: start;
 }
 
+.b2b-crm__card--email {
+    background: #fff;
+    border: 1px solid #dfe3f1;
+    box-shadow: 0 8px 20px rgba(31, 36, 48, 0.06);
+}
+
+.b2b-crm__card--email .form-table {
+    margin-top: 12px;
+}
+
+.b2b-crm__card--email input[type="text"],
+.b2b-crm__card--email input[type="email"] {
+    width: 100%;
+}
+
+.b2b-crm__card--email .wp-editor-wrap {
+    border-radius: 12px;
+    border: 1px solid #dfe3f1;
+}
+
+.b2b-crm__card--email .wp-editor-container {
+    border: none;
+}
+
+.b2b-crm__card--email .mce-toolbar-grp {
+    background: #f4f6fb;
+    border-bottom: 1px solid #e3e7f3;
+}
+
+.b2b-crm__card--email .mce-edit-area iframe {
+    min-height: 260px;
+}
+
+.b2b-crm__card--email .button-primary {
+    padding: 8px 18px;
+}
+
+.b2b-crm__card--interactions {
+    background: #fbfcff;
+}
+
+.b2b-crm__interaction-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.b2b-crm__interaction-form input[type="text"],
+.b2b-crm__interaction-form textarea {
+    width: 100%;
+}
+
+.b2b-crm__timeline {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    display: grid;
+    gap: 12px;
+}
+
+.b2b-crm__timeline li {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--b2b-border);
+    display: grid;
+    gap: 6px;
+}
+
+.b2b-crm__timeline li strong {
+    font-weight: 600;
+    color: var(--b2b-text);
+}
+
+.b2b-crm__timeline li span {
+    font-size: 12px;
+    color: var(--b2b-muted);
+}
+
+.b2b-crm__timeline li p {
+    margin: 0;
+    color: var(--b2b-text);
+}
+
 @media (max-width: 1100px) {
     .b2b-crm__grid {
         grid-template-columns: 1fr;

@@ -121,7 +121,7 @@ class B2B_CRM_Lead_Detail_Page
                     </form>
                 </div>
 
-                <div class="b2b-crm__card">
+                <div class="b2b-crm__card b2b-crm__card--email">
                     <h2><?php echo esc_html__('Envoyer un email', 'b2b-crm-maroc'); ?></h2>
                     <form method="post">
                         <?php wp_nonce_field('b2b_crm_send_email', 'b2b_crm_email_nonce'); ?>
@@ -153,30 +153,30 @@ class B2B_CRM_Lead_Detail_Page
                         </p>
                     </form>
                 </div>
-            </div>
 
-            <div class="b2b-crm__card">
-                <h2><?php echo esc_html__('Historique des interactions', 'b2b-crm-maroc'); ?></h2>
-                <form method="post" class="b2b-crm__interaction-form">
-                    <?php wp_nonce_field('b2b_crm_add_interaction', 'b2b_crm_interaction_nonce'); ?>
-                    <input type="hidden" name="b2b_crm_action" value="add_interaction" />
-                    <input type="text" name="interaction_type" placeholder="<?php echo esc_attr__('Type (appel, email, meeting)', 'b2b-crm-maroc'); ?>" required />
-                    <textarea name="interaction_content" rows="3" placeholder="<?php echo esc_attr__('Détails', 'b2b-crm-maroc'); ?>" required></textarea>
-                    <button class="button"><?php echo esc_html__('Ajouter', 'b2b-crm-maroc'); ?></button>
-                </form>
-                <?php if (empty($interactions)) : ?>
-                    <p><?php echo esc_html__('Aucune interaction enregistrée.', 'b2b-crm-maroc'); ?></p>
-                <?php else : ?>
-                    <ul class="b2b-crm__timeline">
-                        <?php foreach ($interactions as $interaction) : ?>
-                            <li>
-                                <strong><?php echo esc_html($interaction['interaction_type']); ?></strong>
-                                <span><?php echo esc_html(mysql2date('d/m/Y H:i', $interaction['created_at'])); ?></span>
-                                <p><?php echo esc_html($interaction['content']); ?></p>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
+                <div class="b2b-crm__card b2b-crm__card--interactions">
+                    <h2><?php echo esc_html__('Historique des interactions', 'b2b-crm-maroc'); ?></h2>
+                    <form method="post" class="b2b-crm__interaction-form">
+                        <?php wp_nonce_field('b2b_crm_add_interaction', 'b2b_crm_interaction_nonce'); ?>
+                        <input type="hidden" name="b2b_crm_action" value="add_interaction" />
+                        <input type="text" name="interaction_type" placeholder="<?php echo esc_attr__('Type (appel, email, meeting)', 'b2b-crm-maroc'); ?>" required />
+                        <textarea name="interaction_content" rows="3" placeholder="<?php echo esc_attr__('Détails', 'b2b-crm-maroc'); ?>" required></textarea>
+                        <button class="button"><?php echo esc_html__('Ajouter', 'b2b-crm-maroc'); ?></button>
+                    </form>
+                    <?php if (empty($interactions)) : ?>
+                        <p><?php echo esc_html__('Aucune interaction enregistrée.', 'b2b-crm-maroc'); ?></p>
+                    <?php else : ?>
+                        <ul class="b2b-crm__timeline">
+                            <?php foreach ($interactions as $interaction) : ?>
+                                <li>
+                                    <strong><?php echo esc_html($interaction['interaction_type']); ?></strong>
+                                    <span><?php echo esc_html(mysql2date('d/m/Y H:i', $interaction['created_at'])); ?></span>
+                                    <p><?php echo esc_html($interaction['content']); ?></p>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php
