@@ -41,7 +41,7 @@ class B2B_CRM_Views
         <?php
     }
 
-    public static function render_collect()
+    public static function render_collect($redirect_to = '')
     {
         $config = get_option('b2b_crm_collect_config', array());
         $selected_city = isset($config['city']) ? $config['city'] : '';
@@ -76,6 +76,9 @@ class B2B_CRM_Views
             <form class="b2b-crm__collect" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('b2b_crm_run_collect'); ?>
                 <input type="hidden" name="action" value="b2b_crm_run_collect" />
+                <?php if ($redirect_to) : ?>
+                    <input type="hidden" name="redirect_to" value="<?php echo esc_url($redirect_to); ?>" />
+                <?php endif; ?>
                 <div class="b2b-crm__collect-card">
                     <div class="b2b-crm__collect-main">
                         <h3><?php echo esc_html__('Configuration Live', 'b2b-crm-maroc'); ?></h3>
@@ -130,32 +133,82 @@ class B2B_CRM_Views
 
     public static function render_settings()
     {
+        $settings = get_option('b2b_crm_settings', array());
+        $modules = get_option('b2b_crm_modules_config', array());
+        $modules = wp_parse_args($modules, array(
+            'accounts' => true,
+            'contacts' => true,
+            'base' => true,
+            'opportunities' => true,
+            'emails' => true,
+            'calendar' => true,
+            'meetings' => true,
+            'calls' => true,
+            'tasks' => true,
+            'tickets' => true,
+            'knowledge' => true,
+            'documents' => true,
+            'sales' => true,
+            'collect' => true,
+            'sources' => true,
+            'pipeline' => true,
+        ));
+        $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'));
         ?>
         <div class="b2b-crm__section">
-            <h2><?php echo esc_html__('Paramétrages', 'b2b-crm-maroc'); ?></h2>
-            <p class="b2b-crm__muted"><?php echo esc_html__('Regroupez ici tous les réglages nécessaires au fonctionnement du CRM.', 'b2b-crm-maroc'); ?></p>
-            <div class="b2b-crm__settings-grid">
+            <h2><?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
+            <p class="b2b-crm__muted"><?php echo esc_html__('Centralisez ici tous les réglages, modules actifs et intégrations CRM.', 'b2b-crm-maroc'); ?></p>
+            <form class="b2b-crm__settings-grid" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <?php wp_nonce_field('b2b_crm_save_settings'); ?>
+                <input type="hidden" name="action" value="b2b_crm_save_settings" />
                 <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Sources de données', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Configurez les sources, clés API, endpoints et import Excel/CSV.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Ouvrir les sources', 'b2b-crm-maroc'); ?></a>
+                    <h3><?php echo esc_html__('Identité & Workspace', 'b2b-crm-maroc'); ?></h3>
+                    <label class="b2b-crm__label">
+                        <?php echo esc_html__('Nom du workspace', 'b2b-crm-maroc'); ?>
+                        <input class="b2b-crm__input" type="text" name="workspace_name" value="<?php echo esc_attr($settings['workspace_name'] ?? 'CRM Saoupack'); ?>" />
+                    </label>
+                    <label class="b2b-crm__label">
+                        <?php echo esc_html__('Devise par défaut', 'b2b-crm-maroc'); ?>
+                        <input class="b2b-crm__input" type="text" name="default_currency" value="<?php echo esc_attr($settings['default_currency'] ?? 'MAD'); ?>" />
+                    </label>
+                    <label class="b2b-crm__label">
+                        <?php echo esc_html__('Fuseau horaire', 'b2b-crm-maroc'); ?>
+                        <input class="b2b-crm__input" type="text" name="timezone" value="<?php echo esc_attr($settings['timezone'] ?? 'Africa/Casablanca'); ?>" />
+                    </label>
+                    <label class="b2b-crm__label">
+                        <?php echo esc_html__('Email propriétaire', 'b2b-crm-maroc'); ?>
+                        <input class="b2b-crm__input" type="email" name="owner_email" value="<?php echo esc_attr($settings['owner_email'] ?? ''); ?>" />
+                    </label>
                 </div>
                 <div class="b2b-crm__settings-card">
-                    <h3><?php echo esc_html__('Collecte', 'b2b-crm-maroc'); ?></h3>
-                    <p><?php echo esc_html__('Choisissez la ville, le secteur, la précision et les sources actives.', 'b2b-crm-maroc'); ?></p>
-                    <a class="b2b-crm__link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'collect'), admin_url('admin.php'))); ?>"><?php echo esc_html__('Ouvrir la collecte', 'b2b-crm-maroc'); ?></a>
+                    <h3><?php echo esc_html__('Modules actifs', 'b2b-crm-maroc'); ?></h3>
+                    <p><?php echo esc_html__('Activez les modules EspoCRM souhaités.', 'b2b-crm-maroc'); ?></p>
+                    <div class="b2b-crm__modules-grid">
+                        <?php foreach ($modules as $key => $enabled) : ?>
+                            <label class="b2b-crm__module-toggle">
+                                <input type="checkbox" name="modules[]" value="<?php echo esc_attr($key); ?>" <?php checked($enabled); ?> />
+                                <span><?php echo esc_html(self::module_label($key)); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
                 <div class="b2b-crm__settings-card">
                     <h3><?php echo esc_html__('Shortcode Frontend', 'b2b-crm-maroc'); ?></h3>
                     <p><?php echo esc_html__('Ajoutez l’interface publique CRM sur une page WordPress.', 'b2b-crm-maroc'); ?></p>
                     <code class="b2b-crm__shortcode">[mon_plugin_crm]</code>
                 </div>
-            </div>
+                <div class="b2b-crm__settings-card b2b-crm__settings-card--actions">
+                    <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Enregistrer les réglages', 'b2b-crm-maroc'); ?></button>
+                </div>
+            </form>
         </div>
+
+        <?php self::render_collect($settings_url); ?>
+        <?php self::render_sources($settings_url); ?>
         <?php
     }
 
-    public static function render_sources()
+    public static function render_sources($redirect_to = '')
     {
         $saved = get_option('b2b_crm_sources_config', array());
         $defaults = array(
@@ -273,6 +326,9 @@ class B2B_CRM_Views
             <form class="b2b-crm__source-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
                 <?php wp_nonce_field('b2b_crm_save_sources'); ?>
                 <input type="hidden" name="action" value="b2b_crm_save_sources" />
+                <?php if ($redirect_to) : ?>
+                    <input type="hidden" name="redirect_to" value="<?php echo esc_url($redirect_to); ?>" />
+                <?php endif; ?>
                 <div class="b2b-crm__tabs b2b-crm__tabs--sources" role="tablist">
                     <?php foreach ($sources as $key => $source) : ?>
                         <button type="button" class="b2b-crm__tab-button <?php echo $key === 'google_maps' ? 'is-active' : ''; ?>" data-source-tab="<?php echo esc_attr($key); ?>" role="tab" aria-selected="<?php echo $key === 'google_maps' ? 'true' : 'false'; ?>">
@@ -386,6 +442,30 @@ class B2B_CRM_Views
             'Taza',
             'Tétouan',
         );
+    }
+
+    private static function module_label($key)
+    {
+        $labels = array(
+            'accounts' => __('Comptes', 'b2b-crm-maroc'),
+            'contacts' => __('Contacts', 'b2b-crm-maroc'),
+            'base' => __('Prospects', 'b2b-crm-maroc'),
+            'opportunities' => __('Opportunités', 'b2b-crm-maroc'),
+            'emails' => __('Emails', 'b2b-crm-maroc'),
+            'calendar' => __('Calendrier', 'b2b-crm-maroc'),
+            'meetings' => __('Rendez-vous', 'b2b-crm-maroc'),
+            'calls' => __('Appels', 'b2b-crm-maroc'),
+            'tasks' => __('Tâches', 'b2b-crm-maroc'),
+            'tickets' => __('Tickets', 'b2b-crm-maroc'),
+            'knowledge' => __('Base de connaissance', 'b2b-crm-maroc'),
+            'documents' => __('Documents', 'b2b-crm-maroc'),
+            'sales' => __('Sales & Purchases', 'b2b-crm-maroc'),
+            'collect' => __('Collecte', 'b2b-crm-maroc'),
+            'sources' => __('Sources', 'b2b-crm-maroc'),
+            'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
+        );
+
+        return $labels[$key] ?? $key;
     }
 
     public static function render_pipeline(array $columns)

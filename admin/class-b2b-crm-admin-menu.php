@@ -17,12 +17,12 @@ class B2B_CRM_Admin_Menu
     public static function add_menu()
     {
         add_menu_page(
-            __('CRM B2B Maroc', 'b2b-crm-maroc'),
-            __('CRM B2B Maroc', 'b2b-crm-maroc'),
+            __('CRM Saoupack', 'b2b-crm-maroc'),
+            __('CRM Saoupack', 'b2b-crm-maroc'),
             B2B_CRM_MAROC_CAP,
             'b2b-crm-maroc',
             array(__CLASS__, 'render'),
-            'dashicons-id-alt',
+            B2B_CRM_MAROC_URL . 'assets/images/saoupack-icon.svg',
             26
         );
     }

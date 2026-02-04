@@ -41,6 +41,11 @@ class B2B_CRM_Lead_List_Page
             'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
         );
+        $modules_config = self::modules_config();
+        $modules_state = get_option('b2b_crm_modules_config', array());
+        $modules_state = wp_parse_args($modules_state, $modules_config);
+        $settings = get_option('b2b_crm_settings', array());
+        $workspace_name = !empty($settings['workspace_name']) ? $settings['workspace_name'] : __('CRM Saoupack', 'b2b-crm-maroc');
 
         $nav_sections = array(
             array(
@@ -94,9 +99,11 @@ class B2B_CRM_Lead_List_Page
             <div class="b2b-crm__shell">
                 <aside class="b2b-crm__sidebar">
                     <div class="b2b-crm__sidebar-brand">
-                        <span class="b2b-crm__logo">CRM</span>
+                        <span class="b2b-crm__logo">
+                            <img src="<?php echo esc_url(B2B_CRM_MAROC_URL . 'assets/images/saoupack-icon.svg'); ?>" alt="<?php echo esc_attr__('CRM Saoupack', 'b2b-crm-maroc'); ?>" />
+                        </span>
                         <div>
-                            <strong><?php echo esc_html__('B2B CRM Maroc', 'b2b-crm-maroc'); ?></strong>
+                            <strong><?php echo esc_html($workspace_name); ?></strong>
                             <div class="b2b-crm__subtitle"><?php echo esc_html__('Inspired by EspoCRM', 'b2b-crm-maroc'); ?></div>
                         </div>
                     </div>
@@ -112,10 +119,15 @@ class B2B_CRM_Lead_List_Page
                                     <?php
                                     $key = $item['key'];
                                     $label = $tabs[$key] ?? $key;
+                                    $is_enabled = !empty($modules_state[$key]);
+                                    $link_target = $is_enabled ? add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php')) : add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'));
                                     ?>
-                                    <a class="b2b-crm__nav-link <?php echo $tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => $key), admin_url('admin.php'))); ?>">
+                                    <a class="b2b-crm__nav-link <?php echo $tab === $key ? 'is-active' : ''; ?> <?php echo $is_enabled ? '' : 'is-disabled'; ?>" href="<?php echo esc_url($link_target); ?>" <?php echo $is_enabled ? '' : 'aria-disabled="true"'; ?>>
                                         <span class="dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
                                         <?php echo esc_html($label); ?>
+                                        <?php if (!$is_enabled) : ?>
+                                            <span class="b2b-crm__nav-badge"><?php echo esc_html__('Off', 'b2b-crm-maroc'); ?></span>
+                                        <?php endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
@@ -152,7 +164,7 @@ class B2B_CRM_Lead_List_Page
                     <?php elseif ($tab === 'base') : ?>
                         <?php self::render_base($filters, $data, $total_pages, $paged); ?>
                     <?php else : ?>
-                        <?php self::render_placeholder($current_label); ?>
+                        <?php self::render_placeholder($current_label, !empty($modules_state[$tab])); ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -221,18 +233,45 @@ class B2B_CRM_Lead_List_Page
         B2B_CRM_Views::render_pipeline($mapped);
     }
 
-    private static function render_placeholder($label)
+    private static function render_placeholder($label, $is_enabled)
     {
         ?>
         <div class="b2b-crm__section">
             <div class="b2b-crm__card">
                 <h2><?php echo esc_html($label); ?></h2>
                 <p class="b2b-crm__muted">
-                    <?php echo esc_html__('Ce module est en cours de configuration pour refléter les fonctionnalités EspoCRM.', 'b2b-crm-maroc'); ?>
+                    <?php if ($is_enabled) : ?>
+                        <?php echo esc_html__('Ce module est en cours de configuration pour refléter les fonctionnalités EspoCRM.', 'b2b-crm-maroc'); ?>
+                    <?php else : ?>
+                        <?php echo esc_html__('Ce module est désactivé. Activez-le depuis Paramétrage.', 'b2b-crm-maroc'); ?>
+                    <?php endif; ?>
                 </p>
             </div>
         </div>
         <?php
+    }
+
+    private static function modules_config()
+    {
+        return array(
+            'accounts' => true,
+            'contacts' => true,
+            'base' => true,
+            'opportunities' => true,
+            'emails' => true,
+            'calendar' => true,
+            'meetings' => true,
+            'calls' => true,
+            'tasks' => true,
+            'tickets' => true,
+            'knowledge' => true,
+            'documents' => true,
+            'sales' => true,
+            'collect' => true,
+            'sources' => true,
+            'pipeline' => true,
+            'settings' => true,
+        );
     }
 
     private static function render_base($filters, $data, $total_pages, $paged)

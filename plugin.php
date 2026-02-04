@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: B2B CRM Maroc Leads
- * Description: CRM B2B admin-only pour la collecte légale et la gestion de leads professionnels marocains.
+ * Plugin Name: CRM Saoupack
+ * Description: CRM Saoupack admin-only pour la collecte légale et la gestion de leads professionnels marocains.
  * Version: 0.2.0
  * Author: OpenAI
  * License: GPL-2.0-or-later
