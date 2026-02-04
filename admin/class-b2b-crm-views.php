@@ -264,7 +264,7 @@ class B2B_CRM_Views
                     <?php foreach ($sources as $key => $source) : ?>
                         <?php
                         $values = isset($saved[$key]) && is_array($saved[$key]) ? $saved[$key] : array();
-                        $values = array_merge($defaults[$key] ?? array(), $values);
+                        $values = self::merge_source_defaults($defaults[$key] ?? array(), $values);
                         $enabled = !empty($values['enabled']);
                         ?>
                         <div class="b2b-crm__settings-card b2b-crm__settings-card--source">
@@ -379,5 +379,19 @@ class B2B_CRM_Views
             </div>
         </div>
         <?php
+    }
+
+    private static function merge_source_defaults(array $defaults, array $values)
+    {
+        $merged = $defaults;
+
+        foreach ($values as $key => $value) {
+            if ($value === '' || $value === null) {
+                continue;
+            }
+            $merged[$key] = $value;
+        }
+
+        return $merged;
     }
 }
