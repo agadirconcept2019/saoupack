@@ -163,6 +163,48 @@ class B2B_CRM_Views
     public static function render_sources()
     {
         $saved = get_option('b2b_crm_sources_config', array());
+        $defaults = array(
+            'google_maps' => array(
+                'enabled' => true,
+                'api_key' => 'VOTRE_CLE_API_GOOGLE',
+                'endpoint' => 'https://maps.googleapis.com/maps/api/place/textsearch/json',
+                'options' => 'restaurant, architecte, clinique, notaire',
+                'ai_model' => 'gpt-4o-mini',
+                'notes' => 'Filtrer par catégories GMB et ville.',
+            ),
+            'directories' => array(
+                'enabled' => false,
+                'endpoint' => 'https://exemple-annuaire.ma/export.json',
+                'options' => 'crawl=2, delay=3s',
+                'notes' => 'Format JSON avec name, email, phone, website.',
+                'ai_model' => 'gpt-4o-mini',
+                'api_key' => '',
+            ),
+            'social' => array(
+                'enabled' => false,
+                'api_key' => 'TOKEN_API_RESEAUX',
+                'endpoint' => 'https://api.exemple-social.com/leads.json',
+                'ai_model' => 'gpt-4o-mini',
+                'notes' => 'URLs ciblées LinkedIn/Facebook/Instagram.',
+                'options' => '',
+            ),
+            'domains' => array(
+                'enabled' => false,
+                'api_key' => 'CLE_WHOIS',
+                'options' => '.ma, .com, .net',
+                'notes' => 'Exclure domaines parking et spam.',
+                'endpoint' => 'https://api.exemple-whois.com/leads.json',
+                'ai_model' => 'gpt-4o-mini',
+            ),
+            'institutions' => array(
+                'enabled' => false,
+                'endpoint' => 'https://api.portail-gouv.ma/entreprises',
+                'api_key' => '',
+                'notes' => 'Format JSON avec name, email, phone, city.',
+                'ai_model' => 'gpt-4o-mini',
+                'options' => '',
+            ),
+        );
         $sources = array(
             'google_maps' => array(
                 'title' => __('Google Maps & GMB', 'b2b-crm-maroc'),
@@ -222,6 +264,7 @@ class B2B_CRM_Views
                     <?php foreach ($sources as $key => $source) : ?>
                         <?php
                         $values = isset($saved[$key]) && is_array($saved[$key]) ? $saved[$key] : array();
+                        $values = array_merge($defaults[$key] ?? array(), $values);
                         $enabled = !empty($values['enabled']);
                         ?>
                         <div class="b2b-crm__settings-card b2b-crm__settings-card--source">
