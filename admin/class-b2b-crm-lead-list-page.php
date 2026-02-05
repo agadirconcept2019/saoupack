@@ -92,7 +92,7 @@ class B2B_CRM_Lead_List_Page
                                 <?php if ($logo_url) : ?>
                                     <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Logo Saoupack', 'b2b-crm-maroc'); ?>" width="220" height="56" />
                                 <?php else : ?>
-                                    <span class="b2b-crm__logo-fallback">S</span>
+                                    <img src="<?php echo esc_url(B2B_CRM_MAROC_URL . 'assets/images/saoupack-icon.svg'); ?>" alt="<?php echo esc_attr__('Logo Saoupack', 'b2b-crm-maroc'); ?>" width="220" height="56" />
                                 <?php endif; ?>
                             </span>
                         </div>
