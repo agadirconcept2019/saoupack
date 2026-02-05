@@ -16,6 +16,13 @@
     border-radius: 16px;
 }
 
+/* Keep WordPress icon glyphs readable inside the CRM wrapper. */
+.crm-app .b2b-crm .dashicons,
+.crm-app .b2b-crm [class^='dashicons-'],
+.crm-app .b2b-crm [class*=' dashicons-'] {
+    font-family: dashicons;
+}
+
 .crm-app .b2b-crm--app {
     background: var(--b2b-bg);
 }

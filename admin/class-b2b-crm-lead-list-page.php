@@ -135,7 +135,7 @@ class B2B_CRM_Lead_List_Page
                             </button>
                             <label class="b2b-crm__search">
                                 <span class="dashicons dashicons-search" aria-hidden="true"></span>
-                                <input type="search" placeholder="<?php echo esc_attr__('Recherche globale', 'b2b-crm-maroc'); ?>" />
+                                <input type="search" placeholder="<?php echo esc_attr__('Recherche Globale', 'b2b-crm-maroc'); ?>" />
                             </label>
                             <button class="b2b-crm__settings-link" type="button" aria-label="<?php echo esc_attr__('Notifications', 'b2b-crm-maroc'); ?>">
                                 <span class="dashicons dashicons-bell" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Notifications', 'b2b-crm-maroc'); ?></span>
