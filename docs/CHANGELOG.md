@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4
+- Suppression complète du bouton menu `≡` (toggle sidebar) côté CRM.
+- Ajout d'une règle CSS défensive pour masquer tout ancien bouton menu résiduel issu de cache/templates legacy.
+- Incrément de version plugin à 0.3.4 pour forcer le rechargement des assets (cache-busting).
+
 ## 0.3.3
 - Déplacement explicite du bouton menu `≡` vers la barre latérale gauche (`.b2b-crm__sidebar-menuctrl`) et suppression défensive des doublons topbar hérités/cache.
 - Cache-busting des assets CRM via version plugin 0.3.3 pour forcer le chargement des styles/scripts mis à jour.

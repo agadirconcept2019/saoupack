@@ -37,6 +37,14 @@
     border: 1px solid var(--b2b-border);
 }
 
+/* Hard kill-switch: hide any residual menu toggle rendered by stale cache/legacy templates. */
+.crm-app .b2b-crm .b2b-crm__sidebar-toggle,
+.crm-app .b2b-crm button[aria-label*='menu'],
+.crm-app .b2b-crm button[aria-label*='Menu'] {
+    display: none !important;
+}
+
+
 
 
 .crm-app .b2b-crm__shell {
