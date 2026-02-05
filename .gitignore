@@ -1,0 +1,9 @@
+# Keep this repository text-only for plugin diffs
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.pdf
+
+# Allow text/vector assets
+!assets/images/*.svg
