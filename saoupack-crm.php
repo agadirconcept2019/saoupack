@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CRM Saoupack
  * Description: CRM Saoupack admin-only pour la collecte légale et la gestion de leads professionnels marocains.
- * Version: 0.3.5
+ * Version: 0.3.6
  * Author: Agadir Concept
  * License: GPL-2.0-or-later
  * Text Domain: b2b-crm-maroc
@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('B2B_CRM_MAROC_VERSION', '0.3.5');
-define('B2B_CRM_MAROC_BUILD_ID', '2026-02-05-01');
+define('B2B_CRM_MAROC_VERSION', '0.3.6');
+define('B2B_CRM_MAROC_BUILD_ID', '2026-02-05-02');
 define('B2B_CRM_MAROC_PATH', plugin_dir_path(__FILE__));
 define('B2B_CRM_MAROC_URL', plugin_dir_url(__FILE__));
 

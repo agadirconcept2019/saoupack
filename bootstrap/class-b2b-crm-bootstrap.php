@@ -26,11 +26,14 @@ require_once B2B_CRM_MAROC_PATH . 'utils/class-b2b-crm-sanitizer.php';
 
 class B2B_CRM_Bootstrap
 {
+    private static $duplicate_plugins = array();
+
     public static function init()
     {
         B2B_CRM_Shortcode::register();
 
         if (is_admin()) {
+            self::maybe_detect_duplicate_installs();
             if (!current_user_can(B2B_CRM_MAROC_ACCESS_CAP)) {
                 return;
             }
@@ -50,6 +53,7 @@ class B2B_CRM_Bootstrap
         B2B_CRM_Contact_Table::create_table();
         B2B_CRM_Module_Item_Table::create_table();
         self::register_roles();
+        self::deactivate_duplicate_plugins();
         self::maybe_upgrade();
         B2B_CRM_Shortcode::register_portal_route();
         flush_rewrite_rules();
@@ -94,6 +98,69 @@ class B2B_CRM_Bootstrap
                 B2B_CRM_MAROC_EMAIL_CAP => true,
             )
         );
+    }
+
+
+    private static function deactivate_duplicate_plugins()
+    {
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $current_plugin = plugin_basename(B2B_CRM_MAROC_PATH . 'saoupack-crm.php');
+
+        foreach (get_plugins() as $plugin_file => $plugin_data) {
+            if (($plugin_data['Name'] ?? '') !== 'CRM Saoupack' || $plugin_file === $current_plugin) {
+                continue;
+            }
+
+            if (is_plugin_active($plugin_file)) {
+                deactivate_plugins($plugin_file, true);
+            }
+        }
+    }
+
+    private static function maybe_detect_duplicate_installs()
+    {
+        if (!current_user_can('activate_plugins')) {
+            return;
+        }
+
+        if (!function_exists('get_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $current_plugin = plugin_basename(B2B_CRM_MAROC_PATH . 'saoupack-crm.php');
+        $duplicates = array();
+
+        foreach (get_plugins() as $plugin_file => $plugin_data) {
+            if (($plugin_data['Name'] ?? '') === 'CRM Saoupack' && $plugin_file !== $current_plugin) {
+                $duplicates[] = $plugin_file;
+            }
+        }
+
+        if (empty($duplicates)) {
+            return;
+        }
+
+        self::$duplicate_plugins = $duplicates;
+        add_action('admin_notices', array(__CLASS__, 'render_duplicate_notice'));
+    }
+
+    public static function render_duplicate_notice()
+    {
+        if (empty(self::$duplicate_plugins) || !current_user_can('activate_plugins')) {
+            return;
+        }
+
+        echo '<div class="notice notice-warning"><p><strong>' . esc_html__('CRM Saoupack : installation dupliquée détectée.', 'b2b-crm-maroc') . '</strong></p>';
+        echo '<p>' . esc_html__("WordPress a trouvé plusieurs dossiers du plugin. Conservez uniquement saoupack-crm/ pour éviter l'exécution d'une ancienne version.", 'b2b-crm-maroc') . '</p>';
+        echo '<ul style="list-style:disc;padding-left:20px;">';
+        foreach (self::$duplicate_plugins as $plugin_file) {
+            echo '<li><code>' . esc_html($plugin_file) . '</code></li>';
+        }
+        echo '</ul>';
+        echo '<p><a class="button button-secondary" href="' . esc_url(admin_url('plugins.php')) . '">' . esc_html__('Ouvrir la page Extensions', 'b2b-crm-maroc') . '</a></p></div>';
     }
 
     private static function maybe_upgrade()

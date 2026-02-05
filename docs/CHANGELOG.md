@@ -1,3 +1,8 @@
+## 0.3.6
+- Ajout d’un détecteur de doublons d’installation (plusieurs dossiers CRM Saoupack) avec notice admin explicite.
+- Désactivation automatique des anciennes copies actives du plugin lors de l’activation de la version courante.
+- Build ID mis à jour pour vérifier rapidement que la bonne version est chargée.
+
 # Changelog
 
 ## 0.3.4
