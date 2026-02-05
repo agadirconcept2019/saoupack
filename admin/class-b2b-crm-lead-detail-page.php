@@ -48,7 +48,7 @@ class B2B_CRM_Lead_Detail_Page
         <div class="wrap b2b-crm">
             <?php settings_errors('b2b-crm-maroc'); ?>
             <h1><?php echo esc_html($lead['company_name']); ?></h1>
-            <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=b2b-crm-maroc')); ?>"><?php echo esc_html__('Retour à la liste', 'b2b-crm-maroc'); ?></a>
+            <a class="button" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'base'), B2B_CRM_Lead_List_Page::base_url())); ?>"><?php echo esc_html__('Retour à la liste', 'b2b-crm-maroc'); ?></a>
 
             <div class="b2b-crm__grid">
                 <div class="b2b-crm__card">

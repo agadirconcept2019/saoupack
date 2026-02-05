@@ -167,7 +167,7 @@ class B2B_CRM_Views
             'priority' => array('Faible', 'Moyen', 'Fort'),
             'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
         ));
-        $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), admin_url('admin.php'));
+        $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), B2B_CRM_Lead_List_Page::base_url());
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
