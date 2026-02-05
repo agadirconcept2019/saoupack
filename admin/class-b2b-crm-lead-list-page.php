@@ -88,7 +88,7 @@ class B2B_CRM_Lead_List_Page
                 <aside class="crm-sidebar b2b-crm__sidebar">
                     <div class="b2b-crm__sidebar-menubar">
                         <button class="b2b-crm__settings-link b2b-crm__sidebar-toggle" type="button" aria-label="<?php echo esc_attr__('Réduire menu', 'b2b-crm-maroc'); ?>">
-                            <span class="dashicons dashicons-menu" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Menu', 'b2b-crm-maroc'); ?></span>
+                            <span class="b2b-crm__menu-icon" aria-hidden="true"><span></span><span></span><span></span></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Menu', 'b2b-crm-maroc'); ?></span>
                         </button>
                     </div>
                     <div class="b2b-crm__sidebar-brand">
