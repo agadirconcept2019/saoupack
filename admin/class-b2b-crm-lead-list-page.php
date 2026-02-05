@@ -76,6 +76,12 @@ class B2B_CRM_Lead_List_Page
 
         $current_label = $tabs[$tab] ?? $tabs['dashboard'];
         $base_url = self::base_url();
+
+        $is_admin_user = current_user_can('manage_options');
+        if ($tab !== 'dashboard' && $tab !== 'settings' && isset($modules_state[$tab]) && empty($modules_state[$tab]) && !$is_admin_user) {
+            $tab = 'module-disabled';
+            $current_label = __('Module désactivé', 'b2b-crm-maroc');
+        }
         ?>
         <div class="wrap b2b-crm b2b-crm--app">
             <?php settings_errors('b2b-crm-maroc'); ?>
@@ -156,6 +162,8 @@ class B2B_CRM_Lead_List_Page
                         <?php B2B_CRM_Views::render_settings(); ?>
                     <?php elseif ($tab === 'base') : ?>
                         <?php self::render_base($filters, $data, $total_pages, $paged); ?>
+                    <?php elseif ($tab === 'module-disabled') : ?>
+                        <?php self::render_placeholder(__('Module désactivé', 'b2b-crm-maroc'), false); ?>
                     <?php else : ?>
                         <?php self::render_placeholder($current_label, !empty($modules_state[$tab])); ?>
                     <?php endif; ?>

@@ -339,12 +339,31 @@ class B2B_CRM_Lead_Detail_Page
             $signature = !empty($settings['emails_signature']) ? "\n\n" . wp_kses_post($settings['emails_signature']) : '';
             $result = B2B_CRM_Email_Service::send($lead, $subject, $message . $signature);
 
+            $logs = get_option('b2b_crm_email_logs', array());
+            if (!is_array($logs)) {
+                $logs = array();
+            }
+
             if (is_wp_error($result)) {
+                $logs[] = array(
+                    'date' => current_time('mysql'),
+                    'user_id' => get_current_user_id(),
+                    'subject' => $subject,
+                    'status' => 'failed',
+                );
                 add_settings_error('b2b-crm-maroc', 'email_failed', $result->get_error_message(), 'error');
             } else {
                 B2B_CRM_Interaction_Repository::add($lead_id, 'email', $subject, get_current_user_id());
+                $logs[] = array(
+                    'date' => current_time('mysql'),
+                    'user_id' => get_current_user_id(),
+                    'subject' => $subject,
+                    'status' => 'sent',
+                );
                 add_settings_error('b2b-crm-maroc', 'email_sent', __('Email envoyé.', 'b2b-crm-maroc'), 'updated');
             }
+
+            update_option('b2b_crm_email_logs', array_slice($logs, -100));
         }
 
         if ($action === 'add_interaction' && isset($_POST['b2b_crm_interaction_nonce']) && wp_verify_nonce($_POST['b2b_crm_interaction_nonce'], 'b2b_crm_add_interaction')) {

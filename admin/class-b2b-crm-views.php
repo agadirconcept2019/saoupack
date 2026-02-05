@@ -133,20 +133,15 @@ class B2B_CRM_Views
 
     public static function render_settings()
     {
-        $settings = get_option('b2b_crm_settings', array());
-        $module_settings = get_option('b2b_crm_module_settings', array());
-        $module_settings = wp_parse_args($module_settings, array(
-            'accounts_owner' => '',
-            'contacts_source' => '',
-            'opportunities_stages' => 'Prospection,Qualification,Proposition,Négociation,Gagné',
-            'emails_signature' => '',
-            'emails_templates' => "Relance|Bonjour,\n\nJe reviens vers vous concernant...\n\nCordialement,",
-            'calendar_timezone' => 'Africa/Casablanca',
-            'tasks_sla' => '48h',
-            'tickets_sla' => '',
+        $settings = wp_parse_args(get_option('b2b_crm_settings', array()), array(
+            'workspace_name' => 'CRM Saoupack',
+            'default_currency' => 'MAD',
+            'timezone' => 'Africa/Casablanca',
+            'owner_email' => '',
+            'portal_slug' => 'crm',
+            'allowed_domains' => array(),
         ));
-        $modules = get_option('b2b_crm_modules_config', array());
-        $modules = wp_parse_args($modules, array(
+        $modules = wp_parse_args(get_option('b2b_crm_modules_config', array()), array(
             'accounts' => true,
             'contacts' => true,
             'base' => true,
@@ -156,307 +151,156 @@ class B2B_CRM_Views
             'sources' => true,
             'pipeline' => true,
         ));
-        $key_values = get_option('b2b_crm_key_values', array());
-        $key_values = wp_parse_args($key_values, array(
-            'company_name' => array(),
-            'email' => array(),
-            'phone' => array(),
-            'phone_mobile' => array(),
-            'website' => array(),
-            'social' => array(),
-            'priority' => array('Faible', 'Moyen', 'Fort'),
-            'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
+        $module_settings = wp_parse_args(get_option('b2b_crm_module_settings', array()), array(
+            'opportunities_stages' => '',
+            'emails_signature' => '',
+            'emails_templates' => "Relance 1|Bonjour {{company_name}}, je me permets de vous relancer.
+Relance 2|Bonjour {{company_name}}, avez-vous pu consulter notre proposition ?
+Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos services.",
+            'tasks_sla' => '24h',
         ));
-        $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), B2B_CRM_Lead_List_Page::base_url());
+        $key_values = wp_parse_args(get_option('b2b_crm_key_values', array()), array(
+            'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
+            'priority' => array('Faible', 'Moyen', 'Fort'),
+            'source' => array('Google Maps', 'Annuaires', 'Import CSV'),
+            'tags' => array(),
+        ));
+
+        $settings_tab = isset($_GET['settings_tab']) ? sanitize_key($_GET['settings_tab']) : 'general';
+        $tabs = array(
+            'general' => __('Général', 'b2b-crm-maroc'),
+            'modules' => __('Modules', 'b2b-crm-maroc'),
+            'references' => __('Référentiels', 'b2b-crm-maroc'),
+            'email' => __('Email', 'b2b-crm-maroc'),
+            'access' => __('Rôles & Accès', 'b2b-crm-maroc'),
+            'onboarding' => __('Onboarding', 'b2b-crm-maroc'),
+        );
+        if (!isset($tabs[$settings_tab])) {
+            $settings_tab = 'general';
+        }
+
+        $base_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), B2B_CRM_Lead_List_Page::base_url());
         $portal_url = class_exists('B2B_CRM_Shortcode') ? B2B_CRM_Shortcode::portal_url() : home_url('/crm/');
-        $db_ready = class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table');
-        $stages_ready = !empty(B2B_CRM_Lead_Repository::stages());
-        $email_ready = !empty($settings['owner_email']);
-        $setup_items = array(
-            array('label' => __('Tables CRM', 'b2b-crm-maroc'), 'ok' => $db_ready),
-            array('label' => __('Pipeline configuré', 'b2b-crm-maroc'), 'ok' => $stages_ready),
-            array('label' => __('Email propriétaire', 'b2b-crm-maroc'), 'ok' => $email_ready),
+        $email_logs = get_option('b2b_crm_email_logs', array());
+        $email_logs = is_array($email_logs) ? array_slice(array_reverse($email_logs), 0, 10) : array();
+
+        $onboarding = array(
+            'db' => class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table'),
+            'caps' => current_user_can(B2B_CRM_MAROC_SETTINGS_CAP) && current_user_can(B2B_CRM_MAROC_ACCESS_CAP),
+            'email' => !empty($settings['owner_email']),
+            'sources' => !empty($settings['allowed_domains']),
         );
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
-            <p class="b2b-crm__muted"><?php echo esc_html__('Centralisez ici tous les réglages, modules actifs et intégrations CRM.', 'b2b-crm-maroc'); ?></p>
+            <div class="b2b-crm__toolbar">
+                <nav class="b2b-crm__filters">
+                    <?php foreach ($tabs as $key => $label) : ?>
+                        <a class="b2b-crm__ghost <?php echo $settings_tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg('settings_tab', $key, $base_url)); ?>"><?php echo esc_html($label); ?></a>
+                    <?php endforeach; ?>
+                </nav>
+                <a class="b2b-crm__export" href="<?php echo esc_url($portal_url); ?>"><?php echo esc_html__('Ouvrir le portail CRM', 'b2b-crm-maroc'); ?></a>
+            </div>
 
             <form class="b2b-crm__settings-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('b2b_crm_save_settings'); ?>
                 <input type="hidden" name="action" value="b2b_crm_save_settings" />
 
                 <div class="b2b-crm__settings-layout b2b-crm__settings-layout--stacked">
-                    <section class="b2b-crm__settings-section">
-                        <h3><?php echo esc_html__('Système', 'b2b-crm-maroc'); ?></h3>
-                        <div class="b2b-crm__settings-list">
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Paramètres', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Identité du workspace, devise et fuseau horaire.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Nom du workspace', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="workspace_name" value="<?php echo esc_attr($settings['workspace_name'] ?? 'CRM Saoupack'); ?>" />
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Devise par défaut', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="default_currency" value="<?php echo esc_attr($settings['default_currency'] ?? 'MAD'); ?>" />
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Fuseau horaire', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="timezone" value="<?php echo esc_attr($settings['timezone'] ?? 'Africa/Casablanca'); ?>" />
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Email propriétaire', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="email" name="owner_email" value="<?php echo esc_attr($settings['owner_email'] ?? ''); ?>" />
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Slug portail CRM', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="portal_slug" value="<?php echo esc_attr($settings['portal_slug'] ?? 'crm'); ?>" />
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="allowed_domains" rows="2"><?php echo esc_textarea(implode("\n", $settings['allowed_domains'] ?? array())); ?></textarea>
-                                    </label>
-                                </div>
+                    <?php if ($settings_tab === 'general') : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Général', 'b2b-crm-maroc'); ?></h3>
+                            <div class="b2b-crm__settings-fields">
+                                <label class="b2b-crm__label"><?php echo esc_html__('Nom du workspace', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="workspace_name" value="<?php echo esc_attr($settings['workspace_name']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Devise', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="default_currency" value="<?php echo esc_attr($settings['default_currency']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Fuseau horaire', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="timezone" value="<?php echo esc_attr($settings['timezone']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Slug portail CRM', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="portal_slug" value="<?php echo esc_attr($settings['portal_slug']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="allowed_domains" rows="3"><?php echo esc_textarea(implode("
+", $settings['allowed_domains'])); ?></textarea></label>
                             </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-screenoptions" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Modules CRM', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Activez les modules souhaités.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__modules-grid">
-                                    <?php foreach ($modules as $key => $enabled) : ?>
-                                        <label class="b2b-crm__module-toggle">
-                                            <input type="checkbox" name="modules[]" value="<?php echo esc_attr($key); ?>" <?php checked($enabled); ?> />
-                                            <span><?php echo esc_html(self::module_label($key)); ?></span>
-                                        </label>
+                        </section>
+                    <?php elseif ($settings_tab === 'modules') : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Modules actifs', 'b2b-crm-maroc'); ?></h3>
+                            <div class="b2b-crm__modules-grid">
+                                <?php foreach ($modules as $key => $enabled) : ?>
+                                    <label class="b2b-crm__module-toggle">
+                                        <input type="checkbox" name="modules[]" value="<?php echo esc_attr($key); ?>" <?php checked($enabled); ?> />
+                                        <span><?php echo esc_html(self::module_label($key)); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                            <p class="b2b-crm__muted"><?php echo esc_html__('Un module décoché disparaît du menu et devient inaccessible.', 'b2b-crm-maroc'); ?></p>
+                        </section>
+                    <?php elseif ($settings_tab === 'references') : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Référentiels', 'b2b-crm-maroc'); ?></h3>
+                            <div class="b2b-crm__settings-fields">
+                                <label class="b2b-crm__label"><?php echo esc_html__('Statuts CRM', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="4"><?php echo esc_textarea(implode("
+", $key_values['status'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Priorités', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="4"><?php echo esc_textarea(implode("
+", $key_values['priority'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[source]" rows="4"><?php echo esc_textarea(implode("
+", $key_values['source'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Tags', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[tags]" rows="4"><?php echo esc_textarea(implode("
+", $key_values['tags'])); ?></textarea></label>
+                            </div>
+                            <p class="b2b-crm__muted"><?php echo esc_html__('Ces valeurs alimentent les suggestions et les contrôles serveur.', 'b2b-crm-maroc'); ?></p>
+                        </section>
+                    <?php elseif ($settings_tab === 'email') : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Configuration Email', 'b2b-crm-maroc'); ?></h3>
+                            <div class="b2b-crm__settings-fields">
+                                <label class="b2b-crm__label"><?php echo esc_html__('Email propriétaire', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="email" name="owner_email" value="<?php echo esc_attr($settings['owner_email']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Signature', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_signature]" rows="4"><?php echo esc_textarea($module_settings['emails_signature']); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Templates (Titre|Message, 1 ligne)', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_templates]" rows="6"><?php echo esc_textarea($module_settings['emails_templates']); ?></textarea></label>
+                            </div>
+                            <h4><?php echo esc_html__('Logs récents', 'b2b-crm-maroc'); ?></h4>
+                            <ul class="b2b-crm__timeline">
+                                <?php if (empty($email_logs)) : ?>
+                                    <li><span><?php echo esc_html__('Aucun log.', 'b2b-crm-maroc'); ?></span></li>
+                                <?php else : ?>
+                                    <?php foreach ($email_logs as $log) : ?>
+                                        <li><strong><?php echo esc_html($log['status'] ?? ''); ?></strong> <span><?php echo esc_html(($log['date'] ?? '') . ' · ' . ($log['subject'] ?? '')); ?></span></li>
                                     <?php endforeach; ?>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-editor-code" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Shortcode Frontend', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Affiche l’interface CRM publique.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div>
-                                    <code class="b2b-crm__shortcode">[mon_plugin_crm]</code>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="b2b-crm__settings-section">
-                        <h3><?php echo esc_html__('Configuration des modules', 'b2b-crm-maroc'); ?></h3>
-                        <div class="b2b-crm__settings-list">
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-building" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Comptes', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Responsable par défaut et structure de compte.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Responsable par défaut', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[accounts_owner]" value="<?php echo esc_attr($module_settings['accounts_owner']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-id" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Source principale des contacts.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Source par défaut', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[contacts_source]" value="<?php echo esc_attr($module_settings['contacts_source']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-chart-line" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Opportunités', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Étapes du pipeline séparées par des virgules.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Étapes du pipeline', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[opportunities_stages]" value="<?php echo esc_attr($module_settings['opportunities_stages']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-email" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Emails', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Signature par défaut pour les emails sortants.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Signature', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_signature]" rows="2"><?php echo esc_textarea($module_settings['emails_signature']); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Templates (Titre|Message)', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_templates]" rows="3"><?php echo esc_textarea($module_settings['emails_templates']); ?></textarea>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-calendar" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Calendrier', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Fuseau horaire par défaut des événements.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Fuseau horaire', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[calendar_timezone]" value="<?php echo esc_attr($module_settings['calendar_timezone']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Tâches', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Délai cible de traitement des tâches.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('SLA tâches', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[tasks_sla]" value="<?php echo esc_attr($module_settings['tasks_sla']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="b2b-crm__settings-section">
-                        <h3><?php echo esc_html__('Référentiel des valeurs clés', 'b2b-crm-maroc'); ?></h3>
-                        <div class="b2b-crm__settings-list">
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-database" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Listes de référence', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Une valeur par ligne. Utilisée pour les suggestions et menus déroulants.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Société', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[company_name]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['company_name'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('E-mail', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[email]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['email'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[phone]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['phone'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('GSM', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[phone_mobile]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['phone_mobile'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[website]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['website'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Réseaux Sociaux', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[social]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['social'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['priority'])); ?></textarea>
-                                    </label>
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('Statut CRM', 'b2b-crm-maroc'); ?>
-                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="3"><?php echo esc_textarea(implode("\n", $key_values['status'])); ?></textarea>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="b2b-crm__settings-section">
-                        <h3><?php echo esc_html__('Données', 'b2b-crm-maroc'); ?></h3>
-                        <div class="b2b-crm__settings-list">
-                            <a class="b2b-crm__settings-link-row" href="<?php echo esc_url($settings_url . '#b2b-crm-collect'); ?>">
-                                <span class="dashicons dashicons-filter" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Collecte', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Configuration de la recherche et des segments.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                            </a>
-                            <a class="b2b-crm__settings-link-row" href="<?php echo esc_url($settings_url . '#b2b-crm-sources'); ?>">
-                                <span class="dashicons dashicons-database" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('APIs, annuaires, fichiers et enrichissements.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                            </a>
-                        </div>
-                    </section>
-
-                    <section class="b2b-crm__settings-section">
-                        <h3><?php echo esc_html__('Utilisateurs', 'b2b-crm-maroc'); ?></h3>
-                        <div class="b2b-crm__settings-list">
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Rôles & Accès', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Gérez les permissions des agents CRM.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <span class="b2b-crm__tag"><?php echo esc_html__('Admin', 'b2b-crm-maroc'); ?></span>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Journal d’activité', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Historique des actions CRM.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                                <?php endif; ?>
+                            </ul>
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                <input type="hidden" name="action" value="b2b_crm_test_email" />
+                                <?php wp_nonce_field('b2b_crm_test_email'); ?>
+                                <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Tester l’envoi email', 'b2b-crm-maroc'); ?></button>
+                            </form>
+                        </section>
+                    <?php elseif ($settings_tab === 'access') : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Rôles & Accès', 'b2b-crm-maroc'); ?></h3>
+                            <p class="b2b-crm__muted"><?php echo esc_html__('Rôle CRM Admin: accès complet. Rôle CRM Agent: gestion leads + emails.', 'b2b-crm-maroc'); ?></p>
+                            <ul class="b2b-crm__timeline">
+                                <li><strong>✅</strong><span>b2b_crm_access</span></li>
+                                <li><strong>✅</strong><span>b2b_crm_manage_leads</span></li>
+                                <li><strong>✅</strong><span>b2b_crm_manage_settings</span></li>
+                                <li><strong>✅</strong><span>b2b_crm_manage_sources</span></li>
+                                <li><strong>✅</strong><span>b2b_crm_send_email</span></li>
+                            </ul>
+                        </section>
+                    <?php else : ?>
+                        <section class="b2b-crm__settings-section">
+                            <h3><?php echo esc_html__('Onboarding (diagnostic)', 'b2b-crm-maroc'); ?></h3>
+                            <ul class="b2b-crm__timeline">
+                                <li><strong><?php echo $onboarding['db'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Tables DB CRM', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'general'), $base_url)); ?>"><?php echo esc_html__('Vérifier', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['caps'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Rôles & capabilities', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'access'), $base_url)); ?>"><?php echo esc_html__('Contrôler', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['email'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Email provider', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'email'), $base_url)); ?>"><?php echo esc_html__('Configurer SMTP/Test', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['sources'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Sources autorisées', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), B2B_CRM_Lead_List_Page::base_url())); ?>"><?php echo esc_html__('Définir domaines/clé Google', 'b2b-crm-maroc'); ?></a></li>
+                            </ul>
+                        </section>
+                    <?php endif; ?>
                 </div>
 
                 <div class="b2b-crm__settings-actions">
-                    <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Enregistrer les réglages', 'b2b-crm-maroc'); ?></button>
-                    <a class="b2b-crm__ghost" href="<?php echo esc_url($portal_url); ?>"><?php echo esc_html__('Ouvrir le portail CRM', 'b2b-crm-maroc'); ?></a>
+                    <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Enregistrer', 'b2b-crm-maroc'); ?></button>
                 </div>
             </form>
-
-            <div class="b2b-crm__card">
-                <h3><?php echo esc_html__('Onboarding CRM', 'b2b-crm-maroc'); ?></h3>
-                <p class="b2b-crm__muted"><?php echo esc_html__('État de préparation du CRM après activation.', 'b2b-crm-maroc'); ?></p>
-                <ul class="b2b-crm__timeline">
-                    <?php foreach ($setup_items as $item) : ?>
-                        <li>
-                            <strong><?php echo $item['ok'] ? '✅' : '❌'; ?></strong>
-                            <span><?php echo esc_html($item['label']); ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                    <input type="hidden" name="action" value="b2b_crm_test_email" />
-                    <?php wp_nonce_field('b2b_crm_test_email'); ?>
-                    <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Tester l’envoi email', 'b2b-crm-maroc'); ?></button>
-                </form>
-            </div>
         </div>
-
-        <?php self::render_collect($settings_url); ?>
-        <?php self::render_sources($settings_url); ?>
         <?php
     }
 
