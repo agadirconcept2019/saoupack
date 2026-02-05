@@ -66,7 +66,15 @@ jQuery(function ($) {
     });
 
     const $shell = $('.crm-app .b2b-crm__shell');
-    const $toggle = $('.b2b-crm__sidebar-toggle');
+    const $sidebarMenuCtrl = $('.crm-app .b2b-crm__sidebar-menuctrl');
+    const $legacyTopbarToggle = $('.crm-app .b2b-crm__topbar .b2b-crm__sidebar-toggle, .crm-app .b2b-crm__topbar .b2b-crm__settings-link:has(.dashicons-menu)');
+    let $toggle = $('.crm-app .b2b-crm__sidebar .b2b-crm__sidebar-toggle').first();
+
+    if (!$toggle.length && $legacyTopbarToggle.length && $sidebarMenuCtrl.length) {
+        $toggle = $legacyTopbarToggle.first().addClass('b2b-crm__sidebar-toggle').appendTo($sidebarMenuCtrl);
+    }
+
+    $legacyTopbarToggle.not($toggle).remove();
 
     const syncSidebarToggleA11y = () => {
         const expanded = !$shell.hasClass('is-collapsed');
