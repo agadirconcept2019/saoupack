@@ -281,10 +281,19 @@ class B2B_CRM_Actions
             $key_values[sanitize_key($key)] = array_values(array_unique(array_map('sanitize_text_field', $lines)));
         }
 
+        $previous_settings = get_option('b2b_crm_settings', array());
+
         update_option('b2b_crm_settings', $settings);
         update_option('b2b_crm_modules_config', $modules_config);
         update_option('b2b_crm_module_settings', $module_settings);
         update_option('b2b_crm_key_values', $key_values);
+
+        if (($previous_settings['portal_slug'] ?? 'crm') !== $settings['portal_slug']) {
+            if (class_exists('B2B_CRM_Shortcode')) {
+                B2B_CRM_Shortcode::register_portal_route();
+            }
+            flush_rewrite_rules();
+        }
 
         add_settings_error('b2b-crm-maroc', 'settings_saved', __('Paramétrage enregistré.', 'b2b-crm-maroc'), 'updated');
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=settings'));

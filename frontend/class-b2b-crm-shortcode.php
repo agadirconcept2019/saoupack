@@ -39,12 +39,26 @@ class B2B_CRM_Shortcode
 
     public static function portal_url()
     {
-        return home_url('/' . self::portal_slug() . '/');
+        $pretty_url = home_url('/' . self::portal_slug() . '/');
+        if ('' !== (string) get_option('permalink_structure')) {
+            return $pretty_url;
+        }
+
+        return add_query_arg(self::QUERY_VAR, '1', home_url('/'));
     }
 
     public static function is_portal_request()
     {
-        return (bool) get_query_var(self::QUERY_VAR);
+        if ((bool) get_query_var(self::QUERY_VAR)) {
+            return true;
+        }
+
+        if (isset($_GET[self::QUERY_VAR]) && sanitize_key(wp_unslash($_GET[self::QUERY_VAR])) === '1') {
+            return true;
+        }
+
+        $request_path = trim((string) wp_parse_url(add_query_arg(array()), PHP_URL_PATH), '/');
+        return $request_path === self::portal_slug();
     }
 
     public static function enqueue_assets()
