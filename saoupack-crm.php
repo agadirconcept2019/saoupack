@@ -16,6 +16,7 @@ define('B2B_CRM_MAROC_VERSION', '0.3.6');
 define('B2B_CRM_MAROC_BUILD_ID', '2026-02-05-02');
 define('B2B_CRM_MAROC_PATH', plugin_dir_path(__FILE__));
 define('B2B_CRM_MAROC_URL', plugin_dir_url(__FILE__));
+define('B2B_CRM_MAROC_BRAND_LOGO_URL', 'http://saoupack.com/wp-content/uploads/2026/02/logo-saoupack.svg');
 
 define('B2B_CRM_MAROC_ACCESS_CAP', 'b2b_crm_access');
 define('B2B_CRM_MAROC_LEADS_CAP', 'b2b_crm_manage_leads');

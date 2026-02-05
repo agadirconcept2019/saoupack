@@ -40,8 +40,7 @@ class B2B_CRM_Lead_List_Page
         $modules_config = self::modules_config();
         $modules_state = get_option('b2b_crm_modules_config', array());
         $modules_state = wp_parse_args($modules_state, $modules_config);
-        $settings = get_option('b2b_crm_settings', array());
-        $logo_url = !empty($settings['logo_url']) ? esc_url($settings['logo_url']) : '';
+        $logo_url = defined('B2B_CRM_MAROC_BRAND_LOGO_URL') ? esc_url(B2B_CRM_MAROC_BRAND_LOGO_URL) : '';
 
         $nav_sections = array(
             array(
@@ -88,11 +87,12 @@ class B2B_CRM_Lead_List_Page
                                 <span class="b2b-crm__menu-glyph" aria-hidden="true">≡</span>
                                 <span class="b2b-crm__sr-only"><?php echo esc_html__('Basculer le menu', 'b2b-crm-maroc'); ?></span>
                             </button>
-                            <span class="b2b-crm__logo b2b-crm__logo--wide" aria-hidden="true">
+                            <span class="b2b-crm__logo b2b-crm__logo--wide crm-sidebar-logo" aria-hidden="true">
                                 <?php if ($logo_url) : ?>
-                                    <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Logo Saoupack', 'b2b-crm-maroc'); ?>" width="220" height="56" />
+                                    <img src="<?php echo esc_url($logo_url); ?>" alt="Saoupack" loading="lazy" width="220" height="56" onerror="this.onerror=null;this.style.display='none';if(this.nextElementSibling){this.nextElementSibling.hidden=false;}" />
+                                    <span class="b2b-crm__logo-fallback" hidden>S</span>
                                 <?php else : ?>
-                                    <img src="<?php echo esc_url(B2B_CRM_MAROC_URL . 'assets/images/saoupack-icon.svg'); ?>" alt="<?php echo esc_attr__('Logo Saoupack', 'b2b-crm-maroc'); ?>" width="220" height="56" />
+                                    <span class="b2b-crm__logo-fallback">S</span>
                                 <?php endif; ?>
                             </span>
                         </div>
