@@ -111,8 +111,8 @@ class B2B_CRM_Shortcode
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <?php wp_head(); ?>
         </head>
-        <body <?php body_class('b2b-crm-portal'); ?>>
-            <main class="b2b-crm-app b2b-crm-portal__main">
+        <body <?php body_class('b2b-crm-portal crm-app'); ?>>
+            <main class="crm-app b2b-crm-app b2b-crm-portal__main">
                 <?php echo self::render_portal_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </main>
             <?php wp_footer(); ?>

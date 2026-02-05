@@ -184,11 +184,24 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
         $email_logs = get_option('b2b_crm_email_logs', array());
         $email_logs = is_array($email_logs) ? array_slice(array_reverse($email_logs), 0, 10) : array();
 
+        $sources_config = get_option('b2b_crm_sources_config', array());
+        $google_endpoint = isset($sources_config['google_maps']['endpoint']) ? esc_url_raw($sources_config['google_maps']['endpoint']) : '';
+        $google_key = isset($sources_config['google_maps']['api_key']) ? trim((string) $sources_config['google_maps']['api_key']) : '';
+        $smtp_detected = defined('WPMS_ON') || defined('POST_SMTP_VERSION') || class_exists('WPMailSMTP\Core');
+        $source_endpoint_reachable = false;
+        if ($google_endpoint) {
+            $response = wp_remote_head($google_endpoint, array('timeout' => 2));
+            if (!is_wp_error($response)) {
+                $code = (int) wp_remote_retrieve_response_code($response);
+                $source_endpoint_reachable = $code >= 200 && $code < 500;
+            }
+        }
+
         $onboarding = array(
             'db' => class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table'),
             'caps' => current_user_can(B2B_CRM_MAROC_SETTINGS_CAP) && current_user_can(B2B_CRM_MAROC_ACCESS_CAP),
-            'email' => !empty($settings['owner_email']),
-            'sources' => !empty($settings['allowed_domains']),
+            'email' => !empty($settings['owner_email']) && $smtp_detected,
+            'sources' => !empty($settings['allowed_domains']) && !empty($google_key) && $source_endpoint_reachable,
         );
         ?>
         <div class="b2b-crm__section">

@@ -83,7 +83,7 @@ class B2B_CRM_Lead_List_Page
             $current_label = __('Module désactivé', 'b2b-crm-maroc');
         }
         ?>
-        <div class="wrap b2b-crm b2b-crm--app">
+        <div class="wrap crm-app b2b-crm b2b-crm--app">
             <?php settings_errors('b2b-crm-maroc'); ?>
             <div class="b2b-crm__shell">
                 <aside class="b2b-crm__sidebar">
@@ -128,6 +128,7 @@ class B2B_CRM_Lead_List_Page
                         <div class="b2b-crm__page-title">
                             <h1><?php echo esc_html($current_label); ?></h1>
                             <p><?php echo esc_html__('Workspace CRM', 'b2b-crm-maroc'); ?></p>
+                            <div class="b2b-crm__breadcrumb">CRM / <?php echo esc_html($current_label); ?></div>
                         </div>
                         <div class="b2b-crm__topbar-actions">
                             <label class="b2b-crm__search">
