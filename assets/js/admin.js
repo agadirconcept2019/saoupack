@@ -65,7 +65,25 @@ jQuery(function ($) {
         window.open(url, '_blank', 'noopener,noreferrer');
     });
 
-    $('.b2b-crm__sidebar-toggle').on('click', function () {
-        $('.crm-app .b2b-crm__shell').toggleClass('is-collapsed');
+    const $shell = $('.crm-app .b2b-crm__shell');
+    const $toggle = $('.b2b-crm__sidebar-toggle');
+
+    const syncSidebarToggleA11y = () => {
+        const expanded = !$shell.hasClass('is-collapsed');
+        $toggle.attr('aria-expanded', expanded ? 'true' : 'false');
+    };
+
+    $toggle.on('click', function () {
+        $shell.toggleClass('is-collapsed');
+        syncSidebarToggleA11y();
     });
+
+    $toggle.on('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            $(this).trigger('click');
+        }
+    });
+
+    syncSidebarToggleA11y();
 });

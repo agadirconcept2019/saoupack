@@ -56,12 +56,6 @@
 
 
 
-.crm-app .b2b-crm__sidebar-menubar {
-    display: flex;
-    justify-content: flex-start;
-}
-
-
 .crm-app .b2b-crm__menu-icon {
     width: 18px;
     height: 14px;
@@ -79,17 +73,21 @@
 }
 
 .crm-app .b2b-crm__sidebar-toggle {
-    align-self: flex-start;
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.08);
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    color: #e2e8f0;
+    border-color: rgba(226, 232, 240, 0.28);
+    background: rgba(15, 23, 42, 0.24);
 }
 
 .crm-app .b2b-crm__sidebar-toggle:hover,
 .crm-app .b2b-crm__sidebar-toggle:focus {
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.48);
-    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(110, 231, 183, 0.72);
+    background: rgba(22, 163, 74, 0.22);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.24);
 }
 
 .crm-app .b2b-crm__sidebar-brand {
@@ -98,6 +96,13 @@
     align-items: flex-start;
     gap: 10px;
     color: #fff;
+}
+
+.crm-app .b2b-crm__brand-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .crm-app .b2b-crm__sidebar-brand strong {
@@ -247,17 +252,19 @@
 .crm-app .b2b-crm__topbar-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
     color: var(--b2b-muted);
 }
 
 .crm-app .b2b-crm__search {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    background: #f9fafb;
-    border-radius: 999px;
+    padding: 8px 10px;
+    min-width: 220px;
+    background: #fff;
+    border-radius: 10px;
     border: 1px solid var(--b2b-border);
     color: var(--b2b-muted);
 }
@@ -267,7 +274,8 @@
     background: transparent;
     outline: none;
     font-size: 13px;
-    width: 180px;
+    width: 100%;
+    min-width: 0;
 }
 
 .crm-app .b2b-crm button,
@@ -1488,6 +1496,7 @@ body.crm-app.b2b-crm-portal {
 .crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__version,
 .crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__nav-link .b2b-crm__nav-badge,
 .crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__sidebar-brand strong,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__brand-meta,
 .crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__nav-link {
     font-size: 0;
 }
@@ -1499,6 +1508,10 @@ body.crm-app.b2b-crm-portal {
 
 .crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__logo--wide {
     max-width: 32px;
+}
+
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__brand-head {
+    justify-content: center;
 }
 
 @media (max-width: 1024px) {
