@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 class B2B_CRM_Interaction_Repository
 {
-    public static function add($lead_id, $type, $content)
+    public static function add($lead_id, $type, $content, $user_id = 0)
     {
         global $wpdb;
 
@@ -15,6 +15,7 @@ class B2B_CRM_Interaction_Repository
             $table,
             array(
                 'lead_id' => $lead_id,
+                'user_id' => (int) $user_id,
                 'interaction_type' => $type,
                 'content' => $content,
                 'created_at' => current_time('mysql'),

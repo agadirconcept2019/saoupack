@@ -13,7 +13,7 @@ class B2B_CRM_Ajax
 
     public static function quick_update()
     {
-        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
             wp_send_json_error(array('message' => __('Accès refusé.', 'b2b-crm-maroc')));
         }
 
@@ -21,10 +21,12 @@ class B2B_CRM_Ajax
 
         $lead_id = isset($_POST['lead_id']) ? absint($_POST['lead_id']) : 0;
         $field = isset($_POST['field']) ? sanitize_key($_POST['field']) : '';
-        $value = isset($_POST['value']) ? sanitize_key(wp_unslash($_POST['value'])) : '';
+        $raw_value = isset($_POST['value']) ? wp_unslash($_POST['value']) : '';
+        $value = $field === 'stage' ? sanitize_text_field($raw_value) : sanitize_key($raw_value);
         $allowed = array(
             'status' => array('new', 'qualified', 'contacted', 'inactive'),
             'interest_level' => array('low', 'medium', 'high'),
+            'stage' => B2B_CRM_Lead_Repository::stages(),
         );
 
         if (!$lead_id || !isset($allowed[$field]) || !in_array($value, $allowed[$field], true)) {

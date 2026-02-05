@@ -19,7 +19,7 @@ class B2B_CRM_Admin_Menu
         add_menu_page(
             __('CRM Saoupack', 'b2b-crm-maroc'),
             __('CRM Saoupack', 'b2b-crm-maroc'),
-            B2B_CRM_MAROC_CAP,
+            B2B_CRM_MAROC_ACCESS_CAP,
             'b2b-crm-maroc',
             array(__CLASS__, 'render'),
             B2B_CRM_MAROC_URL . 'assets/images/saoupack-icon.svg',

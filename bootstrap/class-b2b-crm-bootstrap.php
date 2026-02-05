@@ -31,7 +31,7 @@ class B2B_CRM_Bootstrap
         B2B_CRM_Shortcode::register();
 
         if (is_admin()) {
-            if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+            if (!current_user_can(B2B_CRM_MAROC_ACCESS_CAP)) {
                 return;
             }
 
@@ -50,6 +50,7 @@ class B2B_CRM_Bootstrap
         B2B_CRM_Contact_Table::create_table();
         B2B_CRM_Module_Item_Table::create_table();
         self::register_roles();
+        self::maybe_upgrade();
     }
 
     public static function deactivate()
@@ -60,17 +61,48 @@ class B2B_CRM_Bootstrap
     private static function register_roles()
     {
         $admin = get_role('administrator');
-        if ($admin && !$admin->has_cap(B2B_CRM_MAROC_LEADS_CAP)) {
+        if ($admin) {
+            $admin->add_cap(B2B_CRM_MAROC_ACCESS_CAP);
             $admin->add_cap(B2B_CRM_MAROC_LEADS_CAP);
+            $admin->add_cap(B2B_CRM_MAROC_SETTINGS_CAP);
+            $admin->add_cap(B2B_CRM_MAROC_SOURCES_CAP);
+            $admin->add_cap(B2B_CRM_MAROC_EMAIL_CAP);
         }
+
+        add_role(
+            'b2b_crm_admin',
+            __('CRM Admin', 'b2b-crm-maroc'),
+            array(
+                'read' => true,
+                B2B_CRM_MAROC_ACCESS_CAP => true,
+                B2B_CRM_MAROC_LEADS_CAP => true,
+                B2B_CRM_MAROC_SETTINGS_CAP => true,
+                B2B_CRM_MAROC_SOURCES_CAP => true,
+                B2B_CRM_MAROC_EMAIL_CAP => true,
+            )
+        );
 
         add_role(
             'b2b_crm_agent',
             __('CRM Agent', 'b2b-crm-maroc'),
             array(
                 'read' => true,
+                B2B_CRM_MAROC_ACCESS_CAP => true,
                 B2B_CRM_MAROC_LEADS_CAP => true,
+                B2B_CRM_MAROC_EMAIL_CAP => true,
             )
         );
+    }
+
+    private static function maybe_upgrade()
+    {
+        $current = get_option('b2b_crm_db_version', '0.0.0');
+        if (version_compare($current, B2B_CRM_MAROC_VERSION, '>=')) {
+            return;
+        }
+        B2B_CRM_Lead_Table::create_table();
+        B2B_CRM_Interaction_Table::create_table();
+        B2B_CRM_Module_Item_Table::create_table();
+        update_option('b2b_crm_db_version', B2B_CRM_MAROC_VERSION);
     }
 }

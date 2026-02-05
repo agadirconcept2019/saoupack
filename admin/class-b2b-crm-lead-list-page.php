@@ -11,10 +11,12 @@ class B2B_CRM_Lead_List_Page
         $filters = array(
             'search' => isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '',
             'status' => isset($_GET['status']) ? sanitize_key($_GET['status']) : '',
+            'stage' => isset($_GET['stage']) ? sanitize_text_field(wp_unslash($_GET['stage'])) : '',
             'city' => isset($_GET['city']) ? sanitize_text_field(wp_unslash($_GET['city'])) : '',
             'sector' => isset($_GET['sector']) ? sanitize_text_field(wp_unslash($_GET['sector'])) : '',
             'interest_level' => isset($_GET['interest_level']) ? sanitize_key($_GET['interest_level']) : '',
         );
+        $filters['owner_user_id'] = isset($_GET['owner']) && $_GET['owner'] === 'me' ? get_current_user_id() : 0;
 
         $paged = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
         $per_page = 20;
@@ -26,19 +28,11 @@ class B2B_CRM_Lead_List_Page
             'accounts' => __('Entreprise', 'b2b-crm-maroc'),
             'contacts' => __('Contacts', 'b2b-crm-maroc'),
             'base' => __('Prospects', 'b2b-crm-maroc'),
-            'opportunities' => __('Opportunités', 'b2b-crm-maroc'),
+            'tasks' => __('Activités', 'b2b-crm-maroc'),
             'emails' => __('Emails', 'b2b-crm-maroc'),
-            'calendar' => __('Calendrier', 'b2b-crm-maroc'),
-            'meetings' => __('Rendez-vous', 'b2b-crm-maroc'),
-            'calls' => __('Appels', 'b2b-crm-maroc'),
-            'tasks' => __('Tâches', 'b2b-crm-maroc'),
-            'tickets' => __('Tickets', 'b2b-crm-maroc'),
-            'knowledge' => __('Base de connaissance', 'b2b-crm-maroc'),
-            'documents' => __('Documents', 'b2b-crm-maroc'),
-            'sales' => __('Sales & Purchases', 'b2b-crm-maroc'),
             'collect' => __('Collecte', 'b2b-crm-maroc'),
             'sources' => __('Sources', 'b2b-crm-maroc'),
-            'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
+            'pipeline' => __('Pipeline', 'b2b-crm-maroc'),
             'settings' => __('Paramétrage', 'b2b-crm-maroc'),
         );
         $modules_config = self::modules_config();
@@ -54,31 +48,14 @@ class B2B_CRM_Lead_List_Page
                     array('key' => 'accounts', 'icon' => 'dashicons-building'),
                     array('key' => 'contacts', 'icon' => 'dashicons-id'),
                     array('key' => 'base', 'icon' => 'dashicons-groups'),
-                    array('key' => 'opportunities', 'icon' => 'dashicons-chart-line'),
+                    array('key' => 'pipeline', 'icon' => 'dashicons-chart-line'),
                 ),
             ),
             array(
                 'label' => __('Activités', 'b2b-crm-maroc'),
                 'items' => array(
                     array('key' => 'emails', 'icon' => 'dashicons-email'),
-                    array('key' => 'calendar', 'icon' => 'dashicons-calendar'),
-                    array('key' => 'meetings', 'icon' => 'dashicons-calendar-alt'),
-                    array('key' => 'calls', 'icon' => 'dashicons-phone'),
                     array('key' => 'tasks', 'icon' => 'dashicons-yes-alt'),
-                ),
-            ),
-            array(
-                'label' => __('Support', 'b2b-crm-maroc'),
-                'items' => array(
-                    array('key' => 'tickets', 'icon' => 'dashicons-sos'),
-                    array('key' => 'knowledge', 'icon' => 'dashicons-welcome-learn-more'),
-                ),
-            ),
-            array(
-                'label' => __('Business', 'b2b-crm-maroc'),
-                'items' => array(
-                    array('key' => 'documents', 'icon' => 'dashicons-media-document'),
-                    array('key' => 'sales', 'icon' => 'dashicons-cart'),
                 ),
             ),
             array(
@@ -86,7 +63,6 @@ class B2B_CRM_Lead_List_Page
                 'items' => array(
                     array('key' => 'collect', 'icon' => 'dashicons-filter'),
                     array('key' => 'sources', 'icon' => 'dashicons-admin-links'),
-                    array('key' => 'pipeline', 'icon' => 'dashicons-networking'),
                     array('key' => 'settings', 'icon' => 'dashicons-admin-generic'),
                 ),
             ),
@@ -161,26 +137,12 @@ class B2B_CRM_Lead_List_Page
                         <?php self::render_module_items(self::module_config_opportunities()); ?>
                     <?php elseif ($tab === 'emails') : ?>
                         <?php self::render_module_items(self::module_config_emails()); ?>
-                    <?php elseif ($tab === 'calendar') : ?>
-                        <?php self::render_module_items(self::module_config_calendar()); ?>
-                    <?php elseif ($tab === 'meetings') : ?>
-                        <?php self::render_module_items(self::module_config_meetings()); ?>
-                    <?php elseif ($tab === 'calls') : ?>
-                        <?php self::render_module_items(self::module_config_calls()); ?>
                     <?php elseif ($tab === 'tasks') : ?>
                         <?php self::render_module_items(self::module_config_tasks()); ?>
-                    <?php elseif ($tab === 'tickets') : ?>
-                        <?php self::render_module_items(self::module_config_tickets()); ?>
-                    <?php elseif ($tab === 'knowledge') : ?>
-                        <?php self::render_module_items(self::module_config_knowledge()); ?>
-                    <?php elseif ($tab === 'documents') : ?>
-                        <?php self::render_module_items(self::module_config_documents()); ?>
-                    <?php elseif ($tab === 'sales') : ?>
-                        <?php self::render_module_items(self::module_config_sales()); ?>
                     <?php elseif ($tab === 'collect') : ?>
                         <?php B2B_CRM_Views::render_collect(); ?>
                     <?php elseif ($tab === 'pipeline') : ?>
-                        <?php self::render_pipeline($data['items']); ?>
+                        <?php self::render_pipeline($filters, $data, $total_pages, $paged); ?>
                     <?php elseif ($tab === 'sources') : ?>
                         <?php B2B_CRM_Views::render_sources(); ?>
                     <?php elseif ($tab === 'settings') : ?>
@@ -218,43 +180,14 @@ class B2B_CRM_Lead_List_Page
         B2B_CRM_Views::render_dashboard($stats, $recent);
     }
 
-    private static function render_pipeline(array $items)
+    private static function render_pipeline($filters, $data, $total_pages, $paged)
     {
-        $columns = array(
-            'new' => __('Nouveau', 'b2b-crm-maroc'),
-            'qualified' => __('Qualifié', 'b2b-crm-maroc'),
-            'contacted' => __('Contact initié', 'b2b-crm-maroc'),
-            'proposal' => __('Proposition envoyée', 'b2b-crm-maroc'),
-            'negotiation' => __('Négociation', 'b2b-crm-maroc'),
-            'won' => __('Gagné', 'b2b-crm-maroc'),
-        );
-
-        $mapped = array();
-        foreach ($columns as $key => $label) {
-            $mapped[] = array(
-                'label' => $label,
-                'count' => $key === 'proposal' || $key === 'negotiation' || $key === 'won' ? 0 : self::count_status($items, $key),
-                'items' => array(),
-            );
+        $stages = B2B_CRM_Lead_Repository::stages();
+        if (empty($stages)) {
+            echo '<div class="notice notice-warning"><p>' . esc_html__('Définissez les étapes du pipeline dans Paramétrage > Opportunités.', 'b2b-crm-maroc') . '</p></div>';
         }
 
-        foreach ($items as $item) {
-            $status = $item['status'];
-            if (!isset($columns[$status])) {
-                continue;
-            }
-            $index = array_search($columns[$status], array_column($mapped, 'label'), true);
-            if ($index === false) {
-                continue;
-            }
-            $mapped[$index]['items'][] = array(
-                'company_name' => $item['company_name'],
-                'interest' => $item['interest_level'],
-                'interest_label' => self::interests()[$item['interest_level']] ?? $item['interest_level'],
-            );
-        }
-
-        B2B_CRM_Views::render_pipeline($mapped);
+        self::render_base($filters, $data, $total_pages, $paged);
     }
 
     private static function render_placeholder($label, $is_enabled)
@@ -281,16 +214,8 @@ class B2B_CRM_Lead_List_Page
             'accounts' => true,
             'contacts' => true,
             'base' => true,
-            'opportunities' => true,
             'emails' => true,
-            'calendar' => true,
-            'meetings' => true,
-            'calls' => true,
             'tasks' => true,
-            'tickets' => true,
-            'knowledge' => true,
-            'documents' => true,
-            'sales' => true,
             'collect' => true,
             'sources' => true,
             'pipeline' => true,
@@ -301,6 +226,24 @@ class B2B_CRM_Lead_List_Page
 
     private static function render_base($filters, $data, $total_pages, $paged)
     {
+        $import_payload = get_transient('b2b_crm_import_' . get_current_user_id());
+        $mapping_fields = array(
+            '' => __('Ignorer', 'b2b-crm-maroc'),
+            'company_name' => __('Société', 'b2b-crm-maroc'),
+            'sector' => __('Secteur', 'b2b-crm-maroc'),
+            'city' => __('Ville', 'b2b-crm-maroc'),
+            'contact_name' => __('Contact', 'b2b-crm-maroc'),
+            'contact_role' => __('Fonction', 'b2b-crm-maroc'),
+            'phone' => __('Téléphone', 'b2b-crm-maroc'),
+            'phone_mobile' => __('GSM', 'b2b-crm-maroc'),
+            'email' => __('Email', 'b2b-crm-maroc'),
+            'website' => __('Site Web', 'b2b-crm-maroc'),
+            'status' => __('Statut CRM', 'b2b-crm-maroc'),
+            'stage' => __('Étape', 'b2b-crm-maroc'),
+            'interest_level' => __('Priorité', 'b2b-crm-maroc'),
+            'source' => __('Source', 'b2b-crm-maroc'),
+            'notes' => __('Commentaires', 'b2b-crm-maroc'),
+        );
         ?>
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
@@ -311,9 +254,11 @@ class B2B_CRM_Lead_List_Page
                     <input type="hidden" name="action" value="b2b_crm_export_csv" />
                     <input type="hidden" name="s" value="<?php echo esc_attr($filters['search']); ?>" />
                     <input type="hidden" name="status" value="<?php echo esc_attr($filters['status']); ?>" />
+                    <input type="hidden" name="stage" value="<?php echo esc_attr($filters['stage']); ?>" />
                     <input type="hidden" name="city" value="<?php echo esc_attr($filters['city']); ?>" />
                     <input type="hidden" name="sector" value="<?php echo esc_attr($filters['sector']); ?>" />
                     <input type="hidden" name="interest_level" value="<?php echo esc_attr($filters['interest_level']); ?>" />
+                    <input type="hidden" name="owner" value="<?php echo esc_attr(isset($_GET['owner']) ? sanitize_key($_GET['owner']) : ''); ?>" />
                     <?php wp_nonce_field('b2b_crm_export_csv'); ?>
                     <button class="b2b-crm__export" type="submit"><?php echo esc_html__('Exporter en CSV', 'b2b-crm-maroc'); ?></button>
                 </form>
@@ -322,8 +267,56 @@ class B2B_CRM_Lead_List_Page
                     <?php wp_nonce_field('b2b_crm_add_demo_leads'); ?>
                     <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Ajouter des données de démonstration', 'b2b-crm-maroc'); ?></button>
                 </form>
+                <form method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="b2b_crm_import_csv" />
+                    <input type="hidden" name="import_step" value="upload" />
+                    <?php wp_nonce_field('b2b_crm_import_csv'); ?>
+                    <input type="file" name="csv_file" accept=".csv" />
+                    <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Importer CSV', 'b2b-crm-maroc'); ?></button>
+                </form>
             </div>
         </div>
+
+        <?php if (!empty($_GET['import']) && $_GET['import'] === 'preview' && !empty($import_payload['headers'])) : ?>
+            <div class="b2b-crm__card">
+                <h3><?php echo esc_html__('Prévisualisation import CSV', 'b2b-crm-maroc'); ?></h3>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="b2b_crm_import_csv" />
+                    <input type="hidden" name="import_step" value="confirm" />
+                    <?php wp_nonce_field('b2b_crm_confirm_import'); ?>
+                    <table class="b2b-crm__table">
+                        <thead>
+                            <tr>
+                                <?php foreach ($import_payload['headers'] as $header) : ?>
+                                    <th><?php echo esc_html($header); ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                            <tr>
+                                <?php foreach ($import_payload['headers'] as $header) : ?>
+                                    <th>
+                                        <select name="mapping[<?php echo esc_attr($header); ?>]">
+                                            <?php foreach ($mapping_fields as $key => $label) : ?>
+                                                <option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach (array_slice($import_payload['rows'], 0, 5) as $row) : ?>
+                                <tr>
+                                    <?php foreach ($row as $cell) : ?>
+                                        <td><?php echo esc_html($cell); ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <button class="b2b-crm__button" type="submit"><?php echo esc_html__('Confirmer l’import', 'b2b-crm-maroc'); ?></button>
+                </form>
+            </div>
+        <?php endif; ?>
 
         <div class="b2b-crm__table-card">
             <div class="b2b-crm__toolbar">
@@ -337,11 +330,21 @@ class B2B_CRM_Lead_List_Page
                             <option value="<?php echo esc_attr($key); ?>" <?php selected($filters['status'], $key); ?>><?php echo esc_html($label); ?></option>
                         <?php endforeach; ?>
                     </select>
+                    <select name="stage">
+                        <option value=""><?php echo esc_html__('Étape', 'b2b-crm-maroc'); ?></option>
+                        <?php foreach (B2B_CRM_Lead_Repository::stages() as $stage) : ?>
+                            <option value="<?php echo esc_attr($stage); ?>" <?php selected($filters['stage'], $stage); ?>><?php echo esc_html($stage); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                     <select name="interest_level">
                         <option value=""><?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?></option>
                         <?php foreach (self::interests() as $key => $label) : ?>
                             <option value="<?php echo esc_attr($key); ?>" <?php selected($filters['interest_level'], $key); ?>><?php echo esc_html($label); ?></option>
                         <?php endforeach; ?>
+                    </select>
+                    <select name="owner">
+                        <option value=""><?php echo esc_html__('Responsable', 'b2b-crm-maroc'); ?></option>
+                        <option value="me" <?php selected(isset($_GET['owner']) ? sanitize_key($_GET['owner']) : '', 'me'); ?>><?php echo esc_html__('Mes leads', 'b2b-crm-maroc'); ?></option>
                     </select>
                     <button class="b2b-crm__ghost"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
                 </form>
@@ -357,6 +360,7 @@ class B2B_CRM_Lead_List_Page
                         <th><?php echo esc_html__('Site Web', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Réseaux Sociaux', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Priorité', 'b2b-crm-maroc'); ?></th>
+                        <th><?php echo esc_html__('Étape', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Statut CRM', 'b2b-crm-maroc'); ?></th>
                         <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
                     </tr>
@@ -364,7 +368,7 @@ class B2B_CRM_Lead_List_Page
                 <tbody>
                     <?php if (empty($data['items'])) : ?>
                         <tr>
-                            <td colspan="9"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
+                            <td colspan="10"><?php echo esc_html__('Aucun lead pour le moment.', 'b2b-crm-maroc'); ?></td>
                         </tr>
                     <?php else : ?>
                         <?php foreach ($data['items'] as $lead) : ?>
@@ -400,6 +404,7 @@ class B2B_CRM_Lead_List_Page
                                 <td>
                                     <span class="b2b-crm__pill b2b-crm__pill--<?php echo esc_attr($lead['interest_level']); ?>"><?php echo esc_html(self::interests()[$lead['interest_level']] ?? $lead['interest_level']); ?></span>
                                 </td>
+                                <td><?php echo esc_html($lead['stage']); ?></td>
                                 <td>
                                     <span class="b2b-crm__pill b2b-crm__pill--status"><?php echo esc_html(self::statuses()[$lead['status']] ?? $lead['status']); ?></span>
                                 </td>
@@ -955,10 +960,10 @@ class B2B_CRM_Lead_List_Page
     {
         return array(
             'key' => 'tasks',
-            'title' => __('Tâches', 'b2b-crm-maroc'),
-            'description' => __('Planifiez et assignez les tâches internes.', 'b2b-crm-maroc'),
+            'title' => __('Activités', 'b2b-crm-maroc'),
+            'description' => __('Suivez les activités et actions internes.', 'b2b-crm-maroc'),
             'details' => __('Planifiez les actions à réaliser, suivez leur échéance et clarifiez les responsabilités pour garder le rythme des opérations.', 'b2b-crm-maroc'),
-            'button_label' => __('Ajouter une tâche', 'b2b-crm-maroc'),
+            'button_label' => __('Ajouter une activité', 'b2b-crm-maroc'),
             'statuses' => array(
                 'todo' => __('À faire', 'b2b-crm-maroc'),
                 'doing' => __('En cours', 'b2b-crm-maroc'),

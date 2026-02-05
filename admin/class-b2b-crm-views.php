@@ -140,25 +140,18 @@ class B2B_CRM_Views
             'contacts_source' => '',
             'opportunities_stages' => 'Prospection,Qualification,Proposition,Négociation,Gagné',
             'emails_signature' => '',
+            'emails_templates' => "Relance|Bonjour,\n\nJe reviens vers vous concernant...\n\nCordialement,",
             'calendar_timezone' => 'Africa/Casablanca',
             'tasks_sla' => '48h',
-            'tickets_sla' => '72h',
+            'tickets_sla' => '',
         ));
         $modules = get_option('b2b_crm_modules_config', array());
         $modules = wp_parse_args($modules, array(
             'accounts' => true,
             'contacts' => true,
             'base' => true,
-            'opportunities' => true,
             'emails' => true,
-            'calendar' => true,
-            'meetings' => true,
-            'calls' => true,
             'tasks' => true,
-            'tickets' => true,
-            'knowledge' => true,
-            'documents' => true,
-            'sales' => true,
             'collect' => true,
             'sources' => true,
             'pipeline' => true,
@@ -210,6 +203,10 @@ class B2B_CRM_Views
                                     <label class="b2b-crm__label">
                                         <?php echo esc_html__('Email propriétaire', 'b2b-crm-maroc'); ?>
                                         <input class="b2b-crm__input" type="email" name="owner_email" value="<?php echo esc_attr($settings['owner_email'] ?? ''); ?>" />
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="allowed_domains" rows="2"><?php echo esc_textarea(implode("\n", $settings['allowed_domains'] ?? array())); ?></textarea>
                                     </label>
                                 </div>
                             </div>
@@ -294,6 +291,10 @@ class B2B_CRM_Views
                                         <?php echo esc_html__('Signature', 'b2b-crm-maroc'); ?>
                                         <textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_signature]" rows="2"><?php echo esc_textarea($module_settings['emails_signature']); ?></textarea>
                                     </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Templates (Titre|Message)', 'b2b-crm-maroc'); ?>
+                                        <textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[emails_templates]" rows="3"><?php echo esc_textarea($module_settings['emails_templates']); ?></textarea>
+                                    </label>
                                 </div>
                             </div>
                             <div class="b2b-crm__settings-row">
@@ -319,19 +320,6 @@ class B2B_CRM_Views
                                     <label class="b2b-crm__label">
                                         <?php echo esc_html__('SLA tâches', 'b2b-crm-maroc'); ?>
                                         <input class="b2b-crm__input" type="text" name="module_settings[tasks_sla]" value="<?php echo esc_attr($module_settings['tasks_sla']); ?>" />
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="b2b-crm__settings-row">
-                                <span class="dashicons dashicons-sos" aria-hidden="true"></span>
-                                <div class="b2b-crm__settings-row-info">
-                                    <strong><?php echo esc_html__('Tickets', 'b2b-crm-maroc'); ?></strong>
-                                    <span class="b2b-crm__muted"><?php echo esc_html__('Temps de réponse cible pour le support.', 'b2b-crm-maroc'); ?></span>
-                                </div>
-                                <div class="b2b-crm__settings-fields">
-                                    <label class="b2b-crm__label">
-                                        <?php echo esc_html__('SLA tickets', 'b2b-crm-maroc'); ?>
-                                        <input class="b2b-crm__input" type="text" name="module_settings[tickets_sla]" value="<?php echo esc_attr($module_settings['tickets_sla']); ?>" />
                                     </label>
                                 </div>
                             </div>
@@ -679,22 +667,14 @@ class B2B_CRM_Views
     private static function module_label($key)
     {
         $labels = array(
-            'accounts' => __('Comptes', 'b2b-crm-maroc'),
+            'accounts' => __('Entreprise', 'b2b-crm-maroc'),
             'contacts' => __('Contacts', 'b2b-crm-maroc'),
             'base' => __('Prospects', 'b2b-crm-maroc'),
-            'opportunities' => __('Opportunités', 'b2b-crm-maroc'),
             'emails' => __('Emails', 'b2b-crm-maroc'),
-            'calendar' => __('Calendrier', 'b2b-crm-maroc'),
-            'meetings' => __('Rendez-vous', 'b2b-crm-maroc'),
-            'calls' => __('Appels', 'b2b-crm-maroc'),
-            'tasks' => __('Tâches', 'b2b-crm-maroc'),
-            'tickets' => __('Tickets', 'b2b-crm-maroc'),
-            'knowledge' => __('Base de connaissance', 'b2b-crm-maroc'),
-            'documents' => __('Documents', 'b2b-crm-maroc'),
-            'sales' => __('Sales & Purchases', 'b2b-crm-maroc'),
+            'tasks' => __('Activités', 'b2b-crm-maroc'),
             'collect' => __('Collecte', 'b2b-crm-maroc'),
             'sources' => __('Sources', 'b2b-crm-maroc'),
-            'pipeline' => __('CRM Pipeline', 'b2b-crm-maroc'),
+            'pipeline' => __('Pipeline', 'b2b-crm-maroc'),
         );
 
         return $labels[$key] ?? $key;

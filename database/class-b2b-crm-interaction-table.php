@@ -24,11 +24,13 @@ class B2B_CRM_Interaction_Table
         $sql = "CREATE TABLE {$table} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             lead_id bigint(20) unsigned NOT NULL,
+            user_id bigint(20) unsigned NOT NULL DEFAULT 0,
             interaction_type varchar(50) NOT NULL,
             content longtext NOT NULL,
             created_at datetime NOT NULL,
             PRIMARY KEY (id),
             KEY lead_id (lead_id),
+            KEY user_id (user_id),
             KEY interaction_type (interaction_type)
         ) {$charset};";
 

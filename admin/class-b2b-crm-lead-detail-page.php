@@ -8,7 +8,7 @@ class B2B_CRM_Lead_Detail_Page
 {
     public static function render($lead_id)
     {
-        if (!current_user_can(B2B_CRM_MAROC_CAP)) {
+        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
             return;
         }
 
@@ -21,6 +21,21 @@ class B2B_CRM_Lead_Detail_Page
         }
 
         $interactions = B2B_CRM_Interaction_Repository::list($lead_id);
+        $owners = get_users(array('capability' => B2B_CRM_MAROC_ACCESS_CAP));
+        $module_settings = get_option('b2b_crm_module_settings', array());
+        $email_templates = array();
+        if (!empty($module_settings['emails_templates'])) {
+            foreach (preg_split('/\r\n|\r|\n/', (string) $module_settings['emails_templates']) as $line) {
+                $line = trim($line);
+                if (!$line || strpos($line, '|') === false) {
+                    continue;
+                }
+                list($title, $body) = array_map('trim', explode('|', $line, 2));
+                if ($title && $body) {
+                    $email_templates[$title] = $body;
+                }
+            }
+        }
         $social = array();
         if (!empty($lead['social_json'])) {
             $decoded = json_decode($lead['social_json'], true);
@@ -84,6 +99,30 @@ class B2B_CRM_Lead_Detail_Page
                                     <p><input type="url" name="social_linkedin" value="<?php echo esc_attr($social['linkedin'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien LinkedIn', 'b2b-crm-maroc'); ?>" /></p>
                                     <p><input type="url" name="social_facebook" value="<?php echo esc_attr($social['facebook'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien Facebook', 'b2b-crm-maroc'); ?>" /></p>
                                     <p><input type="url" name="social_instagram" value="<?php echo esc_attr($social['instagram'] ?? ''); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Lien Instagram', 'b2b-crm-maroc'); ?>" /></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><?php echo esc_html__('Étape', 'b2b-crm-maroc'); ?></th>
+                                <td>
+                                    <select name="stage">
+                                        <option value=""><?php echo esc_html__('Sélectionner', 'b2b-crm-maroc'); ?></option>
+                                        <?php foreach (B2B_CRM_Lead_Repository::stages() as $stage) : ?>
+                                            <option value="<?php echo esc_attr($stage); ?>" <?php selected($lead['stage'], $stage); ?>><?php echo esc_html($stage); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><?php echo esc_html__('Responsable', 'b2b-crm-maroc'); ?></th>
+                                <td>
+                                    <select name="owner_user_id">
+                                        <option value=""><?php echo esc_html__('Sélectionner', 'b2b-crm-maroc'); ?></option>
+                                        <?php foreach ($owners as $owner) : ?>
+                                            <option value="<?php echo esc_attr($owner->ID); ?>" <?php selected((int) $lead['owner_user_id'], (int) $owner->ID); ?>>
+                                                <?php echo esc_html($owner->display_name); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
@@ -179,6 +218,17 @@ class B2B_CRM_Lead_Detail_Page
                         <?php wp_nonce_field('b2b_crm_send_email', 'b2b_crm_email_nonce'); ?>
                         <input type="hidden" name="b2b_crm_action" value="send_email" />
                         <div class="b2b-crm__email-fields">
+                            <?php if (!empty($email_templates)) : ?>
+                                <label class="b2b-crm__email-row">
+                                    <span><?php echo esc_html__('Template', 'b2b-crm-maroc'); ?></span>
+                                    <select name="email_template">
+                                        <option value=""><?php echo esc_html__('Libre', 'b2b-crm-maroc'); ?></option>
+                                        <?php foreach ($email_templates as $title => $body) : ?>
+                                            <option value="<?php echo esc_attr($title); ?>"><?php echo esc_html($title); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                            <?php endif; ?>
                             <label class="b2b-crm__email-row">
                                 <span><?php echo esc_html__('Destinataires', 'b2b-crm-maroc'); ?></span>
                                 <input type="text" readonly value="<?php echo esc_attr($lead['email']); ?>" />
@@ -258,19 +308,41 @@ class B2B_CRM_Lead_Detail_Page
             $_POST['social_json'] = empty($social) ? '' : wp_json_encode($social);
             $data = B2B_CRM_Sanitizer::lead_fields(wp_unslash($_POST));
             B2B_CRM_Lead_Repository::update($lead_id, $data);
+            B2B_CRM_Interaction_Repository::add($lead_id, 'audit', __('Lead mis à jour.', 'b2b-crm-maroc'), get_current_user_id());
             add_settings_error('b2b-crm-maroc', 'lead_saved', __('Lead mis à jour.', 'b2b-crm-maroc'), 'updated');
         }
 
         if ($action === 'send_email' && isset($_POST['b2b_crm_email_nonce']) && wp_verify_nonce($_POST['b2b_crm_email_nonce'], 'b2b_crm_send_email')) {
+            if (!current_user_can(B2B_CRM_MAROC_EMAIL_CAP)) {
+                add_settings_error('b2b-crm-maroc', 'email_denied', __('Accès refusé.', 'b2b-crm-maroc'), 'error');
+                return;
+            }
             $lead = B2B_CRM_Lead_Repository::get($lead_id);
             $subject = sanitize_text_field(wp_unslash($_POST['email_subject']));
             $message = wp_kses_post(wp_unslash($_POST['email_message']));
-            $result = B2B_CRM_Email_Service::send($lead, $subject, $message);
+            $template_name = isset($_POST['email_template']) ? sanitize_text_field(wp_unslash($_POST['email_template'])) : '';
+            $module_settings = get_option('b2b_crm_module_settings', array());
+            if ($template_name && !empty($module_settings['emails_templates'])) {
+                foreach (preg_split('/\r\n|\r|\n/', (string) $module_settings['emails_templates']) as $line) {
+                    $line = trim($line);
+                    if (!$line || strpos($line, '|') === false) {
+                        continue;
+                    }
+                    list($title, $body) = array_map('trim', explode('|', $line, 2));
+                    if ($title === $template_name) {
+                        $message = $body . "\n\n" . $message;
+                        break;
+                    }
+                }
+            }
+            $settings = get_option('b2b_crm_module_settings', array());
+            $signature = !empty($settings['emails_signature']) ? "\n\n" . wp_kses_post($settings['emails_signature']) : '';
+            $result = B2B_CRM_Email_Service::send($lead, $subject, $message . $signature);
 
             if (is_wp_error($result)) {
                 add_settings_error('b2b-crm-maroc', 'email_failed', $result->get_error_message(), 'error');
             } else {
-                B2B_CRM_Interaction_Repository::add($lead_id, 'email', $subject);
+                B2B_CRM_Interaction_Repository::add($lead_id, 'email', $subject, get_current_user_id());
                 add_settings_error('b2b-crm-maroc', 'email_sent', __('Email envoyé.', 'b2b-crm-maroc'), 'updated');
             }
         }
@@ -278,7 +350,7 @@ class B2B_CRM_Lead_Detail_Page
         if ($action === 'add_interaction' && isset($_POST['b2b_crm_interaction_nonce']) && wp_verify_nonce($_POST['b2b_crm_interaction_nonce'], 'b2b_crm_add_interaction')) {
             $type = sanitize_text_field(wp_unslash($_POST['interaction_type']));
             $content = sanitize_textarea_field(wp_unslash($_POST['interaction_content']));
-            B2B_CRM_Interaction_Repository::add($lead_id, $type, $content);
+            B2B_CRM_Interaction_Repository::add($lead_id, $type, $content, get_current_user_id());
             add_settings_error('b2b-crm-maroc', 'interaction_added', __('Interaction ajoutée.', 'b2b-crm-maroc'), 'updated');
         }
 

@@ -25,6 +25,16 @@ class B2B_CRM_Lead_Repository
             $params[] = $filters['status'];
         }
 
+        if (!empty($filters['stage'])) {
+            $where[] = 'stage = %s';
+            $params[] = $filters['stage'];
+        }
+
+        if (!empty($filters['owner_user_id'])) {
+            $where[] = 'owner_user_id = %d';
+            $params[] = (int) $filters['owner_user_id'];
+        }
+
         if (!empty($filters['city'])) {
             $where[] = 'city = %s';
             $params[] = $filters['city'];
@@ -94,6 +104,16 @@ class B2B_CRM_Lead_Repository
             $params[] = $filters['status'];
         }
 
+        if (!empty($filters['stage'])) {
+            $where[] = 'stage = %s';
+            $params[] = $filters['stage'];
+        }
+
+        if (!empty($filters['owner_user_id'])) {
+            $where[] = 'owner_user_id = %d';
+            $params[] = (int) $filters['owner_user_id'];
+        }
+
         if (!empty($filters['city'])) {
             $where[] = 'city = %s';
             $params[] = $filters['city'];
@@ -141,6 +161,8 @@ class B2B_CRM_Lead_Repository
             'website' => '',
             'social_json' => null,
             'status' => 'new',
+            'stage' => '',
+            'owner_user_id' => 0,
             'last_contact' => null,
             'next_action' => null,
             'follow_up_date' => null,
@@ -153,6 +175,16 @@ class B2B_CRM_Lead_Repository
         );
 
         $payload = array_merge($defaults, $data);
+        $payload['email'] = self::normalize_email($payload['email']);
+        $payload['phone'] = self::normalize_phone($payload['phone']);
+        $payload['phone_mobile'] = self::normalize_phone($payload['phone_mobile']);
+        if (empty($payload['stage'])) {
+            $stages = self::stages();
+            $payload['stage'] = $stages ? $stages[0] : '';
+        }
+        if (empty($payload['owner_user_id'])) {
+            $payload['owner_user_id'] = get_current_user_id();
+        }
         $payload['updated_at'] = $now;
 
         $lead_id = self::find_duplicate($payload);
@@ -173,6 +205,15 @@ class B2B_CRM_Lead_Repository
         global $wpdb;
 
         $table = B2B_CRM_Lead_Table::table_name();
+        if (isset($data['email'])) {
+            $data['email'] = self::normalize_email($data['email']);
+        }
+        if (isset($data['phone'])) {
+            $data['phone'] = self::normalize_phone($data['phone']);
+        }
+        if (isset($data['phone_mobile'])) {
+            $data['phone_mobile'] = self::normalize_phone($data['phone_mobile']);
+        }
         $data['updated_at'] = current_time('mysql');
 
         return $wpdb->update($table, $data, array('id' => $lead_id));
@@ -252,5 +293,30 @@ class B2B_CRM_Lead_Repository
         $found = $wpdb->get_var($wpdb->prepare($query, $params));
 
         return (int) $found;
+    }
+
+    public static function stages()
+    {
+        $settings = get_option('b2b_crm_module_settings', array());
+        $raw = isset($settings['opportunities_stages']) ? $settings['opportunities_stages'] : '';
+        if (!$raw) {
+            return array();
+        }
+        $parts = array_filter(array_map('trim', explode(',', $raw)));
+        return array_values(array_unique($parts));
+    }
+
+    private static function normalize_email($value)
+    {
+        return $value ? strtolower(trim($value)) : '';
+    }
+
+    private static function normalize_phone($value)
+    {
+        if (empty($value)) {
+            return '';
+        }
+        $digits = preg_replace('/\D+/', '', (string) $value);
+        return $digits ?: trim($value);
     }
 }
