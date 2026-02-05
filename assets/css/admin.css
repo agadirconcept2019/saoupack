@@ -1236,3 +1236,29 @@
         background: #1e2435;
     }
 }
+
+body.b2b-crm-portal {
+    margin: 0;
+    background: #f4f6f9;
+}
+
+.b2b-crm-app {
+    min-height: 100vh;
+}
+
+.b2b-crm-app .b2b-crm {
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+}
+
+.b2b-crm-embed {
+    border: 1px solid #dfe3ea;
+    border-radius: 12px;
+    padding: 18px;
+    background: #fff;
+}
+
+.b2b-crm-embed .button {
+    margin-top: 10px;
+}

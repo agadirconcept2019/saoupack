@@ -168,6 +168,15 @@ class B2B_CRM_Views
             'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
         ));
         $settings_url = add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), B2B_CRM_Lead_List_Page::base_url());
+        $portal_url = class_exists('B2B_CRM_Shortcode') ? B2B_CRM_Shortcode::portal_url() : home_url('/crm/');
+        $db_ready = class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table');
+        $stages_ready = !empty(B2B_CRM_Lead_Repository::stages());
+        $email_ready = !empty($settings['owner_email']);
+        $setup_items = array(
+            array('label' => __('Tables CRM', 'b2b-crm-maroc'), 'ok' => $db_ready),
+            array('label' => __('Pipeline configuré', 'b2b-crm-maroc'), 'ok' => $stages_ready),
+            array('label' => __('Email propriétaire', 'b2b-crm-maroc'), 'ok' => $email_ready),
+        );
         ?>
         <div class="b2b-crm__section">
             <h2><?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
@@ -203,6 +212,10 @@ class B2B_CRM_Views
                                     <label class="b2b-crm__label">
                                         <?php echo esc_html__('Email propriétaire', 'b2b-crm-maroc'); ?>
                                         <input class="b2b-crm__input" type="email" name="owner_email" value="<?php echo esc_attr($settings['owner_email'] ?? ''); ?>" />
+                                    </label>
+                                    <label class="b2b-crm__label">
+                                        <?php echo esc_html__('Slug portail CRM', 'b2b-crm-maroc'); ?>
+                                        <input class="b2b-crm__input" type="text" name="portal_slug" value="<?php echo esc_attr($settings['portal_slug'] ?? 'crm'); ?>" />
                                     </label>
                                     <label class="b2b-crm__label">
                                         <?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?>
@@ -419,8 +432,27 @@ class B2B_CRM_Views
 
                 <div class="b2b-crm__settings-actions">
                     <button class="b2b-crm__cta" type="submit"><?php echo esc_html__('Enregistrer les réglages', 'b2b-crm-maroc'); ?></button>
+                    <a class="b2b-crm__ghost" href="<?php echo esc_url($portal_url); ?>"><?php echo esc_html__('Ouvrir le portail CRM', 'b2b-crm-maroc'); ?></a>
                 </div>
             </form>
+
+            <div class="b2b-crm__card">
+                <h3><?php echo esc_html__('Onboarding CRM', 'b2b-crm-maroc'); ?></h3>
+                <p class="b2b-crm__muted"><?php echo esc_html__('État de préparation du CRM après activation.', 'b2b-crm-maroc'); ?></p>
+                <ul class="b2b-crm__timeline">
+                    <?php foreach ($setup_items as $item) : ?>
+                        <li>
+                            <strong><?php echo $item['ok'] ? '✅' : '❌'; ?></strong>
+                            <span><?php echo esc_html($item['label']); ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                    <input type="hidden" name="action" value="b2b_crm_test_email" />
+                    <?php wp_nonce_field('b2b_crm_test_email'); ?>
+                    <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Tester l’envoi email', 'b2b-crm-maroc'); ?></button>
+                </form>
+            </div>
         </div>
 
         <?php self::render_collect($settings_url); ?>

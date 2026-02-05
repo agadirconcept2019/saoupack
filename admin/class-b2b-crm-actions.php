@@ -18,6 +18,7 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_add_module_item', array(__CLASS__, 'add_module_item'));
         add_action('admin_post_b2b_crm_add_demo_leads', array(__CLASS__, 'add_demo_leads'));
         add_action('admin_post_b2b_crm_import_csv', array(__CLASS__, 'import_csv'));
+        add_action('admin_post_b2b_crm_test_email', array(__CLASS__, 'test_email'));
     }
 
     public static function export_csv()
@@ -233,8 +234,13 @@ class B2B_CRM_Actions
             'default_currency' => isset($_POST['default_currency']) ? sanitize_text_field(wp_unslash($_POST['default_currency'])) : '',
             'timezone' => isset($_POST['timezone']) ? sanitize_text_field(wp_unslash($_POST['timezone'])) : '',
             'owner_email' => isset($_POST['owner_email']) ? sanitize_email(wp_unslash($_POST['owner_email'])) : '',
+            'portal_slug' => isset($_POST['portal_slug']) ? sanitize_title(wp_unslash($_POST['portal_slug'])) : 'crm',
             'allowed_domains' => array_values(array_unique(array_map('sanitize_text_field', $allowed_domains))),
         );
+
+        if (empty($settings['portal_slug'])) {
+            $settings['portal_slug'] = 'crm';
+        }
 
         $modules = isset($_POST['modules']) && is_array($_POST['modules']) ? array_map('sanitize_key', wp_unslash($_POST['modules'])) : array();
         $module_keys = array(
@@ -281,6 +287,33 @@ class B2B_CRM_Actions
         update_option('b2b_crm_key_values', $key_values);
 
         add_settings_error('b2b-crm-maroc', 'settings_saved', __('Paramétrage enregistré.', 'b2b-crm-maroc'), 'updated');
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=settings'));
+        exit;
+    }
+
+    public static function test_email()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_SETTINGS_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_test_email');
+
+        $settings = get_option('b2b_crm_settings', array());
+        $to = !empty($settings['owner_email']) ? sanitize_email($settings['owner_email']) : wp_get_current_user()->user_email;
+        $sent = wp_mail(
+            $to,
+            __('Test email CRM Saoupack', 'b2b-crm-maroc'),
+            __('Votre configuration email CRM fonctionne.', 'b2b-crm-maroc')
+        );
+
+        if ($sent) {
+            add_settings_error('b2b-crm-maroc', 'email_test_ok', sprintf(__('Email de test envoyé à %s.', 'b2b-crm-maroc'), $to), 'updated');
+        } else {
+            error_log('[CRM Saoupack] Échec de l\'envoi de l\'email de test.');
+            add_settings_error('b2b-crm-maroc', 'email_test_fail', __('Échec envoi email de test. Vérifiez wp_mail/SMTP.', 'b2b-crm-maroc'), 'error');
+        }
+
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=settings'));
         exit;
     }

@@ -51,11 +51,13 @@ class B2B_CRM_Bootstrap
         B2B_CRM_Module_Item_Table::create_table();
         self::register_roles();
         self::maybe_upgrade();
+        B2B_CRM_Shortcode::register_portal_route();
+        flush_rewrite_rules();
     }
 
     public static function deactivate()
     {
-        // Placeholder for future cleanup.
+        flush_rewrite_rules();
     }
 
     private static function register_roles()

@@ -237,6 +237,10 @@ class B2B_CRM_Lead_List_Page
             return admin_url('admin.php');
         }
 
+        if (class_exists('B2B_CRM_Shortcode')) {
+            return B2B_CRM_Shortcode::portal_url();
+        }
+
         $url = get_permalink();
         return $url ? $url : home_url('/');
     }
