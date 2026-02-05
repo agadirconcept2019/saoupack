@@ -37,6 +37,18 @@
     border: 1px solid var(--b2b-border);
 }
 
+
+/* Defensive rule: toggle must only appear in sidebar branding, never in topbar. */
+.crm-app .b2b-crm__topbar .b2b-crm__sidebar-toggle {
+    display: none !important;
+}
+
+.crm-app .b2b-crm__sidebar .b2b-crm__sidebar-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
 .crm-app .b2b-crm__shell {
     display: flex;
     gap: 24px;
@@ -94,6 +106,7 @@
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
 }
 
