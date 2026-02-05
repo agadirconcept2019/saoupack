@@ -1,16 +1,12 @@
 jQuery(function ($) {
     $('.b2b-crm__quick').on('change', function () {
         const $select = $(this);
-        const leadId = $select.data('lead-id');
-        const field = $select.data('field');
-        const value = $select.val();
-
         $.post(B2BCRM.ajaxUrl, {
             action: 'b2b_crm_quick_update',
             nonce: B2BCRM.nonce,
-            lead_id: leadId,
-            field: field,
-            value: value,
+            lead_id: $select.data('lead-id'),
+            field: $select.data('field'),
+            value: $select.val(),
         }).done(function (response) {
             if (!response.success) {
                 alert(response.data && response.data.message ? response.data.message : 'Erreur');
@@ -44,23 +40,22 @@ jQuery(function ($) {
 
     const $sourceTabs = $('[data-source-tab]');
     const $sourcePanels = $('[data-source-panel]');
-
     if ($sourceTabs.length && $sourcePanels.length) {
         const activateSourceTab = (key) => {
             $sourceTabs.removeClass('is-active').attr('aria-selected', 'false');
             $sourcePanels.removeClass('is-active').attr('hidden', true);
-            const $activeTab = $sourceTabs.filter(`[data-source-tab="${key}"]`);
-            const $activePanel = $sourcePanels.filter(`[data-source-panel="${key}"]`);
-            $activeTab.addClass('is-active').attr('aria-selected', 'true');
-            $activePanel.addClass('is-active').attr('hidden', false);
+            $sourceTabs.filter(`[data-source-tab="${key}"]`).addClass('is-active').attr('aria-selected', 'true');
+            $sourcePanels.filter(`[data-source-panel="${key}"]`).addClass('is-active').attr('hidden', false);
         };
 
         $sourceTabs.on('click', function () {
-            const key = $(this).data('source-tab');
-            activateSourceTab(key);
+            activateSourceTab($(this).data('source-tab'));
         });
 
-        const initialKey = $sourceTabs.filter('.is-active').data('source-tab') || $sourceTabs.first().data('source-tab');
-        activateSourceTab(initialKey);
+        activateSourceTab($sourceTabs.filter('.is-active').data('source-tab') || $sourceTabs.first().data('source-tab'));
     }
+
+    $('.b2b-crm__sidebar-toggle').on('click', function () {
+        $('.crm-app .b2b-crm__shell').toggleClass('is-collapsed');
+    });
 });

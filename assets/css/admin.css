@@ -1284,3 +1284,155 @@ body.crm-app.b2b-crm-portal {
     outline: 2px solid rgba(22, 163, 74, 0.25);
     outline-offset: 1px;
 }
+
+/* NexLink-like refinements */
+.crm-app .b2b-crm__shell {
+    gap: 18px;
+}
+
+.crm-app .crm-sidebar {
+    box-shadow: 0 12px 30px rgba(11, 18, 32, 0.28);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, #0f172a 0%, #111c2f 100%);
+}
+
+.crm-app .crm-topbar {
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.crm-app .b2b-crm__content {
+    gap: 18px;
+}
+
+.crm-app .b2b-crm__section,
+.crm-app .b2b-crm__table-card,
+.crm-app .b2b-crm__card {
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    border: 1px solid #e6ecf5;
+    background: #fff;
+}
+
+.crm-app .b2b-crm__section {
+    padding: 18px;
+}
+
+.crm-app .b2b-crm__section h2,
+.crm-app .b2b-crm__card h3 {
+    font-size: 18px;
+    letter-spacing: 0.01em;
+    margin-bottom: 12px;
+}
+
+.crm-app .b2b-crm__table thead th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 600;
+}
+
+.crm-app .b2b-crm__table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.crm-app .b2b-crm__table tbody tr:hover {
+    background: #f6fbf7;
+}
+
+.crm-app .b2b-crm__pill {
+    border-radius: 999px;
+    border: 1px solid #d7f1df;
+    background: #edf9f1;
+    color: #166534;
+    font-weight: 600;
+}
+
+.crm-app .b2b-crm__input,
+.crm-app input[type='text'],
+.crm-app input[type='email'],
+.crm-app input[type='search'],
+.crm-app input[type='url'],
+.crm-app select,
+.crm-app textarea {
+    border-radius: 10px;
+}
+
+.crm-app .b2b-crm__settings-link,
+.crm-app .b2b-crm__user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 12px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--b2b-border);
+    background: #fff;
+    color: var(--b2b-muted);
+    text-decoration: none;
+}
+
+.crm-app .b2b-crm__user-pill {
+    font-size: 12px;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.crm-app .b2b-crm__settings-link:hover {
+    border-color: var(--b2b-accent);
+    color: var(--b2b-accent);
+}
+
+.crm-app .b2b-crm__nav-link.is-active {
+    box-shadow: inset 3px 0 0 var(--b2b-accent);
+}
+
+.crm-app .b2b-crm__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.crm-app .b2b-crm__filters .b2b-crm__ghost {
+    height: 34px;
+    padding: 0 12px;
+    line-height: 34px;
+}
+
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar {
+    width: 80px;
+}
+
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__nav-title,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__subtitle,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__nav-link .b2b-crm__nav-badge,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__sidebar-brand strong,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__nav-link {
+    font-size: 0;
+}
+
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .dashicons,
+.crm-app .b2b-crm__shell.is-collapsed .b2b-crm__sidebar .b2b-crm__logo {
+    font-size: 18px;
+}
+
+@media (max-width: 1024px) {
+    .crm-app .b2b-crm__shell {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .crm-app .b2b-crm__sidebar {
+        width: 100%;
+        border-radius: 12px;
+    }
+
+    .crm-app .b2b-crm__topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .crm-app .b2b-crm__table-card,
+    .crm-app .b2b-crm__card {
+        overflow-x: auto;
+    }
+}

@@ -87,10 +87,13 @@ class B2B_CRM_Shortcode
             B2B_CRM_MAROC_VERSION,
             true
         );
-        wp_localize_script('b2b-crm-admin', 'b2bCrmMaroc', array(
+        $frontend_data = array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('b2b_crm_maroc_nonce'),
-        ));
+        );
+        wp_localize_script('b2b-crm-admin', 'B2BCRM', $frontend_data);
+        wp_localize_script('b2b-crm-admin', 'b2bCrmMaroc', $frontend_data);
     }
 
     public static function maybe_render_portal()

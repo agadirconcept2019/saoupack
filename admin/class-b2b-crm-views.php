@@ -228,8 +228,7 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
                                 <label class="b2b-crm__label"><?php echo esc_html__('Devise', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="default_currency" value="<?php echo esc_attr($settings['default_currency']); ?>" /></label>
                                 <label class="b2b-crm__label"><?php echo esc_html__('Fuseau horaire', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="timezone" value="<?php echo esc_attr($settings['timezone']); ?>" /></label>
                                 <label class="b2b-crm__label"><?php echo esc_html__('Slug portail CRM', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="portal_slug" value="<?php echo esc_attr($settings['portal_slug']); ?>" /></label>
-                                <label class="b2b-crm__label"><?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="allowed_domains" rows="3"><?php echo esc_textarea(implode("
-", $settings['allowed_domains'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Domaines autorisés', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="allowed_domains" rows="3"><?php echo esc_textarea(implode("\n", $settings['allowed_domains'])); ?></textarea></label>
                             </div>
                         </section>
                     <?php elseif ($settings_tab === 'modules') : ?>
@@ -249,14 +248,10 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
                         <section class="b2b-crm__settings-section">
                             <h3><?php echo esc_html__('Référentiels', 'b2b-crm-maroc'); ?></h3>
                             <div class="b2b-crm__settings-fields">
-                                <label class="b2b-crm__label"><?php echo esc_html__('Statuts CRM', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="4"><?php echo esc_textarea(implode("
-", $key_values['status'])); ?></textarea></label>
-                                <label class="b2b-crm__label"><?php echo esc_html__('Priorités', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="4"><?php echo esc_textarea(implode("
-", $key_values['priority'])); ?></textarea></label>
-                                <label class="b2b-crm__label"><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[source]" rows="4"><?php echo esc_textarea(implode("
-", $key_values['source'])); ?></textarea></label>
-                                <label class="b2b-crm__label"><?php echo esc_html__('Tags', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[tags]" rows="4"><?php echo esc_textarea(implode("
-", $key_values['tags'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Statuts CRM', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['status'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Priorités', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['priority'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[source]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['source'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Tags', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[tags]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['tags'])); ?></textarea></label>
                             </div>
                             <p class="b2b-crm__muted"><?php echo esc_html__('Ces valeurs alimentent les suggestions et les contrôles serveur.', 'b2b-crm-maroc'); ?></p>
                         </section>
