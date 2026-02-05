@@ -168,13 +168,13 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
 
         $settings_tab = $forced_tab ? sanitize_key($forced_tab) : (isset($_GET['settings_tab']) ? sanitize_key($_GET['settings_tab']) : 'general');
         $tabs = array(
-            'general' => __('Général', 'b2b-crm-maroc'),
-            'company' => __('Entreprise', 'b2b-crm-maroc'),
-            'modules' => __('Modules', 'b2b-crm-maroc'),
-            'references' => __('Référentiels', 'b2b-crm-maroc'),
-            'email' => __('Email', 'b2b-crm-maroc'),
-            'access' => __('Rôles & Accès', 'b2b-crm-maroc'),
-            'onboarding' => __('Onboarding', 'b2b-crm-maroc'),
+            'general' => array('label' => __('Général', 'b2b-crm-maroc'), 'icon' => 'dashicons-admin-settings', 'hint' => __('Identité et préférences CRM', 'b2b-crm-maroc')),
+            'company' => array('label' => __('Entreprise', 'b2b-crm-maroc'), 'icon' => 'dashicons-building', 'hint' => __('Informations de votre société', 'b2b-crm-maroc')),
+            'modules' => array('label' => __('Modules', 'b2b-crm-maroc'), 'icon' => 'dashicons-screenoptions', 'hint' => __('Activation des sections CRM', 'b2b-crm-maroc')),
+            'references' => array('label' => __('Référentiels', 'b2b-crm-maroc'), 'icon' => 'dashicons-list-view', 'hint' => __('Listes et valeurs contrôlées', 'b2b-crm-maroc')),
+            'email' => array('label' => __('Email', 'b2b-crm-maroc'), 'icon' => 'dashicons-email', 'hint' => __('Signature, templates et logs', 'b2b-crm-maroc')),
+            'access' => array('label' => __('Rôles & Accès', 'b2b-crm-maroc'), 'icon' => 'dashicons-admin-users', 'hint' => __('Permissions utilisateurs', 'b2b-crm-maroc')),
+            'onboarding' => array('label' => __('Onboarding', 'b2b-crm-maroc'), 'icon' => 'dashicons-saved', 'hint' => __('Diagnostic de mise en route', 'b2b-crm-maroc')),
         );
         if (!isset($tabs[$settings_tab])) {
             $settings_tab = 'general';
@@ -206,11 +206,15 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
         );
         ?>
         <div class="b2b-crm__section">
-            <h2><?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
+            <h2><span class="dashicons dashicons-admin-generic" aria-hidden="true"></span> <?php echo esc_html__('Paramétrage CRM Saoupack', 'b2b-crm-maroc'); ?></h2>
+            <p class="b2b-crm__muted"><?php echo esc_html__('Configurez chaque section du CRM avec des paramètres clairs et guidés.', 'b2b-crm-maroc'); ?></p>
             <div class="b2b-crm__toolbar">
                 <nav class="b2b-crm__filters">
-                    <?php foreach ($tabs as $key => $label) : ?>
-                        <a class="b2b-crm__ghost <?php echo $settings_tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg('settings_tab', $key, $base_url)); ?>"><?php echo esc_html($label); ?></a>
+                    <?php foreach ($tabs as $key => $tab_meta) : ?>
+                        <a class="b2b-crm__ghost <?php echo $settings_tab === $key ? 'is-active' : ''; ?>" href="<?php echo esc_url(add_query_arg('settings_tab', $key, $base_url)); ?>" title="<?php echo esc_attr($tab_meta['hint']); ?>">
+                            <span class="dashicons <?php echo esc_attr($tab_meta['icon']); ?>" aria-hidden="true"></span>
+                            <span><?php echo esc_html($tab_meta['label']); ?></span>
+                        </a>
                     <?php endforeach; ?>
                 </nav>
                 <a class="b2b-crm__export" href="<?php echo esc_url($portal_url); ?>"><?php echo esc_html__('Ouvrir le portail CRM', 'b2b-crm-maroc'); ?></a>

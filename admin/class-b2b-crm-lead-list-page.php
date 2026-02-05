@@ -131,17 +131,17 @@ class B2B_CRM_Lead_List_Page
                         </div>
                         <div class="b2b-crm__topbar-actions">
                             <button class="b2b-crm__settings-link b2b-crm__sidebar-toggle" type="button" aria-label="<?php echo esc_attr__('Réduire menu', 'b2b-crm-maroc'); ?>">
-                                <span class="dashicons dashicons-menu"></span>
+                                <span class="dashicons dashicons-menu" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Menu', 'b2b-crm-maroc'); ?></span>
                             </button>
                             <label class="b2b-crm__search">
                                 <span class="dashicons dashicons-search" aria-hidden="true"></span>
                                 <input type="search" placeholder="<?php echo esc_attr__('Recherche globale', 'b2b-crm-maroc'); ?>" />
                             </label>
                             <button class="b2b-crm__settings-link" type="button" aria-label="<?php echo esc_attr__('Notifications', 'b2b-crm-maroc'); ?>">
-                                <span class="dashicons dashicons-bell" aria-hidden="true"></span>
+                                <span class="dashicons dashicons-bell" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Notifications', 'b2b-crm-maroc'); ?></span>
                             </button>
                             <a class="b2b-crm__settings-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'settings'), $base_url)); ?>" aria-label="<?php echo esc_attr__('Paramétrage', 'b2b-crm-maroc'); ?>">
-                                <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                                <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Paramétrage', 'b2b-crm-maroc'); ?></span>
                             </a>
                             <div class="b2b-crm__user-pill">
                                 <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
@@ -448,8 +448,8 @@ class B2B_CRM_Lead_List_Page
                                     <span class="b2b-crm__pill b2b-crm__pill--status"><?php echo esc_html(self::statuses()[$lead['status']] ?? $lead['status']); ?></span>
                                 </td>
                                 <td class="b2b-crm__actions">
-                                    <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), $base_url)); ?>"><span class="dashicons dashicons-edit"></span></a>
-                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'b2b_crm_delete_lead', 'lead_id' => $lead['id']), admin_url('admin-post.php')), 'b2b_crm_delete_lead')); ?>"><span class="dashicons dashicons-trash"></span></a>
+                                    <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'lead_id' => $lead['id']), $base_url)); ?>" title="<?php echo esc_attr__('Modifier le prospect', 'b2b-crm-maroc'); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Modifier', 'b2b-crm-maroc'); ?></span></a>
+                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'b2b_crm_delete_lead', 'lead_id' => $lead['id']), admin_url('admin-post.php')), 'b2b_crm_delete_lead')); ?>" title="<?php echo esc_attr__('Supprimer le prospect', 'b2b-crm-maroc'); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span><span class="b2b-crm__sr-only"><?php echo esc_html__('Supprimer', 'b2b-crm-maroc'); ?></span></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
