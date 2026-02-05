@@ -74,6 +74,8 @@ class B2B_CRM_Shortcode
             return;
         }
 
+        wp_enqueue_style('dashicons');
+
         wp_enqueue_style(
             'b2b-crm-admin',
             B2B_CRM_MAROC_URL . 'assets/css/admin.css',
