@@ -159,12 +159,15 @@ class B2B_CRM_Views
 Relance 2|Bonjour {{company_name}}, avez-vous pu consulter notre proposition ?
 Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos services.",
             'tasks_sla' => '24h',
+            'dedup_fields' => 'email,phone,company_city',
+            'dedup_mode' => 'merge',
         ));
         $key_values = wp_parse_args(get_option('b2b_crm_key_values', array()), array(
             'status' => array('Nouveau', 'Qualifié', 'Contacté', 'Inactif'),
             'priority' => array('Faible', 'Moyen', 'Fort'),
             'source' => array('Google Maps', 'Annuaires', 'Import CSV'),
             'tags' => array(),
+            'status_locked' => array(),
         ));
 
         $settings_tab = $forced_tab ? sanitize_key($forced_tab) : (isset($_GET['settings_tab']) ? sanitize_key($_GET['settings_tab']) : 'general');
@@ -203,6 +206,7 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
             'db' => class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table'),
             'caps' => current_user_can(B2B_CRM_MAROC_SETTINGS_CAP) && current_user_can(B2B_CRM_MAROC_ACCESS_CAP),
             'email' => !empty($settings['owner_email']) && $smtp_detected,
+            'portal' => !empty($settings['portal_slug']) && class_exists('B2B_CRM_Shortcode') && B2B_CRM_Shortcode::portal_url(),
             'sources' => !empty($settings['allowed_domains']) && !empty($google_key) && $source_endpoint_reachable,
         );
         ?>
@@ -265,9 +269,18 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
                             <h3><?php echo esc_html__('Référentiels', 'b2b-crm-maroc'); ?></h3>
                             <div class="b2b-crm__settings-fields">
                                 <label class="b2b-crm__label"><?php echo esc_html__('Statuts CRM', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['status'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Statuts verrouillés (1 slug/ligne)', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[status_locked]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['status_locked'])); ?></textarea></label>
                                 <label class="b2b-crm__label"><?php echo esc_html__('Priorités', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[priority]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['priority'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Pipeline stages (séparés par virgule)', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="module_settings[opportunities_stages]" rows="3"><?php echo esc_textarea($module_settings['opportunities_stages']); ?></textarea></label>
                                 <label class="b2b-crm__label"><?php echo esc_html__('Sources', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[source]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['source'])); ?></textarea></label>
                                 <label class="b2b-crm__label"><?php echo esc_html__('Tags', 'b2b-crm-maroc'); ?><textarea class="b2b-crm__input b2b-crm__input--area" name="key_values[tags]" rows="4"><?php echo esc_textarea(implode("\n", $key_values['tags'])); ?></textarea></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Règles de déduplication (email,phone,company_city)', 'b2b-crm-maroc'); ?><input class="b2b-crm__input" type="text" name="module_settings[dedup_fields]" value="<?php echo esc_attr($module_settings['dedup_fields']); ?>" /></label>
+                                <label class="b2b-crm__label"><?php echo esc_html__('Mode déduplication import CSV', 'b2b-crm-maroc'); ?>
+                                    <select class="b2b-crm__input" name="module_settings[dedup_mode]">
+                                        <option value="merge" <?php selected($module_settings['dedup_mode'], 'merge'); ?>><?php echo esc_html__('Fusionner si doublon', 'b2b-crm-maroc'); ?></option>
+                                        <option value="skip" <?php selected($module_settings['dedup_mode'], 'skip'); ?>><?php echo esc_html__('Ignorer les doublons', 'b2b-crm-maroc'); ?></option>
+                                    </select>
+                                </label>
                             </div>
                             <p class="b2b-crm__muted"><?php echo esc_html__('Ces valeurs alimentent les suggestions et les contrôles serveur.', 'b2b-crm-maroc'); ?></p>
                         </section>
@@ -311,9 +324,10 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
                         <section class="b2b-crm__settings-section">
                             <h3><?php echo esc_html__('Onboarding (diagnostic)', 'b2b-crm-maroc'); ?></h3>
                             <ul class="b2b-crm__timeline">
-                                <li><strong><?php echo $onboarding['db'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Tables DB CRM', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'general'), $base_url)); ?>"><?php echo esc_html__('Vérifier', 'b2b-crm-maroc'); ?></a></li>
-                                <li><strong><?php echo $onboarding['caps'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Rôles & capabilities', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'access'), $base_url)); ?>"><?php echo esc_html__('Contrôler', 'b2b-crm-maroc'); ?></a></li>
-                                <li><strong><?php echo $onboarding['email'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Email provider', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'email'), $base_url)); ?>"><?php echo esc_html__('Configurer SMTP/Test', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['db'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Tables OK', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'general'), $base_url)); ?>"><?php echo esc_html__('Vérifier', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['caps'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Rôles OK', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'access'), $base_url)); ?>"><?php echo esc_html__('Contrôler', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['email'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('SMTP OK', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('settings_tab' => 'email'), $base_url)); ?>"><?php echo esc_html__('Configurer SMTP/Test', 'b2b-crm-maroc'); ?></a></li>
+                                <li><strong><?php echo $onboarding['portal'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Portail OK', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url($portal_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__('Ouvrir le portail', 'b2b-crm-maroc'); ?></a></li>
                                 <li><strong><?php echo $onboarding['sources'] ? '✅' : '❌'; ?></strong><span><?php echo esc_html__('Sources autorisées', 'b2b-crm-maroc'); ?></span> <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'sources'), B2B_CRM_Lead_List_Page::base_url())); ?>"><?php echo esc_html__('Définir domaines/clé Google', 'b2b-crm-maroc'); ?></a></li>
                             </ul>
                         </section>

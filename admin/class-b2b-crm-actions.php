@@ -270,6 +270,8 @@ class B2B_CRM_Actions
             'emails_templates' => isset($module_settings_raw['emails_templates']) ? sanitize_textarea_field($module_settings_raw['emails_templates']) : '',
             'calendar_timezone' => isset($module_settings_raw['calendar_timezone']) ? sanitize_text_field($module_settings_raw['calendar_timezone']) : '',
             'tasks_sla' => isset($module_settings_raw['tasks_sla']) ? sanitize_text_field($module_settings_raw['tasks_sla']) : '',
+            'dedup_fields' => isset($module_settings_raw['dedup_fields']) ? sanitize_text_field($module_settings_raw['dedup_fields']) : 'email,phone,company_city',
+            'dedup_mode' => isset($module_settings_raw['dedup_mode']) ? sanitize_key($module_settings_raw['dedup_mode']) : 'merge',
             'tickets_sla' => isset($module_settings_raw['tickets_sla']) ? sanitize_text_field($module_settings_raw['tickets_sla']) : '',
         );
 
@@ -492,6 +494,10 @@ class B2B_CRM_Actions
             }
             $mapping = isset($_POST['mapping']) && is_array($_POST['mapping']) ? array_map('sanitize_text_field', wp_unslash($_POST['mapping'])) : array();
             $imported = 0;
+            $skipped = 0;
+            $duplicates = 0;
+            $settings = get_option('b2b_crm_module_settings', array());
+            $dedup_mode = isset($settings['dedup_mode']) && $settings['dedup_mode'] === 'skip' ? 'skip' : 'merge';
             foreach ($payload['rows'] as $row) {
                 $data = array();
                 foreach ($payload['headers'] as $index => $header) {
@@ -501,13 +507,39 @@ class B2B_CRM_Actions
                     $data[$mapping[$header]] = $row[$index];
                 }
                 $clean = B2B_CRM_Sanitizer::lead_fields($data);
-                if (!empty($clean['company_name'])) {
-                    B2B_CRM_Lead_Repository::upsert($clean);
-                    $imported++;
+                if (empty($clean['company_name'])) {
+                    $skipped++;
+                    continue;
                 }
+
+                $duplicate_id = B2B_CRM_Lead_Repository::find_duplicate_id($clean);
+                if ($duplicate_id) {
+                    $duplicates++;
+                    if ($dedup_mode === 'skip') {
+                        $skipped++;
+                        continue;
+                    }
+                }
+
+                B2B_CRM_Lead_Repository::upsert($clean);
+                $imported++;
             }
             delete_transient('b2b_crm_import_' . get_current_user_id());
-            add_settings_error('b2b-crm-maroc', 'import_done', sprintf(__('Import terminé : %d leads.', 'b2b-crm-maroc'), $imported), 'updated');
+            $logs = get_option('b2b_crm_import_logs', array());
+            if (!is_array($logs)) {
+                $logs = array();
+            }
+            $logs[] = array(
+                'date' => current_time('mysql'),
+                'user' => wp_get_current_user()->user_login,
+                'imported' => $imported,
+                'skipped' => $skipped,
+                'duplicates' => $duplicates,
+                'dedup_mode' => $dedup_mode,
+            );
+            update_option('b2b_crm_import_logs', array_slice($logs, -20));
+
+            add_settings_error('b2b-crm-maroc', 'import_done', sprintf(__('Import terminé : %1$d leads (%2$d doublons, %3$d ignorés).', 'b2b-crm-maroc'), $imported, $duplicates, $skipped), 'updated');
             wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=base'));
             exit;
         }

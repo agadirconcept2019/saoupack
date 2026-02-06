@@ -33,6 +33,15 @@ class B2B_CRM_Ajax
             wp_send_json_error(array('message' => __('Données invalides.', 'b2b-crm-maroc')));
         }
 
+
+        $key_values = get_option('b2b_crm_key_values', array());
+        $locked_statuses = isset($key_values['status_locked']) && is_array($key_values['status_locked'])
+            ? array_map('sanitize_key', $key_values['status_locked'])
+            : array();
+        if ($field === 'status' && in_array($value, $locked_statuses, true)) {
+            wp_send_json_error(array('message' => __('Ce statut est verrouillé.', 'b2b-crm-maroc')));
+        }
+
         B2B_CRM_Lead_Repository::update($lead_id, array($field => $value));
 
         wp_send_json_success(array('message' => __('Mise à jour effectuée.', 'b2b-crm-maroc')));

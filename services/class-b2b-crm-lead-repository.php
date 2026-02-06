@@ -187,7 +187,7 @@ class B2B_CRM_Lead_Repository
         }
         $payload['updated_at'] = $now;
 
-        $lead_id = self::find_duplicate($payload);
+        $lead_id = self::find_duplicate_id($payload);
 
         if ($lead_id) {
             $wpdb->update($table, $payload, array('id' => $lead_id));
@@ -260,7 +260,7 @@ class B2B_CRM_Lead_Repository
         return $values;
     }
 
-    private static function find_duplicate(array $payload)
+    public static function find_duplicate_id(array $payload)
     {
         global $wpdb;
 
@@ -268,17 +268,24 @@ class B2B_CRM_Lead_Repository
         $checks = array();
         $params = array();
 
-        if (!empty($payload['email'])) {
+        $module_settings = get_option('b2b_crm_module_settings', array());
+        $raw_fields = isset($module_settings['dedup_fields']) ? (string) $module_settings['dedup_fields'] : 'email,phone,company_city';
+        $enabled_fields = array_filter(array_map('trim', explode(',', $raw_fields)));
+        if (empty($enabled_fields)) {
+            $enabled_fields = array('email', 'phone', 'company_city');
+        }
+
+        if (in_array('email', $enabled_fields, true) && !empty($payload['email'])) {
             $checks[] = 'email = %s';
             $params[] = $payload['email'];
         }
 
-        if (!empty($payload['phone'])) {
+        if (in_array('phone', $enabled_fields, true) && !empty($payload['phone'])) {
             $checks[] = 'phone = %s';
             $params[] = $payload['phone'];
         }
 
-        if (!empty($payload['company_name']) && !empty($payload['city'])) {
+        if (in_array('company_city', $enabled_fields, true) && !empty($payload['company_name']) && !empty($payload['city'])) {
             $checks[] = '(company_name = %s AND city = %s)';
             $params[] = $payload['company_name'];
             $params[] = $payload['city'];

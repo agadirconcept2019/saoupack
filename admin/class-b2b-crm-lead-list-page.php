@@ -273,6 +273,8 @@ class B2B_CRM_Lead_List_Page
     private static function render_base($filters, $data, $total_pages, $paged)
     {
         $import_payload = get_transient('b2b_crm_import_' . get_current_user_id());
+        $import_logs = get_option('b2b_crm_import_logs', array());
+        $import_logs = is_array($import_logs) ? array_slice(array_reverse($import_logs), 0, 5) : array();
         $mapping_fields = array(
             '' => __('Ignorer', 'b2b-crm-maroc'),
             'company_name' => __('Société', 'b2b-crm-maroc'),
@@ -361,6 +363,23 @@ class B2B_CRM_Lead_List_Page
                     </table>
                     <button class="b2b-crm__button" type="submit"><?php echo esc_html__('Confirmer l’import', 'b2b-crm-maroc'); ?></button>
                 </form>
+            </div>
+        <?php endif; ?>
+
+
+        <?php if (!empty($import_logs)) : ?>
+            <div class="b2b-crm__card">
+                <h3><?php echo esc_html__('Logs import CSV', 'b2b-crm-maroc'); ?></h3>
+                <ul class="b2b-crm__timeline">
+                    <?php foreach ($import_logs as $log) : ?>
+                        <li>
+                            <strong><?php echo esc_html($log['date'] ?? ''); ?></strong>
+                            <span>
+                                <?php echo esc_html(sprintf(__('Importés: %1$d · Doublons: %2$d · Ignorés: %3$d · Mode: %4$s', 'b2b-crm-maroc'), (int) ($log['imported'] ?? 0), (int) ($log['duplicates'] ?? 0), (int) ($log['skipped'] ?? 0), (string) ($log['dedup_mode'] ?? 'merge'))); ?>
+                            </span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
         <?php endif; ?>
 
