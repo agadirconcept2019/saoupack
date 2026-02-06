@@ -148,7 +148,7 @@
 
 .crm-app .b2b-crm__subtitle {
     color: rgba(255, 255, 255, 0.75);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .crm-app .b2b-crm__version {
@@ -230,7 +230,7 @@
 .crm-app .b2b-crm__page-title p {
     margin: 4px 0 0;
     color: var(--b2b-muted);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .crm-app .b2b-crm__topbar-actions {
@@ -357,7 +357,7 @@
     color: var(--b2b-muted);
     padding: 8px 12px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -531,14 +531,14 @@
 .crm-app .b2b-crm__label {
     display: grid;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
 .crm-app .b2b-crm__field-hint {
     display: block;
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -548,7 +548,7 @@
 
 .crm-app .b2b-crm__module-details summary {
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-text);
 }
 
@@ -570,7 +570,7 @@
     border-radius: 10px;
     background: #f8fafc;
     border: 1px solid var(--b2b-border);
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-text);
 }
 
@@ -593,7 +593,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -616,7 +616,7 @@
 .crm-app .b2b-crm__source-fields label {
     display: grid;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
     background: #f9faff;
     border: 1px solid var(--b2b-border);
@@ -641,7 +641,7 @@
 }
 
 .crm-app .b2b-crm__source-hint {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -676,7 +676,7 @@
     border: 1px solid var(--b2b-border);
     border-radius: 10px;
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-text);
 }
 
@@ -925,7 +925,7 @@
 }
 
 .crm-app .b2b-crm__timeline li span {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -978,7 +978,7 @@
 }
 
 .crm-app .b2b-crm__recent-meta {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -987,7 +987,7 @@
     color: #4c5363;
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
 }
 
@@ -1072,7 +1072,7 @@
 
 .crm-app .b2b-crm__sub {
     color: var(--b2b-muted);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .crm-app .b2b-crm__icons span,
@@ -1113,7 +1113,7 @@
     display: flex;
     justify-content: space-between;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 11px;
     margin-bottom: 12px;
 }
 
@@ -1174,7 +1174,7 @@
 }
 
 .crm-app .b2b-crm__collect-main label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
     display: block;
     margin-bottom: 6px;
@@ -1206,7 +1206,7 @@
     padding: 6px 10px;
     border-radius: 10px;
     background: #f3f4f8;
-    font-size: 12px;
+    font-size: 11px;
     color: #5b6477;
     font-weight: 600;
     border: none;
@@ -1228,7 +1228,7 @@
     border: 1px solid var(--b2b-accent);
     border-radius: 12px;
     padding: 10px 12px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #2d2e41;
     display: flex;
@@ -1346,7 +1346,7 @@ body.crm-app.b2b-crm-portal {
 
 .crm-app .b2b-crm__breadcrumb {
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--b2b-muted);
 }
 
@@ -1445,7 +1445,7 @@ body.crm-app.b2b-crm-portal {
 }
 
 .crm-app .b2b-crm__user-pill {
-    font-size: 12px;
+    font-size: 11px;
     color: #0f172a;
     font-weight: 600;
 }
@@ -1600,20 +1600,53 @@ body.crm-app.b2b-crm-portal {
 }
 
 
+.crm-app .b2b-crm .b2b-crm__form input[type='text'],
+.crm-app .b2b-crm .b2b-crm__form input[type='email'],
+.crm-app .b2b-crm .b2b-crm__form input[type='search'],
+.crm-app .b2b-crm .b2b-crm__form input[type='url'],
+.crm-app .b2b-crm .b2b-crm__form input[type='date'],
+.crm-app .b2b-crm .b2b-crm__form input[type='datetime-local'],
+.crm-app .b2b-crm .b2b-crm__form select,
+.crm-app .b2b-crm .b2b-crm__form .b2b-crm__input {
+    min-height: 38px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.crm-app .b2b-crm .b2b-crm__form textarea {
+    min-height: 96px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.crm-app .b2b-crm .b2b-crm__form label > span {
+    font-size: 12px;
+}
+
+.crm-app .b2b-crm .b2b-crm__field-hint {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+
 .crm-app .crm-page-contacts {
-    --crm-field-height: 40px;
+    --crm-field-height: 36px;
     --crm-field-radius: 8px;
-    --crm-field-font-size: 13px;
-    --crm-field-padding-y: 6px;
+    --crm-field-font-size: 11px;
+    --crm-field-padding-y: 4px;
     --crm-field-padding-x: 10px;
-    --crm-card-padding-y: 14px;
+    --crm-card-padding-y: 10px;
 }
 
 .crm-app .crm-page-contacts.crm-density-comfy {
-    --crm-field-height: 44px;
+    --crm-field-height: 40px;
     --crm-field-radius: 10px;
-    --crm-field-padding-y: 8px;
-    --crm-card-padding-y: 18px;
+    --crm-field-padding-y: 6px;
+    --crm-card-padding-y: 14px;
 }
 
 .crm-app .crm-page-contacts .b2b-crm__section {
@@ -1677,7 +1710,7 @@ body.crm-app.b2b-crm-portal {
 }
 
 .crm-app .crm-page-contacts .b2b-crm__form textarea {
-    min-height: 108px;
+    min-height: 96px;
     resize: vertical;
 }
 
@@ -1688,7 +1721,7 @@ body.crm-app.b2b-crm-portal {
     min-height: var(--crm-field-height);
     border-radius: var(--crm-field-radius);
     padding: 0 12px;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .crm-app .crm-page-contacts .b2b-crm__form input:focus,
