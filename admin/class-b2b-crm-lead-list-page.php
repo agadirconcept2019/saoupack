@@ -293,7 +293,7 @@ class B2B_CRM_Lead_List_Page
             'notes' => __('Commentaires', 'b2b-crm-maroc'),
         );
         ?>
-        <div class="crm-page-contacts">
+        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Gestion des Leads', 'b2b-crm-maroc'); ?></h2>
@@ -510,7 +510,7 @@ class B2B_CRM_Lead_List_Page
         $account = !empty($data['items'][0]) ? $data['items'][0] : array();
 
         ?>
-        <div class="crm-page-contacts">
+        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></h2>
@@ -611,7 +611,7 @@ class B2B_CRM_Lead_List_Page
         );
 
         ?>
-        <div class="crm-page-contacts">
+        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></h2>
@@ -779,7 +779,7 @@ class B2B_CRM_Lead_List_Page
         $activities = B2B_CRM_Contact_Activity_Repository::list($contact_id, $activity_type);
 
         ?>
-        <div class="crm-page-contacts">
+        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html($contact['full_name']); ?></h2>
@@ -939,7 +939,7 @@ class B2B_CRM_Lead_List_Page
         $lead_suggestions = self::lead_key_suggestions();
 
         ?>
-        <div class="crm-page-contacts">
+        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html($config['title']); ?></h2>

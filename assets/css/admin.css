@@ -1599,12 +1599,35 @@ body.crm-app.b2b-crm-portal {
     align-items: center;
 }
 
+
+.crm-app .crm-page-contacts {
+    --crm-field-height: 40px;
+    --crm-field-radius: 8px;
+    --crm-field-font-size: 13px;
+    --crm-field-padding-y: 6px;
+    --crm-field-padding-x: 10px;
+    --crm-card-padding-y: 14px;
+}
+
+.crm-app .crm-page-contacts.crm-density-comfy {
+    --crm-field-height: 44px;
+    --crm-field-radius: 10px;
+    --crm-field-padding-y: 8px;
+    --crm-card-padding-y: 18px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__section {
+    margin-bottom: 12px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__card,
 .crm-app .crm-page-contacts .b2b-crm__table-card {
-    padding-top: 0;
+    padding-top: var(--crm-card-padding-y);
+    padding-bottom: var(--crm-card-padding-y);
 }
 
 .crm-app .crm-page-contacts .b2b-crm__toolbar {
-    padding: 0 20px 8px;
+    padding: 0 18px 6px;
 }
 
 .crm-app .crm-page-contacts .b2b-crm__filters--contacts {
@@ -1619,16 +1642,69 @@ body.crm-app.b2b-crm-portal {
     grid-column: span 2;
 }
 
+.crm-app .crm-page-contacts .b2b-crm__form label,
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts label {
+    gap: 4px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__form label > span,
+.crm-app .crm-page-contacts .b2b-crm__field-hint,
+.crm-app .crm-page-contacts .b2b-crm__sub {
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__field-hint {
+    margin-top: 4px;
+}
+
 .crm-app .crm-page-contacts .b2b-crm__filters--contacts input,
-.crm-app .crm-page-contacts .b2b-crm__filters--contacts select {
-    min-height: 34px;
-    padding: 6px 10px;
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts select,
+.crm-app .crm-page-contacts .b2b-crm__form input[type='text'],
+.crm-app .crm-page-contacts .b2b-crm__form input[type='email'],
+.crm-app .crm-page-contacts .b2b-crm__form input[type='search'],
+.crm-app .crm-page-contacts .b2b-crm__form input[type='url'],
+.crm-app .crm-page-contacts .b2b-crm__form input[type='date'],
+.crm-app .crm-page-contacts .b2b-crm__form input[type='datetime-local'],
+.crm-app .crm-page-contacts .b2b-crm__form select,
+.crm-app .crm-page-contacts .b2b-crm__form textarea,
+.crm-app .crm-page-contacts .b2b-crm__form .b2b-crm__input {
+    min-height: var(--crm-field-height);
+    border-radius: var(--crm-field-radius);
+    padding: var(--crm-field-padding-y) var(--crm-field-padding-x);
+    font-size: var(--crm-field-font-size);
+    line-height: 1.3;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__form textarea {
+    min-height: 108px;
+    resize: vertical;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__form button,
+.crm-app .crm-page-contacts .b2b-crm__filters-actions .b2b-crm__ghost,
+.crm-app .crm-page-contacts .b2b-crm__section-actions .b2b-crm__ghost,
+.crm-app .crm-page-contacts .b2b-crm__section-actions .b2b-crm__cta {
+    min-height: var(--crm-field-height);
+    border-radius: var(--crm-field-radius);
+    padding: 0 12px;
+    font-size: 12px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__form input:focus,
+.crm-app .crm-page-contacts .b2b-crm__form select:focus,
+.crm-app .crm-page-contacts .b2b-crm__form textarea:focus,
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts input:focus,
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts select:focus {
+    border-color: #22a06b;
+    box-shadow: 0 0 0 2px rgba(34, 160, 107, 0.18);
 }
 
 .crm-app .crm-page-contacts .b2b-crm__filters-actions {
     display: inline-flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .crm-app .crm-page-contacts .b2b-crm__filters-actions .b2b-crm__ghost {
@@ -1637,8 +1713,8 @@ body.crm-app.b2b-crm-portal {
 
 .crm-app .crm-page-contacts .b2b-crm__table th,
 .crm-app .crm-page-contacts .b2b-crm__table td {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 @media (max-width: 1024px) {
