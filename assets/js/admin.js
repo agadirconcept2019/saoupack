@@ -96,6 +96,24 @@ jQuery(function ($) {
         activateSourceTab($sourceTabs.filter('.is-active').data('source-tab') || $sourceTabs.first().data('source-tab'));
     }
 
+
+
+    $('[data-crm-modal-open]').on('click', function () {
+        const key = $(this).data('crm-modal-open');
+        $(`[data-crm-modal="${key}"]`).prop('hidden', false);
+    });
+
+    $('[data-crm-modal-close]').on('click', function () {
+        const key = $(this).data('crm-modal-close');
+        $(`[data-crm-modal="${key}"]`).prop('hidden', true);
+    });
+
+    $('.b2b-crm__modal').on('click', function (event) {
+        if ($(event.target).is('.b2b-crm__modal')) {
+            $(this).prop('hidden', true);
+        }
+    });
+
     $('.b2b-crm__test-logo').on('click', function () {
         const target = $(this).data('target');
         const url = String($(target).val() || '').trim();

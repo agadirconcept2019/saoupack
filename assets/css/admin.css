@@ -1598,3 +1598,49 @@ body.crm-app.b2b-crm-portal {
     gap: 8px;
     align-items: center;
 }
+
+.crm-app .b2b-crm__filters--contacts {
+    flex-wrap: wrap;
+}
+
+.crm-app .b2b-crm__table--contacts .b2b-crm__contact-link {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+}
+
+.crm-app .b2b-crm__ghost--mini {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.crm-app .b2b-crm__modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 5vh 16px;
+    z-index: 10000;
+}
+
+.crm-app .b2b-crm__modal-panel {
+    width: min(920px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+.crm-app .b2b-crm__modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}

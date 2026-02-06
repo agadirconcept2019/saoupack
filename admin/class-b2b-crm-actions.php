@@ -15,6 +15,9 @@ class B2B_CRM_Actions
         add_action('admin_post_b2b_crm_save_settings', array(__CLASS__, 'save_settings'));
         add_action('admin_post_b2b_crm_add_account', array(__CLASS__, 'add_account'));
         add_action('admin_post_b2b_crm_add_contact', array(__CLASS__, 'add_contact'));
+        add_action('admin_post_b2b_crm_update_contact', array(__CLASS__, 'update_contact'));
+        add_action('admin_post_b2b_crm_delete_contact', array(__CLASS__, 'delete_contact'));
+        add_action('admin_post_b2b_crm_add_contact_activity', array(__CLASS__, 'add_contact_activity'));
         add_action('admin_post_b2b_crm_add_module_item', array(__CLASS__, 'add_module_item'));
         add_action('admin_post_b2b_crm_add_demo_leads', array(__CLASS__, 'add_demo_leads'));
         add_action('admin_post_b2b_crm_import_csv', array(__CLASS__, 'import_csv'));
@@ -599,24 +602,137 @@ class B2B_CRM_Actions
 
         check_admin_referer('b2b_crm_add_contact');
 
-        $data = array(
-            'full_name' => isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '',
-            'company' => isset($_POST['company']) ? sanitize_text_field(wp_unslash($_POST['company'])) : '',
-            'role' => isset($_POST['role']) ? sanitize_text_field(wp_unslash($_POST['role'])) : '',
-            'email' => isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '',
-            'phone' => isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '',
-            'city' => isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '',
-            'status' => isset($_POST['status']) ? sanitize_key(wp_unslash($_POST['status'])) : 'active',
-            'notes' => isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '',
-        );
+        $redirect_to = isset($_POST['redirect_to']) ? esc_url_raw(wp_unslash($_POST['redirect_to'])) : admin_url('admin.php?page=b2b-crm-maroc&tab=contacts');
+        $data = self::contact_payload_from_post();
 
-        if ($data['full_name']) {
-            B2B_CRM_Contact_Repository::insert($data);
+        if (empty($data['full_name'])) {
+            add_settings_error('b2b-crm-maroc', 'contact_name_required', __('Le nom du contact est obligatoire.', 'b2b-crm-maroc'), 'error');
+            wp_safe_redirect($redirect_to);
+            exit;
+        }
+
+        $duplicate_id = B2B_CRM_Contact_Repository::find_duplicate($data['email'], $data['phone']);
+        if ($duplicate_id) {
+            add_settings_error('b2b-crm-maroc', 'contact_duplicate', __('Un contact existe déjà avec cet email ou téléphone.', 'b2b-crm-maroc'), 'error');
+            wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts&contact_id=' . $duplicate_id));
+            exit;
+        }
+
+        $contact_id = B2B_CRM_Contact_Repository::insert($data);
+        if ($contact_id) {
             add_settings_error('b2b-crm-maroc', 'contact_added', __('Contact ajouté.', 'b2b-crm-maroc'), 'updated');
+            wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts&contact_id=' . $contact_id));
+            exit;
+        }
+
+        add_settings_error('b2b-crm-maroc', 'contact_insert_failed', __('Impossible d’ajouter le contact.', 'b2b-crm-maroc'), 'error');
+        wp_safe_redirect($redirect_to);
+        exit;
+    }
+
+    public static function update_contact()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_update_contact');
+
+        $contact_id = isset($_POST['contact_id']) ? absint($_POST['contact_id']) : 0;
+        if (!$contact_id) {
+            wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts'));
+            exit;
+        }
+
+        $data = self::contact_payload_from_post();
+        $duplicate_id = B2B_CRM_Contact_Repository::find_duplicate($data['email'], $data['phone'], $contact_id);
+        if ($duplicate_id) {
+            add_settings_error('b2b-crm-maroc', 'contact_duplicate', __('Un autre contact utilise déjà cet email ou téléphone.', 'b2b-crm-maroc'), 'error');
+            wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts&contact_id=' . $contact_id));
+            exit;
+        }
+
+        B2B_CRM_Contact_Repository::update($contact_id, $data);
+        add_settings_error('b2b-crm-maroc', 'contact_updated', __('Contact mis à jour.', 'b2b-crm-maroc'), 'updated');
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts&contact_id=' . $contact_id));
+        exit;
+    }
+
+    public static function delete_contact()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_delete_contact');
+
+        $contact_id = isset($_GET['contact_id']) ? absint($_GET['contact_id']) : 0;
+        if ($contact_id) {
+            B2B_CRM_Contact_Repository::delete($contact_id);
+            add_settings_error('b2b-crm-maroc', 'contact_deleted', __('Contact supprimé.', 'b2b-crm-maroc'), 'updated');
         }
 
         wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts'));
         exit;
+    }
+
+    public static function add_contact_activity()
+    {
+        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+            wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
+        }
+
+        check_admin_referer('b2b_crm_add_contact_activity');
+
+        $contact_id = isset($_POST['contact_id']) ? absint($_POST['contact_id']) : 0;
+        if (!$contact_id) {
+            wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts'));
+            exit;
+        }
+
+        $activity = array(
+            'contact_id' => $contact_id,
+            'activity_type' => isset($_POST['activity_type']) ? sanitize_key(wp_unslash($_POST['activity_type'])) : 'note',
+            'summary' => isset($_POST['summary']) ? sanitize_textarea_field(wp_unslash($_POST['summary'])) : '',
+            'owner_user_id' => get_current_user_id(),
+            'happened_at' => isset($_POST['happened_at']) ? sanitize_text_field(wp_unslash($_POST['happened_at'])) : current_time('mysql'),
+        );
+
+        if (!empty($activity['summary'])) {
+            B2B_CRM_Contact_Activity_Repository::insert($activity);
+            add_settings_error('b2b-crm-maroc', 'contact_activity_added', __('Activité contact ajoutée.', 'b2b-crm-maroc'), 'updated');
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=b2b-crm-maroc&tab=contacts&contact_id=' . $contact_id));
+        exit;
+    }
+
+    private static function contact_payload_from_post()
+    {
+        $tags_raw = isset($_POST['tags']) ? wp_unslash($_POST['tags']) : '';
+        $tags = array_filter(array_map('trim', explode(',', (string) $tags_raw)));
+
+        return array(
+            'full_name' => isset($_POST['full_name']) ? sanitize_text_field(wp_unslash($_POST['full_name'])) : '',
+            'first_name' => isset($_POST['first_name']) ? sanitize_text_field(wp_unslash($_POST['first_name'])) : '',
+            'last_name' => isset($_POST['last_name']) ? sanitize_text_field(wp_unslash($_POST['last_name'])) : '',
+            'company' => isset($_POST['company']) ? sanitize_text_field(wp_unslash($_POST['company'])) : '',
+            'role' => isset($_POST['role']) ? sanitize_text_field(wp_unslash($_POST['role'])) : '',
+            'email' => isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '',
+            'phone' => isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '',
+            'whatsapp' => isset($_POST['whatsapp']) ? sanitize_text_field(wp_unslash($_POST['whatsapp'])) : '',
+            'linkedin_url' => isset($_POST['linkedin_url']) ? esc_url_raw(wp_unslash($_POST['linkedin_url'])) : '',
+            'city' => isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '',
+            'status' => isset($_POST['status']) ? sanitize_key(wp_unslash($_POST['status'])) : 'active',
+            'relationship_status' => isset($_POST['relationship_status']) ? sanitize_key(wp_unslash($_POST['relationship_status'])) : 'prospect',
+            'source' => isset($_POST['source']) ? sanitize_key(wp_unslash($_POST['source'])) : 'manual',
+            'owner_user_id' => isset($_POST['owner_user_id']) ? absint($_POST['owner_user_id']) : get_current_user_id(),
+            'tags' => $tags,
+            'last_contact_at' => isset($_POST['last_contact_at']) ? sanitize_text_field(wp_unslash($_POST['last_contact_at'])) : '',
+            'next_action' => isset($_POST['next_action']) ? sanitize_text_field(wp_unslash($_POST['next_action'])) : '',
+            'next_followup_at' => isset($_POST['next_followup_at']) ? sanitize_text_field(wp_unslash($_POST['next_followup_at'])) : '',
+            'notes' => isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash($_POST['notes'])) : '',
+        );
     }
 
     public static function add_module_item()
