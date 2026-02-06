@@ -1599,8 +1599,66 @@ body.crm-app.b2b-crm-portal {
     align-items: center;
 }
 
-.crm-app .b2b-crm__filters--contacts {
-    flex-wrap: wrap;
+.crm-app .crm-page-contacts .b2b-crm__table-card {
+    padding-top: 0;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__toolbar {
+    padding: 0 20px 8px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    align-items: center;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts .b2b-crm__filter-search {
+    grid-column: span 2;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts input,
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts select {
+    min-height: 34px;
+    padding: 6px 10px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters-actions {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters-actions .b2b-crm__ghost {
+    margin: 0;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__table th,
+.crm-app .crm-page-contacts .b2b-crm__table td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+@media (max-width: 1024px) {
+    .crm-app .crm-page-contacts .b2b-crm__filters--contacts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .crm-app .crm-page-contacts .b2b-crm__filters--contacts .b2b-crm__filter-search {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 680px) {
+    .crm-app .crm-page-contacts .b2b-crm__filters--contacts {
+        grid-template-columns: 1fr;
+    }
+
+    .crm-app .crm-page-contacts .b2b-crm__filters--contacts .b2b-crm__filter-search {
+        grid-column: auto;
+    }
 }
 
 .crm-app .b2b-crm__table--contacts .b2b-crm__contact-link {

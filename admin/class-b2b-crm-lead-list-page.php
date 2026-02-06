@@ -293,6 +293,7 @@ class B2B_CRM_Lead_List_Page
             'notes' => __('Commentaires', 'b2b-crm-maroc'),
         );
         ?>
+        <div class="crm-page-contacts">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Gestion des Leads', 'b2b-crm-maroc'); ?></h2>
@@ -509,6 +510,7 @@ class B2B_CRM_Lead_List_Page
         $account = !empty($data['items'][0]) ? $data['items'][0] : array();
 
         ?>
+        <div class="crm-page-contacts">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></h2>
@@ -609,6 +611,7 @@ class B2B_CRM_Lead_List_Page
         );
 
         ?>
+        <div class="crm-page-contacts">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></h2>
@@ -626,7 +629,7 @@ class B2B_CRM_Lead_List_Page
                 <form method="get" class="b2b-crm__filters b2b-crm__filters--contacts">
                     <input type="hidden" name="page" value="b2b-crm-maroc" />
                     <input type="hidden" name="tab" value="contacts" />
-                    <input type="search" name="s" placeholder="<?php echo esc_attr__('Recherche', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
+                    <input class="b2b-crm__filter-search" type="search" name="s" placeholder="<?php echo esc_attr__('Recherche', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
                     <select name="relationship_status">
                         <option value=""><?php echo esc_html__('Statut relationnel', 'b2b-crm-maroc'); ?></option>
                         <?php foreach ($relationship_statuses as $key => $label) : ?>
@@ -655,7 +658,10 @@ class B2B_CRM_Lead_List_Page
                             <option value="<?php echo esc_attr($key); ?>" <?php selected($filters['followup'], $key); ?>><?php echo esc_html($label); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
+                    <div class="b2b-crm__filters-actions">
+                        <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
+                        <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts'), self::base_url())); ?>"><?php echo esc_html__('Réinitialiser', 'b2b-crm-maroc'); ?></a>
+                    </div>
                 </form>
             </div>
 
@@ -754,6 +760,7 @@ class B2B_CRM_Lead_List_Page
         <?php endif; ?>
 
         <?php self::render_contact_modal('create', array(), $owners, $relationship_statuses, $sources); ?>
+        </div>
         <?php
     }
 
@@ -772,6 +779,7 @@ class B2B_CRM_Lead_List_Page
         $activities = B2B_CRM_Contact_Activity_Repository::list($contact_id, $activity_type);
 
         ?>
+        <div class="crm-page-contacts">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html($contact['full_name']); ?></h2>
@@ -931,6 +939,7 @@ class B2B_CRM_Lead_List_Page
         $lead_suggestions = self::lead_key_suggestions();
 
         ?>
+        <div class="crm-page-contacts">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html($config['title']); ?></h2>
@@ -1061,7 +1070,7 @@ class B2B_CRM_Lead_List_Page
                 <form method="get" class="b2b-crm__filters">
                     <input type="hidden" name="page" value="b2b-crm-maroc" />
                     <input type="hidden" name="tab" value="<?php echo esc_attr($config['key']); ?>" />
-                    <input type="search" name="s" placeholder="<?php echo esc_attr__('Recherche', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
+                    <input class="b2b-crm__filter-search" type="search" name="s" placeholder="<?php echo esc_attr__('Recherche', 'b2b-crm-maroc'); ?>" value="<?php echo esc_attr($filters['search']); ?>" />
                     <select name="status">
                         <option value=""><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></option>
                         <?php foreach ($config['statuses'] as $status_key => $status_label) : ?>
