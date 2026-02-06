@@ -1811,3 +1811,29 @@ body.crm-app.b2b-crm-portal {
     align-items: center;
     margin-bottom: 12px;
 }
+
+.crm-app .b2b-crm__contact-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.crm-app .b2b-crm__contact-detail-side .b2b-crm__table {
+    min-width: 860px;
+}
+
+.crm-app .b2b-crm__contact-side-scroll {
+    max-height: 560px;
+    overflow: auto;
+}
+
+@media (max-width: 1280px) {
+    .crm-app .b2b-crm__contact-detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .crm-app .b2b-crm__contact-side-scroll {
+        max-height: 420px;
+    }
+}

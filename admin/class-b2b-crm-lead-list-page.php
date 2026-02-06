@@ -594,7 +594,9 @@ class B2B_CRM_Lead_List_Page
         $per_page = 20;
 
         if ($contact_id) {
+            echo '<div class="crm-page-contacts crm-density-compact">';
             self::render_contact_detail($contact_id);
+            echo '</div>';
             return;
         }
 
@@ -777,9 +779,10 @@ class B2B_CRM_Lead_List_Page
         $sources = B2B_CRM_Contact_Repository::source_options();
         $activity_type = isset($_GET['activity_type']) ? sanitize_key($_GET['activity_type']) : '';
         $activities = B2B_CRM_Contact_Activity_Repository::list($contact_id, $activity_type);
+        $related_filters = array('search' => !empty($contact['company']) ? $contact['company'] : $contact['full_name']);
+        $related_contacts = B2B_CRM_Contact_Repository::list($related_filters, 1, 100);
 
         ?>
-        <div class="crm-page-contacts crm-density-compact">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html($contact['full_name']); ?></h2>
@@ -793,51 +796,95 @@ class B2B_CRM_Lead_List_Page
             </div>
         </div>
 
-        <div class="b2b-crm__card">
-            <div class="b2b-crm__tabs">
-                <a class="is-active" href="#"><?php echo esc_html__('Aperçu', 'b2b-crm-maroc'); ?></a>
-                <a href="#crm-contact-timeline"><?php echo esc_html__('Timeline', 'b2b-crm-maroc'); ?></a>
-            </div>
-            <div class="b2b-crm__grid">
+        <div class="b2b-crm__contact-detail-layout">
+            <div class="b2b-crm__contact-detail-main">
                 <div class="b2b-crm__card">
-                    <h3><?php echo esc_html__('Informations', 'b2b-crm-maroc'); ?></h3>
-                    <p><strong><?php echo esc_html__('Fonction :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['role']); ?></p>
-                    <p><strong><?php echo esc_html__('Email :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['email']); ?></p>
-                    <p><strong><?php echo esc_html__('Téléphone :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['phone']); ?></p>
-                    <p><strong><?php echo esc_html__('WhatsApp :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['whatsapp']); ?></p>
-                    <p><strong><?php echo esc_html__('LinkedIn :', 'b2b-crm-maroc'); ?></strong> <a href="<?php echo esc_url($contact['linkedin_url']); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($contact['linkedin_url']); ?></a></p>
-                    <p><strong><?php echo esc_html__('Source :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($sources[$contact['source']] ?? $contact['source']); ?></p>
-                    <p><strong><?php echo esc_html__('Prochaine action :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['next_action']); ?></p>
-                    <p><strong><?php echo esc_html__('Relance :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['next_followup_at']); ?></p>
-                </div>
-                <div id="crm-contact-timeline" class="b2b-crm__card">
-                    <h3><?php echo esc_html__('Timeline', 'b2b-crm-maroc'); ?></h3>
-                    <form method="get" class="b2b-crm__filters">
-                        <input type="hidden" name="page" value="b2b-crm-maroc" />
-                        <input type="hidden" name="tab" value="contacts" />
-                        <input type="hidden" name="contact_id" value="<?php echo esc_attr($contact_id); ?>" />
-                        <select name="activity_type">
-                            <option value=""><?php echo esc_html__('Tous types', 'b2b-crm-maroc'); ?></option>
-                            <?php foreach (array('call' => 'Appel', 'email' => 'Email', 'whatsapp' => 'WhatsApp', 'meeting' => 'RDV', 'note' => 'Note') as $key => $label) : ?>
-                                <option value="<?php echo esc_attr($key); ?>" <?php selected($activity_type, $key); ?>><?php echo esc_html($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
-                    </form>
-                    <ul class="b2b-crm__timeline">
-                        <?php if (empty($activities)) : ?>
-                            <li><span><?php echo esc_html__('Aucune activité.', 'b2b-crm-maroc'); ?></span></li>
-                        <?php else : ?>
-                            <?php foreach ($activities as $activity) : ?>
-                                <li>
-                                    <strong><?php echo esc_html(strtoupper($activity['activity_type'])); ?></strong>
-                                    <span><?php echo esc_html(mysql2date('d/m/Y H:i', $activity['happened_at']) . ' · ' . $activity['summary']); ?></span>
-                                </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </ul>
+                    <div class="b2b-crm__tabs">
+                        <a class="is-active" href="#"><?php echo esc_html__('Aperçu', 'b2b-crm-maroc'); ?></a>
+                        <a href="#crm-contact-timeline"><?php echo esc_html__('Timeline', 'b2b-crm-maroc'); ?></a>
+                    </div>
+                    <div class="b2b-crm__grid">
+                        <div class="b2b-crm__card">
+                            <h3><?php echo esc_html__('Informations', 'b2b-crm-maroc'); ?></h3>
+                            <p><strong><?php echo esc_html__('Fonction :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['role']); ?></p>
+                            <p><strong><?php echo esc_html__('Email :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['email']); ?></p>
+                            <p><strong><?php echo esc_html__('Téléphone :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['phone']); ?></p>
+                            <p><strong><?php echo esc_html__('WhatsApp :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['whatsapp']); ?></p>
+                            <p><strong><?php echo esc_html__('LinkedIn :', 'b2b-crm-maroc'); ?></strong> <a href="<?php echo esc_url($contact['linkedin_url']); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($contact['linkedin_url']); ?></a></p>
+                            <p><strong><?php echo esc_html__('Source :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($sources[$contact['source']] ?? $contact['source']); ?></p>
+                            <p><strong><?php echo esc_html__('Prochaine action :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['next_action']); ?></p>
+                            <p><strong><?php echo esc_html__('Relance :', 'b2b-crm-maroc'); ?></strong> <?php echo esc_html($contact['next_followup_at']); ?></p>
+                        </div>
+                        <div id="crm-contact-timeline" class="b2b-crm__card">
+                            <h3><?php echo esc_html__('Timeline', 'b2b-crm-maroc'); ?></h3>
+                            <form method="get" class="b2b-crm__filters">
+                                <input type="hidden" name="page" value="b2b-crm-maroc" />
+                                <input type="hidden" name="tab" value="contacts" />
+                                <input type="hidden" name="contact_id" value="<?php echo esc_attr($contact_id); ?>" />
+                                <select name="activity_type">
+                                    <option value=""><?php echo esc_html__('Tous types', 'b2b-crm-maroc'); ?></option>
+                                    <?php foreach (array('call' => 'Appel', 'email' => 'Email', 'whatsapp' => 'WhatsApp', 'meeting' => 'RDV', 'note' => 'Note') as $key => $label) : ?>
+                                        <option value="<?php echo esc_attr($key); ?>" <?php selected($activity_type, $key); ?>><?php echo esc_html($label); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button class="b2b-crm__ghost" type="submit"><?php echo esc_html__('Filtrer', 'b2b-crm-maroc'); ?></button>
+                            </form>
+                            <ul class="b2b-crm__timeline">
+                                <?php if (empty($activities)) : ?>
+                                    <li><span><?php echo esc_html__('Aucune activité.', 'b2b-crm-maroc'); ?></span></li>
+                                <?php else : ?>
+                                    <?php foreach ($activities as $activity) : ?>
+                                        <li>
+                                            <strong><?php echo esc_html(strtoupper($activity['activity_type'])); ?></strong>
+                                            <span><?php echo esc_html(mysql2date('d/m/Y H:i', $activity['happened_at']) . ' · ' . $activity['summary']); ?></span>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <aside class="b2b-crm__contact-detail-side">
+                <div class="b2b-crm__table-card b2b-crm__contact-side-scroll">
+                    <table class="b2b-crm__table b2b-crm__table--contacts">
+                        <thead>
+                            <tr>
+                                <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Owner', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Prochaine relance', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Relation', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($related_contacts['items'])) : ?>
+                                <tr>
+                                    <td colspan="9"><?php echo esc_html__('Aucun contact pour le moment.', 'b2b-crm-maroc'); ?></td>
+                                </tr>
+                            <?php else : ?>
+                                <?php foreach ($related_contacts['items'] as $related_contact) : ?>
+                                    <tr>
+                                        <td><?php echo esc_html($related_contact['full_name']); ?></td>
+                                        <td><?php echo esc_html($related_contact['company']); ?></td>
+                                        <td><?php echo esc_html($related_contact['role']); ?></td>
+                                        <td><?php echo esc_html($related_contact['email']); ?></td>
+                                        <td><?php echo esc_html($related_contact['phone']); ?></td>
+                                        <td><?php echo esc_html((string) ($related_contact['owner_user_id'] ?? '')); ?></td>
+                                        <td><?php echo esc_html((string) ($related_contact['next_followup_at'] ?? '')); ?></td>
+                                        <td><?php echo esc_html($relationship_statuses[$related_contact['relationship_status']] ?? ($related_contact['relationship_status'] ?? '')); ?></td>
+                                        <td><a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts', 'contact_id' => $related_contact['id']), self::base_url())); ?>"><?php echo esc_html__('Voir', 'b2b-crm-maroc'); ?></a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </aside>
         </div>
         <?php self::render_contact_modal('edit', $contact, $owners, $relationship_statuses, $sources); ?>
         <?php self::render_contact_activity_modal($contact); ?>
