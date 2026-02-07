@@ -24,7 +24,10 @@ require_once B2B_CRM_MAROC_PATH . 'admin/class-b2b-crm-views.php';
 require_once B2B_CRM_MAROC_PATH . 'admin/class-b2b-crm-actions.php';
 require_once B2B_CRM_MAROC_PATH . 'admin/class-b2b-crm-assets.php';
 require_once B2B_CRM_MAROC_PATH . 'api/class-b2b-crm-ajax.php';
+require_once B2B_CRM_MAROC_PATH . 'api/class-b2b-crm-rest-leads.php';
 require_once B2B_CRM_MAROC_PATH . 'utils/class-b2b-crm-sanitizer.php';
+require_once B2B_CRM_MAROC_PATH . 'utils/class-b2b-crm-capabilities.php';
+require_once B2B_CRM_MAROC_PATH . 'utils/class-b2b-crm-brand.php';
 
 class B2B_CRM_Bootstrap
 {
@@ -33,10 +36,12 @@ class B2B_CRM_Bootstrap
     public static function init()
     {
         B2B_CRM_Shortcode::register();
+        B2B_CRM_Capabilities::register();
+        B2B_CRM_Rest_Leads::register();
 
         if (is_admin()) {
             self::maybe_detect_duplicate_installs();
-            if (!current_user_can(B2B_CRM_MAROC_ACCESS_CAP)) {
+            if (!B2B_CRM_Capabilities::can_access_admin()) {
                 return;
             }
 

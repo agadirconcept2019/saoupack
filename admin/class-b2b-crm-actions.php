@@ -26,7 +26,7 @@ class B2B_CRM_Actions
 
     public static function export_csv()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -95,7 +95,7 @@ class B2B_CRM_Actions
 
     public static function delete_lead()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -113,7 +113,7 @@ class B2B_CRM_Actions
 
     public static function run_collect()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SOURCES_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_sources()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -160,7 +160,7 @@ class B2B_CRM_Actions
 
     public static function save_sources()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SOURCES_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_sources()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -224,7 +224,7 @@ class B2B_CRM_Actions
 
     public static function save_settings()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SETTINGS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_settings()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -244,6 +244,12 @@ class B2B_CRM_Actions
 
         if (empty($settings['portal_slug'])) {
             $settings['portal_slug'] = 'crm';
+        }
+
+        $raw_logo_url = $settings['logo_url'];
+        $settings['logo_url'] = B2B_CRM_Brand::sanitize_logo_url($raw_logo_url);
+        if ($raw_logo_url && empty($settings['logo_url'])) {
+            add_settings_error('b2b-crm-maroc', 'logo_invalid', __('URL du logo invalide (HTTPS requis).', 'b2b-crm-maroc'), 'error');
         }
 
         $modules = isset($_POST['modules']) && is_array($_POST['modules']) ? array_map('sanitize_key', wp_unslash($_POST['modules'])) : array();
@@ -308,7 +314,7 @@ class B2B_CRM_Actions
 
     public static function test_email()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SETTINGS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_settings()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -335,7 +341,7 @@ class B2B_CRM_Actions
 
     public static function add_demo_leads()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SETTINGS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_settings()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -448,7 +454,7 @@ class B2B_CRM_Actions
 
     public static function import_csv()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -550,7 +556,7 @@ class B2B_CRM_Actions
 
     public static function add_account()
     {
-        if (!current_user_can(B2B_CRM_MAROC_SETTINGS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_settings()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -596,7 +602,7 @@ class B2B_CRM_Actions
 
     public static function add_contact()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -632,7 +638,7 @@ class B2B_CRM_Actions
 
     public static function update_contact()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -660,7 +666,7 @@ class B2B_CRM_Actions
 
     public static function delete_contact()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -678,7 +684,7 @@ class B2B_CRM_Actions
 
     public static function add_contact_activity()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 
@@ -737,7 +743,7 @@ class B2B_CRM_Actions
 
     public static function add_module_item()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_die(__('Accès refusé.', 'b2b-crm-maroc'));
         }
 

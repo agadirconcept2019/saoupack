@@ -40,7 +40,7 @@ class B2B_CRM_Lead_List_Page
         $modules_config = self::modules_config();
         $modules_state = get_option('b2b_crm_modules_config', array());
         $modules_state = wp_parse_args($modules_state, $modules_config);
-        $logo_url = defined('B2B_CRM_MAROC_BRAND_LOGO_URL') ? esc_url(B2B_CRM_MAROC_BRAND_LOGO_URL) : '';
+        $logo_url = B2B_CRM_Brand::get_brand_logo_url();
 
         $nav_sections = array(
             array(

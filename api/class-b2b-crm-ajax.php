@@ -13,7 +13,7 @@ class B2B_CRM_Ajax
 
     public static function quick_update()
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             wp_send_json_error(array('message' => __('Accès refusé.', 'b2b-crm-maroc')));
         }
 
@@ -24,15 +24,22 @@ class B2B_CRM_Ajax
         $raw_value = isset($_POST['value']) ? wp_unslash($_POST['value']) : '';
         $value = $field === 'stage' ? sanitize_text_field($raw_value) : sanitize_key($raw_value);
         $allowed = array(
-            'status' => array('new', 'qualified', 'contacted', 'inactive'),
-            'interest_level' => array('low', 'medium', 'high'),
-            'stage' => B2B_CRM_Lead_Repository::stages(),
+            'status' => B2B_CRM_Sanitizer::allowed_statuses(),
+            'interest_level' => B2B_CRM_Sanitizer::allowed_interest_levels(),
+            'stage' => B2B_CRM_Sanitizer::allowed_stages(),
         );
 
-        if (!$lead_id || !isset($allowed[$field]) || !in_array($value, $allowed[$field], true)) {
+        if (!$lead_id || !isset($allowed[$field])) {
             wp_send_json_error(array('message' => __('Données invalides.', 'b2b-crm-maroc')));
         }
 
+        if ($field === 'stage') {
+            if (!B2B_CRM_Sanitizer::is_valid_stage($value, $allowed['stage'])) {
+                wp_send_json_error(array('message' => __('Étape invalide.', 'b2b-crm-maroc')));
+            }
+        } elseif (!in_array($value, $allowed[$field], true)) {
+            wp_send_json_error(array('message' => __('Données invalides.', 'b2b-crm-maroc')));
+        }
 
         $key_values = get_option('b2b_crm_key_values', array());
         $locked_statuses = isset($key_values['status_locked']) && is_array($key_values['status_locked'])

@@ -8,7 +8,7 @@ class B2B_CRM_Lead_Detail_Page
 {
     public static function render_content($lead_id)
     {
-        if (!current_user_can(B2B_CRM_MAROC_LEADS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_manage_leads()) {
             return;
         }
 
@@ -312,6 +312,35 @@ private static function handle_post($lead_id)
             );
             $social = array_filter($social);
             $_POST['social_json'] = empty($social) ? '' : wp_json_encode($social);
+
+            $raw_status = isset($_POST['status']) ? wp_unslash($_POST['status']) : '';
+            $raw_interest = isset($_POST['interest_level']) ? wp_unslash($_POST['interest_level']) : '';
+            $raw_stage = isset($_POST['stage']) ? wp_unslash($_POST['stage']) : '';
+
+            if ($raw_status !== '' && !B2B_CRM_Sanitizer::is_valid_status($raw_status)) {
+                add_settings_error('b2b-crm-maroc', 'lead_status_invalid', __('Statut invalide.', 'b2b-crm-maroc'), 'error');
+                return;
+            }
+
+            if ($raw_interest !== '' && !B2B_CRM_Sanitizer::is_valid_interest_level($raw_interest)) {
+                add_settings_error('b2b-crm-maroc', 'lead_interest_invalid', __('Priorité invalide.', 'b2b-crm-maroc'), 'error');
+                return;
+            }
+
+            if ($raw_stage !== '' && !B2B_CRM_Sanitizer::is_valid_stage($raw_stage)) {
+                add_settings_error('b2b-crm-maroc', 'lead_stage_invalid', __('Étape invalide.', 'b2b-crm-maroc'), 'error');
+                return;
+            }
+
+            $key_values = get_option('b2b_crm_key_values', array());
+            $locked_statuses = isset($key_values['status_locked']) && is_array($key_values['status_locked'])
+                ? array_map('sanitize_key', $key_values['status_locked'])
+                : array();
+            if ($raw_status !== '' && in_array(sanitize_key($raw_status), $locked_statuses, true)) {
+                add_settings_error('b2b-crm-maroc', 'lead_status_locked', __('Ce statut est verrouillé.', 'b2b-crm-maroc'), 'error');
+                return;
+            }
+
             $data = B2B_CRM_Sanitizer::lead_fields(wp_unslash($_POST));
             B2B_CRM_Lead_Repository::update($lead_id, $data);
             B2B_CRM_Interaction_Repository::add($lead_id, 'audit', __('Lead mis à jour.', 'b2b-crm-maroc'), get_current_user_id());
@@ -319,7 +348,7 @@ private static function handle_post($lead_id)
         }
 
         if ($action === 'send_email' && isset($_POST['b2b_crm_email_nonce']) && wp_verify_nonce($_POST['b2b_crm_email_nonce'], 'b2b_crm_send_email')) {
-            if (!current_user_can(B2B_CRM_MAROC_EMAIL_CAP)) {
+            if (!B2B_CRM_Capabilities::can_send_email()) {
                 add_settings_error('b2b-crm-maroc', 'email_denied', __('Accès refusé.', 'b2b-crm-maroc'), 'error');
                 return;
             }
