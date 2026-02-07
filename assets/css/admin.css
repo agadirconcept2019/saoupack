@@ -1918,3 +1918,21 @@ body.crm-app.b2b-crm-portal {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===========================
+   Contacts table overflow fix
+   =========================== */
+.crm-app .crm-page-contacts .b2b-crm__table-card {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  display: block;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__table {
+  min-width: 760px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm-contacts-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+}
