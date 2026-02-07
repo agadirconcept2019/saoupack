@@ -8,9 +8,9 @@ class B2B_CRM_Sanitizer
 {
     public static function lead_fields(array $input)
     {
-        $allowed_statuses = array('new', 'qualified', 'contacted', 'inactive');
-        $allowed_interests = array('low', 'medium', 'high');
-        $allowed_stages = B2B_CRM_Lead_Repository::stages();
+        $allowed_statuses = self::allowed_statuses();
+        $allowed_interests = self::allowed_interest_levels();
+        $allowed_stages = self::allowed_stages();
 
         $fields = array(
             'company_name' => 'text',
@@ -80,7 +80,7 @@ class B2B_CRM_Sanitizer
                     break;
                 case 'stage':
                     $clean_stage = sanitize_text_field($value);
-                    if (!empty($allowed_stages) && !in_array($clean_stage, $allowed_stages, true)) {
+                    if (!self::is_valid_stage($clean_stage, $allowed_stages)) {
                         break;
                     }
                     $clean[$field] = $clean_stage;
@@ -105,5 +105,45 @@ class B2B_CRM_Sanitizer
         }
 
         return $clean;
+    }
+
+    public static function allowed_statuses()
+    {
+        return array('new', 'qualified', 'contacted', 'inactive');
+    }
+
+    public static function allowed_interest_levels()
+    {
+        return array('low', 'medium', 'high');
+    }
+
+    public static function allowed_stages()
+    {
+        return B2B_CRM_Lead_Repository::stages();
+    }
+
+    public static function is_valid_status($value)
+    {
+        $sanitized = sanitize_key($value);
+        return in_array($sanitized, self::allowed_statuses(), true);
+    }
+
+    public static function is_valid_interest_level($value)
+    {
+        $sanitized = sanitize_key($value);
+        return in_array($sanitized, self::allowed_interest_levels(), true);
+    }
+
+    public static function is_valid_stage($value, $allowed_stages = null)
+    {
+        $value = sanitize_text_field($value);
+        if ($value === '') {
+            return true;
+        }
+        $allowed = $allowed_stages === null ? self::allowed_stages() : $allowed_stages;
+        if (empty($allowed)) {
+            return true;
+        }
+        return in_array($value, $allowed, true);
     }
 }

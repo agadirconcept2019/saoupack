@@ -25,6 +25,7 @@ define('B2B_CRM_MAROC_SOURCES_CAP', 'b2b_crm_manage_sources');
 define('B2B_CRM_MAROC_EMAIL_CAP', 'b2b_crm_send_email');
 
 require_once B2B_CRM_MAROC_PATH . 'bootstrap/class-b2b-crm-bootstrap.php';
+require_once B2B_CRM_MAROC_PATH . 'utils/class-b2b-crm-capabilities.php';
 
 register_activation_hook(__FILE__, array('B2B_CRM_Bootstrap', 'activate'));
 register_deactivation_hook(__FILE__, array('B2B_CRM_Bootstrap', 'deactivate'));
@@ -34,7 +35,7 @@ add_action('plugins_loaded', array('B2B_CRM_Bootstrap', 'init'));
 add_filter(
     'plugin_action_links_' . plugin_basename(__FILE__),
     function ($links) {
-        if (!current_user_can(B2B_CRM_MAROC_ACCESS_CAP)) {
+        if (!B2B_CRM_Capabilities::can_access_admin()) {
             return $links;
         }
 

@@ -204,7 +204,7 @@ Prise de contact|Bonjour {{company_name}}, je souhaite vous présenter nos servi
 
         $onboarding = array(
             'db' => class_exists('B2B_CRM_Lead_Table') && class_exists('B2B_CRM_Interaction_Table'),
-            'caps' => current_user_can(B2B_CRM_MAROC_SETTINGS_CAP) && current_user_can(B2B_CRM_MAROC_ACCESS_CAP),
+            'caps' => B2B_CRM_Capabilities::can_manage_settings(),
             'email' => !empty($settings['owner_email']) && $smtp_detected,
             'portal' => !empty($settings['portal_slug']) && class_exists('B2B_CRM_Shortcode') && B2B_CRM_Shortcode::portal_url(),
             'sources' => !empty($settings['allowed_domains']) && !empty($google_key) && $source_endpoint_reachable,
