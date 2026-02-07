@@ -613,21 +613,18 @@ class B2B_CRM_Lead_List_Page
         );
 
         ?>
-        <div class="crm-page-contacts crm-density-compact">
+        <div class="crm-page-contacts crm-density-compact b2b-crm-contacts-layout">
         <div class="b2b-crm__section b2b-crm__section--row">
             <div>
                 <h2><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></h2>
                 <p class="b2b-crm__muted"><?php echo esc_html__('Table CRM contacts (assignation, relances, statut relationnel).', 'b2b-crm-maroc'); ?></p>
             </div>
-            <div class="b2b-crm__section-actions">
-                <button type="button" class="b2b-crm__cta" data-crm-modal-open="contact-create"><?php echo esc_html__('Nouveau contact', 'b2b-crm-maroc'); ?></button>
-                <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'base', 'import' => 'preview'), self::base_url())); ?>"><?php echo esc_html__('Importer CSV', 'b2b-crm-maroc'); ?></a>
-                <button type="button" class="b2b-crm__ghost" disabled><?php echo esc_html__('Colonnes', 'b2b-crm-maroc'); ?></button>
-            </div>
         </div>
 
-        <div class="b2b-crm__table-card">
-            <div class="b2b-crm__toolbar">
+        <div class="b2b-crm-card b2b-crm-contacts-meta">
+            <div class="b2b-crm-contacts-meta__left">
+                <h3><?php echo esc_html__('Contacts', 'b2b-crm-maroc'); ?></h3>
+                <p class="b2b-crm__muted"><?php echo esc_html__('Table CRM contacts (assignation, relances, statut relationnel).', 'b2b-crm-maroc'); ?></p>
                 <form method="get" class="b2b-crm__filters b2b-crm__filters--contacts">
                     <input type="hidden" name="page" value="b2b-crm-maroc" />
                     <input type="hidden" name="tab" value="contacts" />
@@ -666,100 +663,117 @@ class B2B_CRM_Lead_List_Page
                     </div>
                 </form>
             </div>
-
-            <table class="b2b-crm__table b2b-crm__table--contacts">
-                <thead>
-                    <tr>
-                        <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Owner', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Prochaine relance', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Relation', 'b2b-crm-maroc'); ?></th>
-                        <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($data['items'])) : ?>
-                        <tr>
-                            <td colspan="9"><?php echo esc_html__('Aucun contact pour le moment.', 'b2b-crm-maroc'); ?></td>
-                        </tr>
-                    <?php else : ?>
-                        <?php foreach ($data['items'] as $contact) : ?>
-                            <?php
-                            $owner_name = '';
-                            foreach ($owners as $owner_item) {
-                                if ((int) $owner_item->ID === (int) ($contact['owner_user_id'] ?? 0)) {
-                                    $owner_name = $owner_item->display_name;
-                                    break;
-                                }
-                            }
-                            $tags = !empty($contact['tags_json']) ? json_decode($contact['tags_json'], true) : array();
-                            $tags = is_array($tags) ? $tags : array();
-                            $is_overdue = !empty($contact['next_followup_at']) && strtotime($contact['next_followup_at']) < strtotime(current_time('mysql'));
-                            ?>
-                            <tr>
-                                <td>
-                                    <a class="b2b-crm__contact-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts', 'contact_id' => $contact['id']), self::base_url())); ?>">
-                                        <span class="b2b-crm__avatar"><?php echo esc_html(strtoupper(substr($contact['full_name'], 0, 1))); ?></span>
-                                        <span>
-                                            <strong><?php echo esc_html($contact['full_name']); ?></strong>
-                                            <span class="b2b-crm__sub"><?php echo esc_html($contact['city']); ?></span>
-                                        </span>
-                                    </a>
-                                </td>
-                                <td><?php echo esc_html($contact['company']); ?></td>
-                                <td><?php echo esc_html($contact['role']); ?></td>
-                                <td><?php echo esc_html($contact['email']); ?></td>
-                                <td>
-                                    <?php echo esc_html($contact['phone']); ?>
-                                    <?php if (!empty($contact['whatsapp'])) : ?>
-                                        <span class="dashicons dashicons-format-chat" aria-hidden="true"></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo esc_html($owner_name); ?></td>
-                                <td>
-                                    <?php if (!empty($contact['next_followup_at'])) : ?>
-                                        <span><?php echo esc_html(mysql2date('d/m/Y H:i', $contact['next_followup_at'])); ?></span>
-                                        <?php if ($is_overdue) : ?><span class="b2b-crm__badge b2b-crm__badge--high"><?php echo esc_html__('En retard', 'b2b-crm-maroc'); ?></span><?php endif; ?>
-                                    <?php else : ?>
-                                        <span class="b2b-crm__sub">—</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="b2b-crm__pill"><?php echo esc_html($relationship_statuses[$contact['relationship_status']] ?? $contact['relationship_status']); ?></span>
-                                    <?php if (!empty($tags)) : ?>
-                                        <div class="b2b-crm__sub"><?php echo esc_html(implode(', ', array_slice($tags, 0, 2))); ?></div>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="b2b-crm__actions">
-                                    <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts', 'contact_id' => $contact['id']), self::base_url())); ?>"><?php echo esc_html__('Voir', 'b2b-crm-maroc'); ?></a>
-                                    <button type="button" class="b2b-crm__ghost b2b-crm__ghost--mini" data-crm-modal-open="contact-edit-<?php echo esc_attr($contact['id']); ?>"><?php echo esc_html__('Éditer', 'b2b-crm-maroc'); ?></button>
-                                    <a href="mailto:<?php echo esc_attr($contact['email']); ?>"><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></a>
-                                    <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'b2b_crm_delete_contact', 'contact_id' => $contact['id']), admin_url('admin-post.php')), 'b2b_crm_delete_contact')); ?>" onclick="return confirm('<?php echo esc_js(__('Confirmer la suppression ?', 'b2b-crm-maroc')); ?>');"><?php echo esc_html__('Supprimer', 'b2b-crm-maroc'); ?></a>
-                                </td>
-                            </tr>
-                            <?php self::render_contact_modal('edit', $contact, $owners, $relationship_statuses, $sources); ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+            <div class="b2b-crm-contacts-meta__right b2b-crm__section-actions">
+                <button type="button" class="b2b-crm__cta" data-crm-modal-open="contact-create"><?php echo esc_html__('Nouveau contact', 'b2b-crm-maroc'); ?></button>
+                <a class="b2b-crm__ghost" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'base', 'import' => 'preview'), self::base_url())); ?>"><?php echo esc_html__('Importer CSV', 'b2b-crm-maroc'); ?></a>
+                <button type="button" class="b2b-crm__ghost" disabled><?php echo esc_html__('Colonnes', 'b2b-crm-maroc'); ?></button>
+            </div>
         </div>
 
-        <?php if ($total_pages > 1) : ?>
-            <div class="b2b-crm__pagination">
-                <?php
-                echo paginate_links(array(
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'total' => $total_pages,
-                    'current' => $paged,
-                ));
-                ?>
-            </div>
-        <?php endif; ?>
+        <div class="b2b-crm-contacts-grid">
+            <section class="b2b-crm-card b2b-crm-contacts-form">
+                <h3><?php echo esc_html__('Ajouter un contact', 'b2b-crm-maroc'); ?></h3>
+                <?php self::render_contact_modal('create', array(), $owners, $relationship_statuses, $sources, true); ?>
+            </section>
+
+            <section class="b2b-crm-card b2b-crm-contacts-list">
+                <h3><?php echo esc_html__('Liste des contacts', 'b2b-crm-maroc'); ?></h3>
+                <div class="b2b-crm__table-card">
+                    <table class="b2b-crm__table b2b-crm__table--contacts">
+                        <thead>
+                            <tr>
+                                <th><?php echo esc_html__('Contact', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Owner', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Prochaine relance', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Relation', 'b2b-crm-maroc'); ?></th>
+                                <th><?php echo esc_html__('Actions', 'b2b-crm-maroc'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($data['items'])) : ?>
+                                <tr>
+                                    <td colspan="9"><?php echo esc_html__('Aucun contact pour le moment.', 'b2b-crm-maroc'); ?></td>
+                                </tr>
+                            <?php else : ?>
+                                <?php foreach ($data['items'] as $contact) : ?>
+                                    <?php
+                                    $owner_name = '';
+                                    foreach ($owners as $owner_item) {
+                                        if ((int) $owner_item->ID === (int) ($contact['owner_user_id'] ?? 0)) {
+                                            $owner_name = $owner_item->display_name;
+                                            break;
+                                        }
+                                    }
+                                    $tags = !empty($contact['tags_json']) ? json_decode($contact['tags_json'], true) : array();
+                                    $tags = is_array($tags) ? $tags : array();
+                                    $is_overdue = !empty($contact['next_followup_at']) && strtotime($contact['next_followup_at']) < strtotime(current_time('mysql'));
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <a class="b2b-crm__contact-link" href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts', 'contact_id' => $contact['id']), self::base_url())); ?>">
+                                                <span class="b2b-crm__avatar"><?php echo esc_html(strtoupper(substr($contact['full_name'], 0, 1))); ?></span>
+                                                <span>
+                                                    <strong><?php echo esc_html($contact['full_name']); ?></strong>
+                                                    <span class="b2b-crm__sub"><?php echo esc_html($contact['city']); ?></span>
+                                                </span>
+                                            </a>
+                                        </td>
+                                        <td><?php echo esc_html($contact['company']); ?></td>
+                                        <td><?php echo esc_html($contact['role']); ?></td>
+                                        <td><?php echo esc_html($contact['email']); ?></td>
+                                        <td>
+                                            <?php echo esc_html($contact['phone']); ?>
+                                            <?php if (!empty($contact['whatsapp'])) : ?>
+                                                <span class="dashicons dashicons-format-chat" aria-hidden="true"></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo esc_html($owner_name); ?></td>
+                                        <td>
+                                            <?php if (!empty($contact['next_followup_at'])) : ?>
+                                                <span><?php echo esc_html(mysql2date('d/m/Y H:i', $contact['next_followup_at'])); ?></span>
+                                                <?php if ($is_overdue) : ?><span class="b2b-crm__badge b2b-crm__badge--high"><?php echo esc_html__('En retard', 'b2b-crm-maroc'); ?></span><?php endif; ?>
+                                            <?php else : ?>
+                                                <span class="b2b-crm__sub">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <span class="b2b-crm__pill"><?php echo esc_html($relationship_statuses[$contact['relationship_status']] ?? $contact['relationship_status']); ?></span>
+                                            <?php if (!empty($tags)) : ?>
+                                                <div class="b2b-crm__sub"><?php echo esc_html(implode(', ', array_slice($tags, 0, 2))); ?></div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="b2b-crm__actions">
+                                            <a href="<?php echo esc_url(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts', 'contact_id' => $contact['id']), self::base_url())); ?>"><?php echo esc_html__('Voir', 'b2b-crm-maroc'); ?></a>
+                                            <button type="button" class="b2b-crm__ghost b2b-crm__ghost--mini" data-crm-modal-open="contact-edit-<?php echo esc_attr($contact['id']); ?>"><?php echo esc_html__('Éditer', 'b2b-crm-maroc'); ?></button>
+                                            <a href="mailto:<?php echo esc_attr($contact['email']); ?>"><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></a>
+                                            <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action' => 'b2b_crm_delete_contact', 'contact_id' => $contact['id']), admin_url('admin-post.php')), 'b2b_crm_delete_contact')); ?>" onclick="return confirm('<?php echo esc_js(__('Confirmer la suppression ?', 'b2b-crm-maroc')); ?>');"><?php echo esc_html__('Supprimer', 'b2b-crm-maroc'); ?></a>
+                                        </td>
+                                    </tr>
+                                    <?php self::render_contact_modal('edit', $contact, $owners, $relationship_statuses, $sources); ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <?php if ($total_pages > 1) : ?>
+                    <div class="b2b-crm__pagination">
+                        <?php
+                        echo paginate_links(array(
+                            'base' => add_query_arg('paged', '%#%'),
+                            'format' => '',
+                            'total' => $total_pages,
+                            'current' => $paged,
+                        ));
+                        ?>
+                    </div>
+                <?php endif; ?>
+            </section>
+        </div>
 
         <?php self::render_contact_modal('create', array(), $owners, $relationship_statuses, $sources); ?>
         </div>
@@ -891,7 +905,7 @@ class B2B_CRM_Lead_List_Page
         <?php
     }
 
-    private static function render_contact_modal($mode, array $contact, array $owners, array $relationship_statuses, array $sources)
+    private static function render_contact_modal($mode, array $contact, array $owners, array $relationship_statuses, array $sources, $inline = false)
     {
         $is_edit = $mode === 'edit';
         $modal_id = $is_edit ? 'contact-edit-' . (int) ($contact['id'] ?? 0) : 'contact-create';
@@ -900,42 +914,46 @@ class B2B_CRM_Lead_List_Page
         $tags = !empty($contact['tags_json']) ? json_decode($contact['tags_json'], true) : array();
         $tags = is_array($tags) ? implode(', ', $tags) : '';
         ?>
-        <div class="b2b-crm__modal" data-crm-modal="<?php echo esc_attr($modal_id); ?>" hidden>
-            <div class="b2b-crm__modal-panel">
-                <div class="b2b-crm__modal-head">
-                    <h3><?php echo esc_html($is_edit ? __('Éditer contact', 'b2b-crm-maroc') : __('Créer contact', 'b2b-crm-maroc')); ?></h3>
-                    <button type="button" class="b2b-crm__settings-link" data-crm-modal-close="<?php echo esc_attr($modal_id); ?>">×</button>
-                </div>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="b2b-crm__form">
-                    <?php wp_nonce_field($nonce); ?>
-                    <input type="hidden" name="action" value="<?php echo esc_attr($action); ?>" />
-                    <?php if ($is_edit) : ?><input type="hidden" name="contact_id" value="<?php echo esc_attr($contact['id']); ?>" /><?php endif; ?>
-                    <input type="hidden" name="redirect_to" value="<?php echo esc_attr(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts'), self::base_url())); ?>" />
-                    <div class="b2b-crm__grid">
-                        <label><span><?php echo esc_html__('Nom complet', 'b2b-crm-maroc'); ?></span><input type="text" name="full_name" required value="<?php echo esc_attr($contact['full_name'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Prénom', 'b2b-crm-maroc'); ?></span><input type="text" name="first_name" value="<?php echo esc_attr($contact['first_name'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Nom', 'b2b-crm-maroc'); ?></span><input type="text" name="last_name" value="<?php echo esc_attr($contact['last_name'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></span><input type="text" name="company" value="<?php echo esc_attr($contact['company'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></span><input type="text" name="role" value="<?php echo esc_attr($contact['role'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></span><input type="email" name="email" value="<?php echo esc_attr($contact['email'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></span><input type="text" name="phone" value="<?php echo esc_attr($contact['phone'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('WhatsApp', 'b2b-crm-maroc'); ?></span><input type="text" name="whatsapp" value="<?php echo esc_attr($contact['whatsapp'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('LinkedIn URL', 'b2b-crm-maroc'); ?></span><input type="url" name="linkedin_url" value="<?php echo esc_attr($contact['linkedin_url'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></span><input type="text" name="city" value="<?php echo esc_attr($contact['city'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Owner', 'b2b-crm-maroc'); ?></span><select name="owner_user_id"><?php foreach ($owners as $owner) : ?><option value="<?php echo esc_attr($owner->ID); ?>" <?php selected((int) ($contact['owner_user_id'] ?? get_current_user_id()), (int) $owner->ID); ?>><?php echo esc_html($owner->display_name); ?></option><?php endforeach; ?></select></label>
-                        <label><span><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></span><select name="status"><option value="active" <?php selected($contact['status'] ?? 'active', 'active'); ?>><?php echo esc_html__('Actif', 'b2b-crm-maroc'); ?></option><option value="inactive" <?php selected($contact['status'] ?? 'active', 'inactive'); ?>><?php echo esc_html__('Inactif', 'b2b-crm-maroc'); ?></option></select></label>
-                        <label><span><?php echo esc_html__('Statut relationnel', 'b2b-crm-maroc'); ?></span><select name="relationship_status"><?php foreach ($relationship_statuses as $key => $label) : ?><option value="<?php echo esc_attr($key); ?>" <?php selected($contact['relationship_status'] ?? 'prospect', $key); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
-                        <label><span><?php echo esc_html__('Source', 'b2b-crm-maroc'); ?></span><select name="source"><?php foreach ($sources as $key => $label) : ?><option value="<?php echo esc_attr($key); ?>" <?php selected($contact['source'] ?? 'manual', $key); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
-                        <label><span><?php echo esc_html__('Tags (virgules)', 'b2b-crm-maroc'); ?></span><input type="text" name="tags" value="<?php echo esc_attr($tags); ?>" /></label>
-                        <label><span><?php echo esc_html__('Dernier contact', 'b2b-crm-maroc'); ?></span><input type="datetime-local" name="last_contact_at" value="<?php echo esc_attr(!empty($contact['last_contact_at']) ? date('Y-m-d\TH:i', strtotime($contact['last_contact_at'])) : ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Prochaine action', 'b2b-crm-maroc'); ?></span><input type="text" name="next_action" value="<?php echo esc_attr($contact['next_action'] ?? ''); ?>" /></label>
-                        <label><span><?php echo esc_html__('Prochaine relance', 'b2b-crm-maroc'); ?></span><input type="datetime-local" name="next_followup_at" value="<?php echo esc_attr(!empty($contact['next_followup_at']) ? date('Y-m-d\TH:i', strtotime($contact['next_followup_at'])) : ''); ?>" /></label>
+        <?php if (!$inline) : ?>
+            <div class="b2b-crm__modal" data-crm-modal="<?php echo esc_attr($modal_id); ?>" hidden>
+                <div class="b2b-crm__modal-panel">
+                    <div class="b2b-crm__modal-head">
+                        <h3><?php echo esc_html($is_edit ? __('Éditer contact', 'b2b-crm-maroc') : __('Créer contact', 'b2b-crm-maroc')); ?></h3>
+                        <button type="button" class="b2b-crm__settings-link" data-crm-modal-close="<?php echo esc_attr($modal_id); ?>">×</button>
                     </div>
-                    <label><span><?php echo esc_html__('Notes', 'b2b-crm-maroc'); ?></span><textarea rows="4" name="notes"><?php echo esc_textarea($contact['notes'] ?? ''); ?></textarea></label>
-                    <button class="b2b-crm__cta" type="submit"><?php echo esc_html($is_edit ? __('Enregistrer', 'b2b-crm-maroc') : __('Créer', 'b2b-crm-maroc')); ?></button>
-                </form>
+        <?php endif; ?>
+                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="b2b-crm__form<?php echo $inline ? ' b2b-crm__form--inline' : ''; ?>">
+                        <?php wp_nonce_field($nonce); ?>
+                        <input type="hidden" name="action" value="<?php echo esc_attr($action); ?>" />
+                        <?php if ($is_edit) : ?><input type="hidden" name="contact_id" value="<?php echo esc_attr($contact['id']); ?>" /><?php endif; ?>
+                        <input type="hidden" name="redirect_to" value="<?php echo esc_attr(add_query_arg(array('page' => 'b2b-crm-maroc', 'tab' => 'contacts'), self::base_url())); ?>" />
+                        <div class="b2b-crm__grid">
+                            <label><span><?php echo esc_html__('Nom complet', 'b2b-crm-maroc'); ?></span><input type="text" name="full_name" required value="<?php echo esc_attr($contact['full_name'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Prénom', 'b2b-crm-maroc'); ?></span><input type="text" name="first_name" value="<?php echo esc_attr($contact['first_name'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Nom', 'b2b-crm-maroc'); ?></span><input type="text" name="last_name" value="<?php echo esc_attr($contact['last_name'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Entreprise', 'b2b-crm-maroc'); ?></span><input type="text" name="company" value="<?php echo esc_attr($contact['company'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Fonction', 'b2b-crm-maroc'); ?></span><input type="text" name="role" value="<?php echo esc_attr($contact['role'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Email', 'b2b-crm-maroc'); ?></span><input type="email" name="email" value="<?php echo esc_attr($contact['email'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Téléphone', 'b2b-crm-maroc'); ?></span><input type="text" name="phone" value="<?php echo esc_attr($contact['phone'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('WhatsApp', 'b2b-crm-maroc'); ?></span><input type="text" name="whatsapp" value="<?php echo esc_attr($contact['whatsapp'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('LinkedIn URL', 'b2b-crm-maroc'); ?></span><input type="url" name="linkedin_url" value="<?php echo esc_attr($contact['linkedin_url'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Ville', 'b2b-crm-maroc'); ?></span><input type="text" name="city" value="<?php echo esc_attr($contact['city'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Owner', 'b2b-crm-maroc'); ?></span><select name="owner_user_id"><?php foreach ($owners as $owner) : ?><option value="<?php echo esc_attr($owner->ID); ?>" <?php selected((int) ($contact['owner_user_id'] ?? get_current_user_id()), (int) $owner->ID); ?>><?php echo esc_html($owner->display_name); ?></option><?php endforeach; ?></select></label>
+                            <label><span><?php echo esc_html__('Statut', 'b2b-crm-maroc'); ?></span><select name="status"><option value="active" <?php selected($contact['status'] ?? 'active', 'active'); ?>><?php echo esc_html__('Actif', 'b2b-crm-maroc'); ?></option><option value="inactive" <?php selected($contact['status'] ?? 'active', 'inactive'); ?>><?php echo esc_html__('Inactif', 'b2b-crm-maroc'); ?></option></select></label>
+                            <label><span><?php echo esc_html__('Statut relationnel', 'b2b-crm-maroc'); ?></span><select name="relationship_status"><?php foreach ($relationship_statuses as $key => $label) : ?><option value="<?php echo esc_attr($key); ?>" <?php selected($contact['relationship_status'] ?? 'prospect', $key); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
+                            <label><span><?php echo esc_html__('Source', 'b2b-crm-maroc'); ?></span><select name="source"><?php foreach ($sources as $key => $label) : ?><option value="<?php echo esc_attr($key); ?>" <?php selected($contact['source'] ?? 'manual', $key); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
+                            <label><span><?php echo esc_html__('Tags (virgules)', 'b2b-crm-maroc'); ?></span><input type="text" name="tags" value="<?php echo esc_attr($tags); ?>" /></label>
+                            <label><span><?php echo esc_html__('Dernier contact', 'b2b-crm-maroc'); ?></span><input type="datetime-local" name="last_contact_at" value="<?php echo esc_attr(!empty($contact['last_contact_at']) ? date('Y-m-d\TH:i', strtotime($contact['last_contact_at'])) : ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Prochaine action', 'b2b-crm-maroc'); ?></span><input type="text" name="next_action" value="<?php echo esc_attr($contact['next_action'] ?? ''); ?>" /></label>
+                            <label><span><?php echo esc_html__('Prochaine relance', 'b2b-crm-maroc'); ?></span><input type="datetime-local" name="next_followup_at" value="<?php echo esc_attr(!empty($contact['next_followup_at']) ? date('Y-m-d\TH:i', strtotime($contact['next_followup_at'])) : ''); ?>" /></label>
+                        </div>
+                        <label><span><?php echo esc_html__('Notes', 'b2b-crm-maroc'); ?></span><textarea rows="4" name="notes"><?php echo esc_textarea($contact['notes'] ?? ''); ?></textarea></label>
+                        <button class="b2b-crm__cta" type="submit"><?php echo esc_html($is_edit ? __('Enregistrer', 'b2b-crm-maroc') : __('Créer', 'b2b-crm-maroc')); ?></button>
+                    </form>
+        <?php if (!$inline) : ?>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
         <?php
     }
 
