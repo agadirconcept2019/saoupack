@@ -2021,3 +2021,36 @@ body.crm-app.b2b-crm-portal {
     margin-left: 0;
   }
 }
+
+/* Contacts filters — force single row (no wrap) */
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts > :not(label) {
+    flex: 0 0 auto;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts label {
+    flex: 1 1 140px;
+    min-width: 140px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts .b2b-crm__filter-search {
+    flex: 2 1 260px;
+    min-width: 260px;
+}
+
+.crm-app .crm-page-contacts .b2b-crm__filters--contacts .b2b-crm__filters-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+    white-space: nowrap;
+}
